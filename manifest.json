@@ -1,0 +1,17 @@
+{
+  "name": "PSMD-Digital",
+  "short_name": "PSMD-Digital",
+  "description": "កម្មវិធីការងាររបស់ រដ្ឋាករទឹកស្វយ័តក្រុងភ្នំពេញ",
+  "lang": "km",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EAF1F3",
+  "theme_color": "#EAF1F3",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

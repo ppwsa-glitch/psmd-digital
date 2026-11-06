@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="km"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PSMD-Digital · Admin Console</title>
+<meta name="theme-color" content="#F4F7FA" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0A1A22" media="(prefers-color-scheme: dark)">
+<script>try{var m=localStorage.getItem("psmd_theme")||"auto";document.documentElement.dataset.theme=(m==="auto"?matchMedia("(prefers-color-scheme: dark)").matches:m==="dark")?"dark":"light"}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ind:#5B5BD6;--river:#0A5C7A;--ink:#0C2B38;--muted:#4F6B77;--bg:#EAF1F3;--surface:#fff;--line:#C9D9DF;--ok:#1B7F6B;--warn:#8A5A00;--bad:#C0392B;--chip:#E3EEF2;--act:#DDEEFB;--on:#fff}
+:root[data-theme="dark"]{--bg:#0A1A22;--surface:#10303D;--ink:#E6F1F5;--muted:#9DB8C4;--line:#1D4556;--river:#7CCBE6;--ok:#7FD8C0;--warn:#F4C95A;--bad:#FF8A7A;--chip:#143846;--act:#17465A;--on:#06202B}
+*,*::before,*::after{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Kantumruy Pro","Noto Sans Khmer",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;font-size:15px;padding-bottom:env(safe-area-inset-bottom,0px)}
+button,input,select{font:inherit;color:inherit}
+.app{display:flex;min-height:100dvh}
+aside{width:256px;flex:none;transition:width .22s ease,transform .24s cubic-bezier(.2,.8,.2,1);overflow-x:hidden;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100dvh;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;background:var(--act);border-bottom:1px solid var(--line)}
+.logo{width:42px;height:42px;border-radius:50%;background:var(--river);color:var(--on);display:grid;place-items:center;font-weight:700;flex:none}
+.brand b{display:block;line-height:1.6}.brand small{color:var(--muted)}
+.pill{margin-left:auto;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--chip);color:var(--river)}
+.sec{font-size:.72rem;font-weight:700;color:var(--muted);padding:14px 16px 4px}
+nav a{display:flex;align-items:center;gap:12px;margin:2px 8px;padding:8px 12px;border-radius:12px;text-decoration:none;color:inherit}
+nav a:hover{background:var(--chip)}nav a.on{background:var(--act);color:var(--river)}
+nav a .n{flex:1;min-width:0}nav a b{display:block;font-size:.93rem;line-height:1.6}nav a small{color:var(--muted);font-size:.76rem}nav a i{font-style:normal;width:22px;text-align:center}
+.bd{background:var(--bad);color:#fff;border-radius:99px;font-size:.7rem;padding:0 7px}
+.acct{margin-top:auto;padding:14px 16px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted)}.acct b{display:block;color:var(--ink);font-size:.95rem}
+.acct a{color:var(--river);cursor:pointer;text-decoration:none}
+.main{flex:1;min-width:0}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 20px 10px;background:var(--surface);border-bottom:1px solid var(--line)}
+.top h1{font-size:1.08rem;margin:0;flex:1;line-height:1.6}.top h1 small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 12px;cursor:pointer}.burger{display:inline-block;font-size:1.05rem;line-height:1;min-width:40px;min-height:40px}.ov{display:none}nav a:focus-visible,.ib:focus-visible,.acct a:focus-visible{outline:2px solid var(--river);outline-offset:2px}nav a{white-space:nowrap}
+section{max-width:1100px;margin:0 auto;padding:18px 20px 60px}
+.desc{color:var(--muted);margin:0 0 14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}.card h2{font-size:1rem;margin:0 0 10px}
+.kpi small{color:var(--muted)}.kpi .v{font-size:1.9rem;font-weight:700;line-height:1.2}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:520px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-size:.78rem;font-weight:600}tr.cl{cursor:pointer}tr.cl:hover{background:var(--chip)}
+.st{font-size:.75rem;font-weight:600;padding:2px 10px;border-radius:99px;background:var(--chip)}
+.s-Approved{color:var(--ok)}.s-Submitted,.s-Reviewed{color:var(--warn)}.s-Rejected{color:var(--bad)}.up{color:var(--warn)}.dn{color:var(--ok)}.dim{color:var(--muted)}
+.btn{border:0;border-radius:10px;padding:7px 14px;background:var(--river);color:var(--on);font-weight:600;cursor:pointer}.btn.bad{background:var(--bad);color:#fff}.btn.ghost{background:var(--chip);color:var(--ink)}.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input[type=search],input[type=text],select{padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);min-width:0}
+.ap{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.bar{height:10px;border-radius:6px;background:var(--chip);position:relative;overflow:hidden}.bar i{position:absolute;top:0;bottom:0}
+.li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}.li:last-child{border:0}.li small{color:var(--muted)}
+.sw{position:relative;width:42px;height:24px;display:inline-block;vertical-align:middle}.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer;z-index:1}
+.sw s{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:.15s}.sw s::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+.sw input:checked+s{background:var(--ok)}.sw input:checked+s::after{left:21px}.sw input:disabled{cursor:default}.sw input:disabled+s{opacity:.45}
+.det{background:var(--bg);padding:12px!important;text-align:left!important;white-space:normal!important}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:90vw}#toast.show{opacity:1}#toast.err{background:var(--bad);color:#fff}
+.g5{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}.g5 label{font-size:.74rem;color:var(--muted)}.g5 input{width:100%;text-align:center;font-size:1rem;font-weight:700}.g5 input.chg{background:rgba(240,180,0,.22);border-color:#E0A800}.g5 input.bd{border-color:#C0392B;background:rgba(192,57,43,.14)}.pc{display:flex;flex-direction:column;align-items:center;gap:3px}.pc .pe{font-size:.72rem;color:var(--muted);text-align:center;line-height:1.6}.pc .ol{font-size:.78rem;color:var(--muted)}.pc .dl{font-size:.8rem;font-weight:700;color:var(--muted);min-height:1.2em}.up{color:#1565C0!important}.dn{color:#C0392B!important}.ft{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px dashed var(--line);margin-top:10px;padding-top:8px;font-size:.9rem}.bchg{background:rgba(240,180,0,.25);color:#8A5A00;border-radius:999px;padding:2px 12px;font-size:.78rem;font-weight:600}textarea{padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font:inherit;color:inherit}input[type=date]{padding:6px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}.ov{display:none}.center{text-align:center;padding:40px 10px}
+@media(max-width:860px){aside{position:fixed;z-index:30;left:0;top:0;width:min(280px,84vw);transform:translateX(-100%);visibility:hidden;transition:transform .24s cubic-bezier(.2,.8,.2,1),visibility 0s .24s;box-shadow:none}aside.open{transform:none;visibility:visible;transition:transform .24s cubic-bezier(.2,.8,.2,1),visibility 0s;box-shadow:0 0 30px rgba(0,0,0,.3)}.ov{display:block;position:fixed;inset:0;background:rgba(6,26,34,.5);z-index:25;opacity:0;visibility:hidden;transition:opacity .24s,visibility 0s .24s}.ov.open{opacity:1;visibility:visible;transition:opacity .24s,visibility 0s}nav a{padding:11px 12px}section{padding:14px 12px 60px}.top{padding-left:12px;padding-right:12px}body.lock{overflow:hidden}}
+@media(min-width:861px){.app.mini aside{width:68px}.app.mini .brand{padding-left:13px;padding-right:13px;justify-content:center}.app.mini .brand>div:nth-child(2),.app.mini .pill,.app.mini .sec,.app.mini nav a .n,.app.mini .acct{display:none}.app.mini nav a{justify-content:center;margin:2px 10px;padding:10px 0;position:relative}.app.mini nav a i{width:auto;font-size:1.15rem}.app.mini nav a .bd{position:absolute;top:2px;right:4px;min-width:8px;height:8px;padding:0;font-size:0}.app.mini nav a[title]:hover::after{content:attr(title);position:fixed;left:76px;background:var(--ink);color:var(--bg);padding:4px 10px;border-radius:8px;font-size:.8rem;z-index:40;pointer-events:none}}
+@media(prefers-reduced-motion:reduce){aside,.ov,.sw s,.sw s::after,#toast{transition:none!important}}
+
+/* ===== 02 Dashboard KPI + 03 Data table ===== */
+.k4{display:grid;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px}.k4 .kpi{margin:0}
+.kpi{border-left:4px solid var(--ac,var(--river));cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(6,55,74,.12)}.kpi:focus-visible{outline:2px solid var(--river);outline-offset:2px}
+.kpi small{display:block;line-height:1.6}.kpi .v{color:var(--ac,var(--ink))}.kpi .lb{font-weight:600;color:var(--ink);font-size:.82rem}
+.alert{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface))}
+.card .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.card .hd h2{margin:0}.lk{color:var(--river);font-size:.85rem;cursor:pointer;background:none;border:0;padding:4px 6px;border-radius:8px}.lk:hover{background:var(--chip)}
+.tool{display:flex;flex-direction:column;gap:10px}.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;cursor:pointer;font-size:.85rem}.chip b{background:var(--chip);border-radius:99px;padding:0 8px;font-size:.75rem}
+.chip:hover{background:var(--chip)}.chip.on{background:var(--river);border-color:var(--river);color:var(--on)}.chip.on b{background:rgba(255,255,255,.25);color:inherit}
+.st{display:inline-flex;align-items:center;gap:6px}.st[class*=" s-"]::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st.s-Approved{background:color-mix(in srgb,var(--ok) 14%,transparent)}.st.s-Submitted,.st.s-Reviewed{background:color-mix(in srgb,var(--warn) 16%,transparent)}.st.s-Rejected{background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.ft2{min-width:0}.ft2 td:nth-child(3),.ft2 th:nth-child(3),.ft2 td:nth-child(4),.ft2 th:nth-child(4){text-align:left}.ft2 th.cv,.ft2 td.cv{width:34px;padding-left:4px;padding-right:12px;color:var(--muted)}
+.ft2 th[data-sort]{cursor:pointer;user-select:none}.ft2 th[data-sort]:hover{color:var(--ink)}.ft2 th[data-sort]:focus-visible{outline:2px solid var(--river);outline-offset:-2px}.ar{opacity:.55;margin-left:5px;font-size:.7em}.ft2 th[aria-sort="ascending"] .ar,.ft2 th[aria-sort="descending"] .ar{opacity:1;color:var(--river)}
+.ft2 tr.cl:focus-visible{outline:2px solid var(--river);outline-offset:-2px}.ft2 tr.opn{background:var(--chip)}.ft2 td small.mo{display:none}
+.sc{max-height:68vh;overflow:auto}.sc thead th{position:sticky;top:0;z-index:2;background:var(--surface);box-shadow:0 1px 0 var(--line)}
+.rc{padding:10px 14px;font-size:.82rem}.empty{padding:36px 16px;text-align:center;color:var(--muted)}
+.meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px}.meta span small{display:block;color:var(--muted);font-size:.74rem}
+@media(max-width:860px){.k4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.ft2 .hm{display:none}.ft2 td small.mo{display:block;font-size:.76rem}.kpi .v{font-size:1.6rem}}
+
+/* ===== UI 2.0 skin (CSS only: markup, JS, API and permissions are untouched) ===== */
+:root{--navy:#123047;--teal:#087E8B;--river:#087E8B;--ink:#183247;--muted:#647789;--bg:#F4F7FA;--surface:#fff;--line:#DCE5EC;--ok:#16866A;--warn:#8A5A00;--bad:#C53A3A;--chip:#EDF2F6;--act:#E1F1F3;--on:#fff;--sh:0 1px 2px rgba(18,48,71,.05),0 2px 8px rgba(18,48,71,.04);--r:12px}
+:root[data-theme="dark"]{--navy:#0A2230;--teal:#4FC3CF;--river:#4FC3CF;--bg:#0A1A22;--surface:#10303D;--ink:#E6F1F5;--muted:#9DB8C4;--line:#1D4556;--ok:#7FD8C0;--warn:#F4C95A;--bad:#FF8A7A;--chip:#143846;--act:#17465A;--on:#06202B;--sh:none}
+body{font-family:Inter,"Kantumruy Pro","Kantumruy Pro","Noto Sans Khmer",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14.5px;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+aside{background:var(--navy);border-right:0;color:#D6E4EC}
+.brand{background:transparent;border-bottom:1px solid rgba(255,255,255,.1)}.brand b{color:#fff}.brand small{color:#9DB8C4}
+.logo{background:var(--teal);color:#fff}.pill{background:rgba(255,255,255,.14);color:#fff}
+.sec{color:#8FB0C2;letter-spacing:0}
+nav a{color:#D6E4EC;border-radius:10px;position:relative}nav a small{color:#9DB8C4}
+nav a:hover{background:rgba(255,255,255,.08)}
+nav a.on{background:rgba(8,126,139,.38);color:#fff}nav a.on small{color:#CFE6EC}
+nav a.on::before{content:"";position:absolute;left:-8px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:#4FC3CF}
+.acct{border-top:1px solid rgba(255,255,255,.1);color:#9DB8C4}.acct b{color:#fff}.acct a{color:#7ED6DF}
+.top{box-shadow:var(--sh)}.top h1{font-weight:700;color:var(--ink)}
+.ib{border-radius:8px;min-height:36px}.ib:hover{background:var(--chip)}
+section{max-width:1180px}
+.card{border-radius:var(--r);box-shadow:var(--sh)}.card h2{font-weight:600;font-size:.98rem}
+.kpi{border-left-width:3px}.kpi .v{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kpi:hover{box-shadow:0 6px 16px rgba(18,48,71,.1)}
+table{font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px}
+thead th{background:var(--chip);color:var(--muted);font-weight:600}
+.sc thead th{background:var(--chip)}
+tbody tr:last-child td{border-bottom:0}tr.cl:hover{background:var(--act)}
+.btn{border-radius:8px;min-height:36px;padding:7px 16px;transition:filter .15s}.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn.ghost{background:var(--surface);border:1px solid var(--line);color:var(--ink)}.btn.ghost:hover:not(:disabled){background:var(--chip);filter:none}
+input[type=search],input[type=text],select,.g5 input{border:1px solid var(--line);border-radius:8px;min-height:36px;background:var(--surface)}
+input[type=search]:focus,input[type=text]:focus,select:focus,.g5 input:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 22%,transparent)}
+.chip{min-height:32px}.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.st{font-weight:600}
+.alert{border-radius:var(--r)}
+#toast{border-radius:10px;box-shadow:0 8px 24px rgba(18,48,71,.25)}
+.empty,.center{color:var(--muted)}
+.crumb{font-size:.72rem;font-weight:400;color:var(--muted);line-height:1.6}
+.gs{width:230px;max-width:30vw}
+.pgr{display:flex;gap:12px;align-items:center;justify-content:center;padding:10px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+@media(max-width:640px){.gs{display:none}}
+@media(max-width:860px){aside{box-shadow:0 0 40px rgba(0,0,0,.35)}}
+/* Phase 6 fix: long Khmer menu labels wrap instead of being clipped */
+nav a b,nav a small{white-space:normal;overflow-wrap:anywhere}nav a .n{line-height:1.6}.sec{white-space:normal}
+/* Dashboard 2.0 (section 1): KPI icons, alert, chart row */
+.kpi .kh{display:flex;align-items:center;justify-content:space-between;gap:8px}.kpi .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--ac,var(--river)) 14%,transparent);color:var(--ac,var(--river));font-size:.95rem;flex:none}
+.alert .ai{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn);flex:none}
+.dg2{display:grid;gap:14px;grid-template-columns:minmax(0,2fr) minmax(0,1fr);align-items:start}.dg2 .card{margin-bottom:14px}.card .hd select{min-height:32px}
+@media(max-width:860px){.dg2{grid-template-columns:minmax(0,1fr)}}
+/* Section 2: Current Setpoint */
+.cp-tt{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.cp-tt h2{margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cp-live{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
+.cp-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cp-tools input{min-width:170px}
+.cp-seg{display:inline-flex;background:var(--chip);border-radius:10px;padding:3px;gap:2px}.cp-seg button{border:0;background:none;padding:5px 12px;border-radius:8px;font:inherit;font-size:.82rem;color:var(--muted);cursor:pointer;min-height:30px}.cp-seg button.on{background:var(--surface);color:var(--text);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.btn.dark{background:#1f2d3d;color:#fff}.cp-card{padding:0;overflow:hidden}.cp-cap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:12px 16px;font-size:.8rem}
+.cpt{width:100%;border-collapse:collapse}.cpt th{background:var(--chip);font-size:.78rem;padding:12px 10px;white-space:nowrap}.cpt td{padding:12px 10px;border-top:1px solid var(--line);vertical-align:middle}.cpt .c{text-align:center}
+.cp-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}.cp-m{display:block;font-size:1rem}.cp-s{display:block;font-size:.72rem;color:var(--muted);margin-top:2px}.cp-blue{color:var(--river)}
+.cpt .cp-av{background:color-mix(in srgb,var(--river) 7%,transparent)}.cp-u{color:var(--warn);font-weight:600}.cp-d{color:var(--river);font-weight:600}.cp-n{color:var(--muted)}
+.cp-ft{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+/* animated sparkline */
+.cp-ln{stroke-dasharray:1;stroke-dashoffset:1;animation:cpdraw 1.1s ease-out forwards}
+.cp-ar{opacity:0;animation:cpfade .8s ease-out forwards;--o:.14}
+.cp-pl{opacity:0;animation:cpfade .3s ease-out forwards;--o:1}
+.cp-pu{opacity:0;transform-box:fill-box;transform-origin:center;animation:cppulse 1.8s ease-out infinite}
+@keyframes cpdraw{to{stroke-dashoffset:0}}@keyframes cpfade{to{opacity:var(--o)}}
+@keyframes cppulse{0%{opacity:.55;transform:scale(1)}100%{opacity:0;transform:scale(3.2)}}
+@media(prefers-reduced-motion:reduce){.cp-ln{animation:none;stroke-dashoffset:0}.cp-ar{animation:none;opacity:.14}.cp-pl{animation:none;opacity:1}.cp-pu{animation:none;display:none}}
+/* Section 3: Trend */
+.tr-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.tr-sp{flex:1}.tr-d input{min-height:34px}
+.tr-k{border-left:4px solid var(--ac)}.tr-k .v{font-size:1.5rem;font-weight:700;color:var(--ac);margin:4px 0}
+.tr-lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}.tr-lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.tr-wrap{position:relative}.tr-wrap svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.tr-tip{position:absolute;transform:translateX(-50%);background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.18);border-radius:10px;padding:6px 10px;font-size:.8rem;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:2}
+.tr-ln{stroke-dasharray:1;stroke-dashoffset:1;animation:cpdraw 1.8s cubic-bezier(.4,0,.2,1) forwards}
+.tr-ar{opacity:0;animation:cpfade 1s ease-out .9s forwards;--o:1}
+.tr-pt{opacity:0;transform-box:fill-box;transform-origin:center;animation:trpop .45s cubic-bezier(.3,1.6,.5,1) forwards}
+.tr-pu{opacity:0;transform-box:fill-box;transform-origin:center;animation:cppulse 1.8s ease-out 2.2s infinite}
+@keyframes trpop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.tr-ln{animation:none;stroke-dashoffset:0}.tr-ar{animation:none;opacity:1}.tr-pt{animation:none;opacity:1}.tr-pu{display:none}}
+/* Dashboard animation */
+@keyframes dfade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes dgrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes dring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 55%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+#v.anim .alert,#v.anim .k4 .kpi,#v.anim .dg2>.card,#v.anim>.card:not(.alert){animation:dfade .6s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*80ms)}
+#v.anim tbody tr{animation:dfade .5s ease-out both;animation-delay:calc(650ms + var(--r,0)*70ms)}
+#v.anim .dg2 .li .bar i{transform-origin:left center;animation:dgrow .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(350ms + var(--r,0)*90ms)}
+.alert .ai{animation:dring 2s ease-out infinite}
+@media(prefers-reduced-motion:reduce){#v.anim *{animation:none!important}.alert .ai{animation:none}}
+/* ===== Sidebar 3.0 (matches the reference design) ===== */
+aside{background:#0C1B2B;width:264px}
+.brand{gap:10px;padding:calc(18px + env(safe-area-inset-top,0px)) 14px 12px 16px;border-bottom:0}
+.brand .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1CC8B4,#1E7BE0);color:#fff;font-size:.95rem;letter-spacing:.02em}
+.brand b{font-size:1rem;color:#fff}.brand small{color:#4FC3E6;font-size:.72rem;font-weight:500}
+.brand .pill{display:none}
+.brand .cl{margin-left:auto;border:0;background:transparent;color:#9DB8C4;font-size:1.35rem;line-height:1;cursor:pointer;padding:6px 8px;border-radius:8px}
+.brand .cl:hover{background:rgba(255,255,255,.08);color:#fff}
+.sec{font-size:.68rem;letter-spacing:0;color:#8AA0B3;padding:18px 18px 6px}
+nav a{gap:12px;margin:2px 10px;padding:9px 12px;border-radius:12px}
+nav a i{width:24px;height:24px;display:grid;place-items:center;flex:none}
+nav a i svg{width:20px;height:20px;display:block}
+nav a b{color:#E8F0F6;font-weight:600;font-size:.9rem}
+nav a small{font-size:.74rem;color:#93A8BA}
+nav a.on{background:#1B7FD3;color:#fff}nav a.on b{color:#fff}nav a.on small{color:#D6EBFF}nav a.on::before{display:none}
+nav a.on i{color:#fff!important}
+nav a .c1{color:#2F9BFF}nav a .c2{color:#6CB6FF}nav a .c3{color:#F5A623}nav a .c4{color:#8B7CF6}nav a .c5{color:#6C8CFF}
+nav a .c6{color:#2ECC71}nav a .c7{color:#4DA3FF}nav a .c8{color:#36C5B0}nav a .c9{color:#F06292}nav a .c10{color:#F5C518}nav a .c11{color:#8A9BB0}
+nav a .bd{background:rgba(245,166,35,.16);color:#F5C16B;border:1.5px solid #B8892F;min-width:22px;height:22px;display:grid;place-items:center;padding:0 5px;font-weight:700;font-size:.72rem;line-height:1}
+.acct{display:flex;align-items:center;gap:10px;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.08)}
+.acct .av{width:40px;height:40px;border-radius:50%;background:#17344D;border:1px solid rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.78rem;text-decoration:none;flex:none;overflow:hidden;white-space:nowrap}
+.acct .wt{flex:1;min-width:0}.acct .wt b{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.acct .wt small{display:block;color:#4FC3E6;font-size:.76rem}
+.acct .lg{border:0;background:transparent;color:#9DB8C4;padding:8px;border-radius:8px;cursor:pointer;display:grid;place-items:center}
+.acct .lg:hover{background:rgba(255,255,255,.08);color:#fff}
+@media(min-width:861px){.app.mini .brand{flex-direction:column;gap:8px;padding-bottom:10px}.app.mini .brand .cl{display:block;margin:0;transform:rotate(180deg)}.burger{display:none}.app.mini .acct{display:flex;justify-content:center;padding:14px 0}.app.mini .acct .wt,.app.mini .acct .lg{display:none}.app.mini nav a i{width:auto;height:auto}}
+</style></head>
+<body><div class="app">
+<aside id="side"><div class="brand"><div class="logo">PS</div><div><b>PSMD-Digital</b><small>PRD-Set-Point System</small></div><span class="pill">ADMIN</span><button class="cl" id="cl" type="button" aria-label="បិទ/បើក Sidebar" title="បិទ/បើក Sidebar">«</button></div>
+<nav id="nav"></nav>
+<div class="acct"><a class="av" id="av" href="index.html" title="‹ ត្រឡប់ទៅ Hub">--</a><div class="wt"><b id="who">Admin Account</b><small id="whr"></small></div><button class="lg" id="lo" type="button" title="Logout" aria-label="Logout"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg></button></div></aside>
+<div class="ov" id="ov"></div>
+<div class="main"><div class="top"><button class="ib burger" id="bg" aria-label="Menu">☰</button><h1 id="ttl"></h1><input type="search" id="gs" class="gs" placeholder="ស្វែងរក Forms…" aria-label="ស្វែងរក Forms"><button class="btn" id="nw" style="display:none">＋ បង្កើតថ្មី</button><button class="ib" id="rf" title="Refresh">↻</button><button class="ib" id="th" title="Theme">◐</button></div><section id="v"><div class="center">កំពុងផ្ទុក...</div></section></div></div>
+<div id="toast" role="status"></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzPONW4laTD2yW_574x9-tiOEObbiF1OlDhsBgHq44_2aDxNZ-_EVC8yE5AIz7ef5o/exec";
+const HUB_KEYS=["psmd_digital_session_v1","psmd_digital_checked_v1","psmd_digital_me_v1"];
+const $=s=>document.querySelector(s),esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const f2=n=>(Math.round(Number(n)*100)/100).toFixed(2),avg=a=>a.reduce((s,x)=>s+Number(x),0)/a.length,gp=g=>Math.abs(g)<.005?"0.00":(g>0?"+":"")+f2(g);
+const fd=ms=>ms?new Date(ms).toLocaleDateString("en-GB",{timeZone:"Asia/Phnom_Penh"}):"-",fdt=ms=>ms?new Date(ms).toLocaleString("en-GB",{timeZone:"Asia/Phnom_Penh",hour12:false}).replace(",",""):"-";
+const ST={Draft:"ព្រាង",Submitted:"រង់ចាំត្រួតពិនិត្យ",Reviewed:"រង់ចាំអនុម័ត",Approved:"បានអនុម័ត",Rejected:"បានបដិសេធ"};
+const stc=s=>`<span class="st s-${esc(s)}">${ST[s]||esc(s)}</span>`;
+const ACT={rv:"Review",ra:"Review + Approve (ជ.)",ap:"Approve",rj:"Reject",em:"⚡ អនុម័តបន្ទាន់"};
+function toast(m,e){const t=$("#toast");t.textContent=m;t.className="show"+(e?" err":"");clearTimeout(toast.t);toast.t=setTimeout(()=>t.className="",e?4500:2200)}
+/* session from Hub */
+function readSession(){const m=/psmd_session=([^&]+)/.exec(location.hash);if(m){try{sessionStorage.setItem("sp_session",decodeURIComponent(m[1]))}catch(e){}history.replaceState(null,"",location.pathname+location.search)}
+ try{return sessionStorage.getItem("sp_session")||localStorage.getItem("psmd_digital_session_v1")||""}catch(e){return""}}
+const SESSION=readSession();
+function logout(){try{HUB_KEYS.forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem("sp_session")}catch(e){}location.replace("index.html")}
+async function api(action,payload,extra,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||60000);let res;
+ try{const r=await fetch(API_URL,{method:"POST",redirect:"follow",signal:c.signal,body:JSON.stringify(Object.assign({action,initData:"",browserSession:SESSION,payload:payload||{}},extra||{}))});res=await r.json()}
+ catch(e){throw new Error(e.name==="AbortError"?"ចំណាយពេលយូរពេក សូមសាកម្តងទៀត":"មិនអាចភ្ជាប់ទៅម៉ាស៊ីនបម្រើបានទេ")}finally{clearTimeout(t)}
+ if(!res.ok){if(res.error==="session_invalid"){toast("សម័យចូលប្រើផុតកំណត់",1);setTimeout(logout,1200)}
+  throw new Error(res.error==="not_registered"?"គណនីមិនទាន់មានក្នុងបញ្ជីអ្នកប្រើ Set-Point ឬមិន Active":res.error==="unknown_action"?"Backend មិនទាន់បន្ថែម AdminWeb.gs / deploy version ថ្មី":res.error)}return res}
+/* sidebar icons (coloured SVG) + Khmer numerals */
+const kn=n=>String(n).replace(/\d/g,d=>"០១២៣៤៥៦៧៨៩"[d]);
+const SV=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`,SK='fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"';
+const IC={
+"1":SV('<path d="M11 3.1a9 9 0 1 0 9.9 9.9H11z" fill="currentColor"/><path d="M13.5 2.2A9 9 0 0 1 21.8 10.5h-8.3z" fill="currentColor"/>'),
+"2":SV(`<path d="M4.5 17a8 8 0 1 1 15 0" ${SK}/><path d="M12 15.5l3.6-4.6" ${SK}/><circle cx="12" cy="16" r="1.4" fill="currentColor"/>`),
+"3":SV(`<path d="M3.5 4v16.5H21" ${SK}/><path d="M7 15l4-4.5 3 3 5-6.5" ${SK}/>`),
+"4":SV(`<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" ${SK}/><circle cx="15" cy="7" r="2" fill="currentColor"/><circle cx="9" cy="12" r="2" fill="currentColor"/><circle cx="17" cy="17" r="2" fill="currentColor"/>`),
+"5":SV('<path d="M14.8 4.2l5 5L9.6 19.4 4 20l.6-5.6z" fill="currentColor"/><path d="M4 21.5h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
+"6":SV('<circle cx="12" cy="12" r="9.2" fill="currentColor"/><path d="M7.8 12.4l2.9 2.9 5.6-6" fill="none" stroke="#0C1B2B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'),
+"7":SV('<circle cx="9" cy="8" r="3.6" fill="currentColor"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6z" fill="currentColor"/><circle cx="17" cy="9" r="2.8" fill="currentColor" opacity=".75"/><path d="M17 14c2.8 0 4.8 1.8 4.8 4.6V20h-4.3c0-2.2-.7-4.1-2-5.4a5 5 0 0 1 1.5-.6z" fill="currentColor" opacity=".75"/>'),
+"8":SV('<circle cx="9.5" cy="8" r="3.8" fill="currentColor"/><path d="M2.5 20c0-3.7 3-6 7-6 1.3 0 2.5.2 3.5.7V20z" fill="currentColor"/><path d="M18 11l3.5 1.4v3.2c0 2.2-1.5 3.7-3.5 4.4-2-.7-3.5-2.2-3.5-4.4v-3.2z" fill="currentColor"/>'),
+"9":SV(`<path d="M3.8 12a8.2 8.2 0 1 0 2.5-5.9" ${SK}/><path d="M3.5 3.8v4.3h4.3" ${SK}/><path d="M12 7.8V12l3 2" ${SK}/>`),
+"10":SV('<path d="M12 2.8a6.2 6.2 0 0 0-6.2 6.2v3.6L4 16.2v1.3h16v-1.3l-1.8-3.6V9A6.2 6.2 0 0 0 12 2.8z" fill="currentColor"/><path d="M9.6 19.2a2.5 2.5 0 0 0 4.8 0z" fill="currentColor"/>'),
+"11":SV('<circle cx="12" cy="12" r="2.8" fill="currentColor"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-dasharray="2.9 3.6"/>')
+};
+const initials=n=>{const w=String(n||"").trim().split(/\s+/)[0]||"";try{return Array.from(new Intl.Segmenter("km",{granularity:"grapheme"}).segment(w),x=>x.segment).slice(0,3).join("")||"--"}catch(e){return Array.from(w).slice(0,3).join("")||"--"}};
+/* menu */
+const M=[["1","ផ្ទាំងសង្ខេប","Dashboard Overview","▦","សង្ខេប Current Setpoint, Forms និងស្ថានភាពអនុម័ត"],["2","សម្ពាធកំណត់បច្ចុប្បន្ន","Current Setpoint","◔","Setpoint ចុងក្រោយដែលបានអនុម័ត តាមរោងចក្រ និងចន្លោះម៉ោង"],["3","និន្នាការ","Trend : All plants / Avg","↗","ប្រវត្តិ Setpoint តាមពេលវេលា"],["4","ការផ្លាស់ប្តូរមធ្យមភាគ","Avg Change by Plant","▥","ការប្តូរជាមធ្យម New − Old តាមរោងចក្រ"],["5","លិខិតស្នើ","Forms","❏","ស្វែងរក មើល និងទាញ PDF នៃទម្រង់ Setpoint"],["6","ការអនុម័ត","Approval Management","✓","ពិនិត្យ អនុម័ត ឬបដិសេធសំណើ"],["7","គ្រប់គ្រងអ្នកប្រើប្រាស់","User Management","☺","អ្នកចុះហត្ថលេខា (Users sheet) — សិទ្ធិចូលមកពី Staff_List"],["8","សិទ្ធិ និងតួនាទី","Roles & Permissions","⛨","សិទ្ធិចូលមកពី Staff_List · ហត្ថលេខាមកពី Users"],["9","កំណត់ត្រាសកម្មភាព","Audit Log","↺","ការកែប្រែ ការអនុម័ត និងសកម្មភាពអ្នកប្រើ"],["10","ការជូនដំណឹង","Notifications","🔔","សំណើថ្មី និងស្ថានភាពអនុម័ត"],["11","ការកំណត់ប្រព័ន្ធ","Admin Settings","⚙","រោងចក្រ ចន្លោះម៉ោង និងការកំណត់ទូទៅ"]];
+let dAn=null,trR="ALL",trF="",trT="",trV="chart",cps="all",cpq="",dtm="Avg",S=null,open=null,fq="",fs="",hf="",tp="-1",tm="Avg",cf="";
+const tbl=(h,r)=>`<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${r.join("")}</tbody></table></div>`;
+const pend=()=>S?S.forms.filter(f=>f.acts.some(a=>a!=="rj"&&a!=="em")).length:0;
+const appr=()=>S.forms.filter(f=>f.status==="Approved"&&f.vals&&Object.keys(f.vals).length).sort((a,b)=>(a.date-b.date)||(a.no<b.no?-1:a.no>b.no?1:0));
+/* views */
+const V={
+1(){const a=S.plants.map(p=>avg(S.current[p]?S.current[p].v:[0])),nw=new Date(),
+ ts=Object.values(S.current).map(c=>c.t).filter(Boolean),last=ts.length?Math.max(...ts):0,
+ wait=S.forms.filter(f=>f.status==="Submitted"||f.status==="Reviewed").length,
+ ok=S.forms.filter(f=>f.status==="Approved"),
+ mo=ok.filter(f=>{if(!f.date)return false;const d=new Date(f.date);return d.getFullYear()===nw.getFullYear()&&d.getMonth()===nw.getMonth()}).length,
+ rj=S.forms.filter(f=>f.status==="Rejected").length,mine=pend(),adm=S.menus.includes("6"),
+  K=(c,lb,v,sub,go,fl,ic)=>`<div class="card kpi" style="--ac:var(${c})" role="link" tabindex="0" data-go="${go}"${fl!==undefined?` data-fs="${fl}"`:""}><div class="kh"><small class="lb">${lb}</small><span class="ic" aria-hidden="true">${ic}</span></div><div class="v">${v}</div><small class="dim">${sub}</small></div>`;
+  return `${adm&&mine?`<div class="card alert" role="status"><span class="ai" aria-hidden="true">⚠</span><span><b>មាន ${mine} ទម្រង់កំពុងរង់ចាំការសម្រេចរបស់អ្នក</b><br><small class="dim">សូមពិនិត្យឡើងវិញ និងធ្វើការអនុម័តដើម្បីបន្តការអនុវត្ត Setpoint ថ្មី។</small></span><button class="btn" data-go="6" style="margin-left:auto">ទៅការអនុម័ត ›</button></div>`:""}
+  <div class="k4">${K("--river","រោងចក្រ",S.plants.length,esc(S.plants.join(" · ")),"2",undefined,"▦")}${K("--river","Setpoint ដែលកំពុងប្រើ",f2(avg(a)),"មធ្យមគ្រប់រោងចក្រ · កែចុងក្រោយ "+fd(last),"2",undefined,"◔")}${K("--warn","សំណើរង់ចាំការអនុម័ត",wait,adm?"រង់ចាំអ្នក "+mine+" · Forms":"Forms","5","PEND","⏱")}${K("--ok","សំណើដែលបានអនុម័ត",ok.length,"ខែនេះ "+mo+" · បដិសេធ "+rj,"5","Approved","✓")}</div>
+  <div class="dg2"><div class="card"><div class="hd"><div><h2>ប្រវត្តិ Setpoint តាមពេលវេលា</h2><small class="dim">មធ្យមគ្រប់រោងចក្រ · ពី Forms ដែលបានអនុម័តពិត (១២ ចុងក្រោយ)</small></div><select id="dtm" aria-label="របៀបគណនា">${["Avg","Max","Min"].map(x=>`<option${dtm===x?" selected":""}>${x}</option>`).join("")}</select></div><div id="dch"></div></div>
+  <div class="card"><div class="hd"><h2>Setpoint មធ្យមតាមរោងចក្រ</h2><small class="dim">${S.plants.length} Plants</small></div>${S.plants.map((p,i)=>`<div class="li"><span style="width:48px">${esc(p)}</span><div class="bar" style="flex:1"><i style="left:0;width:${Math.min(100,a[i]/6*100)}%;background:var(--river)"></i></div><b>${f2(a[i])}</b></div>`).join("")}</div></div>
+  <div class="card"><div class="hd"><div><h2>Forms ថ្មីៗ</h2><small class="dim">ចុចលើជួរដើម្បីមើលព័ត៌មានលម្អិត</small></div><button class="lk" data-go="5" data-fs="">មើលទាំងអស់ ›</button></div>${formsTbl(S.forms.slice(0,6),{click:true})}</div>`},
+2(){const L=appr(),lat=L[L.length-1],rows=cpRows(),seg=[["all","ទាំងអស់"],["up","កើនឡើង"],["dn","ថយចុះ"]];
+ return `<div class="card cp-hd"><div class="cp-tt"><div><h2>សម្ពាធកំណត់បច្ចុប្បន្ន (Current Setpoint) <span class="cp-live">Active</span></h2><small class="dim">${lat&&lat.window?"កាលបរិច្ឆេទអនុវត្ត៖ <b>"+esc(lat.window)+"</b> · ":""}តម្លៃគិតជា bar</small></div>
+ <div class="cp-tools"><div class="cp-seg" role="group" aria-label="តម្រងការផ្លាស់ប្តូរ">${seg.map(([k,n])=>`<button type="button" data-cps="${k}" aria-pressed="${cps===k}" class="${cps===k?"on":""}">${n}</button>`).join("")}</div>
+ <input id="cpq" type="search" placeholder="ស្វែងរកឈ្មោះរោងចក្រ..." aria-label="ស្វែងរករោងចក្រ" value="${esc(cpq)}"><button type="button" class="btn ghost" id="cpcopy">⧉ ចម្លងជាអត្ថបទ</button><button type="button" class="btn dark" id="cpcsv">⬇ Export CSV</button><button type="button" class="btn dark" id="cppdf">⬇ Export PDF</button></div></div></div>
+ <div class="card cp-card"><div class="cp-cap"><b>SETPOINT តាមចន្លោះម៉ោង និងមធ្យមភាពប្រចាំថ្ងៃ</b><small class="dim">ⓘ តួលេខតូចខាងក្រោមបង្ហាញតម្លៃចាស់ និង Gap (ថ្មី − ចាស់)</small></div><div id="cpt">${cpTable()}</div></div>`},
+3(){const R=[["7D","7D"],["30D","30D"],["3M","3M"],["1Y","1Y"],["ALL","ALL"]],dr=trDates();
+ return `<div class="card tr-bar"><div class="cp-seg" role="group" aria-label="ជួរពេលវេលា">${R.map(([k,n])=>`<button type="button" data-trg="${k}" aria-pressed="${trR===k}" class="${trR===k?"on":""}">${n}</button>`).join("")}</div>
+ <label class="tr-d"><input type="date" id="trf" aria-label="ចាប់ពីថ្ងៃ" value="${dr[0]}"></label><span class="dim">ដល់</span><label class="tr-d"><input type="date" id="trt" aria-label="ដល់ថ្ងៃ" value="${dr[1]}"></label>
+ <select id="pl" aria-label="រោងចក្រ"><option value="-1">រោងចក្រទាំងអស់ (All Plants)</option>${S.plants.map((p,i)=>`<option value="${i}"${tp==i?" selected":""}>${esc(p)}</option>`).join("")}</select><select id="md" aria-label="របៀបគណនា">${["Avg","Max","Min"].map(x=>`<option${tm===x?" selected":""}>${x}</option>`).join("")}</select>
+ <span class="tr-sp"></span><div class="cp-seg" role="group" aria-label="ទិដ្ឋភាព">${[["chart","ក្រាហ្វ"],["table","តារាង"]].map(([k,n])=>`<button type="button" data-trv="${k}" aria-pressed="${trV===k}" class="${trV===k?"on":""}">${n}</button>`).join("")}</div>
+ <button type="button" class="btn ghost" id="trpng">⬇ PNG</button><button type="button" class="btn" id="trcsv">⬇ Export CSV</button></div><div id="ch"></div>`},
+4(){const l=appr().reverse();if(!l.length)return `<div class="card center">មិនទាន់មានទម្រង់អនុម័ត</div>`;const f=l.find(x=>x.no===cf)||l[0];
+ const d=S.plants.map(p=>{const v=f.vals[p];return[p,v&&v.n&&v.o?avg(v.n)-avg(v.o):null]}),mx=Math.max(.1,...d.map(x=>Math.abs(x[1]||0)));
+ return `<div class="row"><select id="cfs">${l.map(x=>`<option value="${esc(x.no)}"${x.no===f.no?" selected":""}>${esc(x.no)} · ${fd(x.date)}</option>`).join("")}</select></div><div class="card"><h2>New − Old · ${esc(f.no)}</h2>${d.map(([p,g])=>g==null?`<div class="li"><span style="width:60px">${esc(p)}</span><span class="dim">-</span></div>`:`<div class="li"><span style="width:60px">${esc(p)}</span><div class="bar" style="flex:1"><i style="${g>=0?"left":"right"}:50%;width:${Math.abs(g)/mx*50}%;background:var(${g>0?"--warn":g<0?"--ok":"--line"})"></i></div><b class="${g>.004?"up":g<-.004?"dn":""}" style="width:64px;text-align:right">${gp(g)}</b></div>`).join("")}<small class="dim">លឿង = កើនឡើង · បៃតង = ថយចុះ</small></div>`},
+5(){return `<div class="card tool"><input type="search" id="q" placeholder="ស្វែងរក លេខ · អ្នកបង្កើត · កាលបរិច្ឆេទ · រយៈពេល…" value="${esc(fq)}" aria-label="ស្វែងរក" style="width:100%"><div class="chips" id="chips" role="group" aria-label="តម្រងស្ថានភាព"></div></div><div class="card" id="fl" style="padding:0"></div>`},
+6(){const l=S.forms.filter(f=>f.acts.length);return `<div class="card"><h2>សំណើរង់ចាំអ្នក (${l.length})</h2>${l.length?l.map(f=>`<div class="li ap"><div><b>${esc(f.no)}</b> ${stc(f.status)}<br><small>${esc(f.by)} · ${fd(f.date)} · ${esc(f.window)}</small></div><div class="row" style="margin:0"><button class="btn ghost" data-d="${esc(f.no)}">មើល</button>${f.acts.map(a=>`<button class="btn${a==="rj"?" bad":""}" data-act="${a}" data-no="${esc(f.no)}">${ACT[a]}</button>`).join("")}</div></div>${open===f.no?`<div class="det">${detail(f)}</div>`:""}`).join(""):`<p class="dim">គ្មានសំណើរង់ចាំអ្នកទេ ✓</p>`}</div><small class="dim">ប៊ូតុងចុចពីរដង៖ ចុចលើកទី១ ដើម្បីបញ្ជាក់។ សិទ្ធិអនុវត្តតាមច្បាប់ Deputy/Head ដូច Telegram។ ⚡ អនុម័តបន្ទាន់៖ Admin អនុម័តភ្លាមៗលើ Form ដែលកំពុងរង់ចាំ (រួមទាំង Form ដែលខ្លួនឯងបង្កើត) ដោយមិនឆ្លង Review — មានកត់ត្រា និងជូនដំណឹងអ្នកគ្រប់គ្រងផ្សេង។</small>`},
+7(){const dis=u=>!S.owner&&u.role==="Admin"||u.id===S.selfId;
+ return `<div class="card"><div class="tw"><table><thead><tr><th>ឈ្មោះ</th><th>តួនាទី</th><th>Acts For</th><th>Notify</th><th>ស្ថានភាព</th><th>Active</th></tr></thead><tbody>${S.users.map(u=>`<tr><td><b>${esc(u.kh)}</b><br><small class="dim">${esc(u.en)} · ${esc(u.id)}</small></td>
+ <td><select data-u="${esc(u.id)}" data-k="role" ${dis(u)?"disabled":""}>${["Operator","Admin"].map(r=>`<option${u.role===r?" selected":""}>${r}</option>`).join("")}</select></td>
+ <td><input type="text" data-u="${esc(u.id)}" data-k="actsFor" value="${esc(u.actsFor)}" placeholder="(ប្រធាន)" ${dis(u)?"disabled":""} style="width:150px"></td>
+ <td><label class="sw"><input type="checkbox" data-u="${esc(u.id)}" data-k="notify" ${u.notify?"checked":""} ${dis(u)?"disabled":""}><s></s></label></td>
+ <td>${esc(u.status)}${u.linked?"":' <small class="dim">(មិនទាន់ភ្ជាប់)</small>'}</td>
+ <td><label class="sw"><input type="checkbox" data-u="${esc(u.id)}" data-k="status" ${u.status==="Active"?"checked":""} ${dis(u)||!u.linked?"disabled":""}><s></s></label></td></tr>`).join("")}</tbody></table></div></div>
+ <small class="dim">បិទ = Revoked (រក្សា Telegram ID អាចបើកវិញបាន)។ គណនី Admin ត្រូវ Owner ជាអ្នកកែ។ មិនអាចកែគណនីខ្លួនឯង។ Acts For ទទេ = ប្រធាន (Approve) · មានតម្លៃ = អនុប្រធាន (Review, Approve ជ.)។ សន្លឹក Users ប្រើសម្រាប់ហត្ថលេខាតែប៉ុណ្ណោះ៖ «Admin» = អ្នកអាច Review/Approve ហើយ «Operator» = ហត្ថលេខាប៉ុណ្ណោះ។ សិទ្ធិចូល/បង្កើត Form មកពី Staff_List (Supervisor = Admin)។</small>`},
+8(){const n=r=>S.users.filter(u=>u.status==="Active"&&r(u)).length,P=[["Supervisor (Staff_List) = Admin","បញ្ចូលតម្លៃ · បង្កើត Form · Export · ម៉ឺនុយ Admin","-"],["អ្នកចុះហត្ថលេខា · អនុប្រធាន (Users: Admin + Acts For)","Review · Approve ក្នុងនាម ជ. · Reject · ⚡ បន្ទាន់",n(u=>u.role==="Admin"&&u.actsFor)],["អ្នកចុះហត្ថលេខា · ប្រធាន (Users: Admin, Acts For ទទេ)","Approve · Reject · ⚡ បន្ទាន់ (មិន Review)",n(u=>u.role==="Admin"&&!u.actsFor)],["Supervisor គ្មានជួរក្នុង Users","បង្កើត Form បាន ប៉ុន្តែមិនអាចចុះហត្ថលេខា/Review/Approve","-"],["Role ផ្សេងទៀតទាំងអស់ (Manager, Team Leader, Operator, Office Staff …)","មើលតែ (View only) · Form ដែលបាន Approve + PDF","-"],["Owner","អនុម័តគណនី Admin ថ្មី · កែគណនី Admin",S.owner?1:"-"]];
+ return `<div class="card">${tbl(["តួនាទី","សិទ្ធិ","Active"],P.map(p=>`<tr><td><b>${p[0]}</b></td><td style="text-align:left">${p[1]}</td><td>${p[2]}</td></tr>`))}</div><small class="dim">អ្នកដែលរៀបចំ Form មិនអាច Review/Approve Form ខ្លួនឯងបានទេ (ក្រៅពី ⚡ បន្ទាន់ដោយអ្នកចុះហត្ថលេខា)។ កែច្បាប់ក្នុង Form.gs / Hub.gs។</small>`},
+9(){const L=S.history.filter(h=>!hf||h.act.indexOf(hf)>=0);return `<div class="row"><select id="hf"><option value="">សកម្មភាពទាំងអស់</option>${[...new Set(S.history.map(h=>h.act))].sort().map(a=>`<option${hf===a?" selected":""}>${esc(a)}</option>`).join("")}</select></div><div class="card">${L.map(h=>`<div class="li" style="align-items:flex-start"><small style="width:112px;flex:none">${fdt(h.t)}</small><div><b>${esc(h.who)}</b> · ${esc(h.act)} ${h.no?`<b>${esc(h.no)}</b>`:""}<br><small>${esc(h.d)}</small></div></div>`).join("")||'<p class="dim">គ្មានទិន្នន័យ</p>'}</div>`},
+10(){const E={SUBMIT:"📝 សំណើថ្មី",REVIEW:"🔎 ត្រួតពិនិត្យរួច",APPROVE:"✅ បានអនុម័ត",REJECT:"❌ បានបដិសេធ"},L=S.history.filter(h=>E[h.act]).slice(0,40),P=S.forms.filter(f=>f.status==="Submitted"||f.status==="Reviewed");
+ return `<div class="card"><h2>រង់ចាំដំណើរការ (${P.length})</h2>${P.map(f=>`<div class="li"><span>⏳</span><div><b>${esc(f.no)}</b> ${stc(f.status)}<br><small>${esc(f.by)} · ${fd(f.date)}</small></div></div>`).join("")||'<p class="dim">គ្មាន ✓</p>'}</div><div class="card"><h2>ព្រឹត្តិការណ៍ថ្មីៗ</h2>${L.map(h=>`<div class="li"><span style="width:150px;flex:none">${E[h.act]}</span><div><b>${esc(h.no)}</b> · ${esc(h.who)}<br><small>${fdt(h.t)}</small></div></div>`).join("")}</div>`},
+11(){return `<div class="card"><h2>រោងចក្រ</h2><div class="row">${S.plants.map(p=>`<span class="st">${esc(p)}</span>`).join("")}</div><h2>ចន្លោះម៉ោង</h2><div class="row">${S.periods.map(p=>`<span class="st">${esc(p)}</span>`).join("")}</div><h2>ទូទៅ</h2><p>ម៉ោង៖ <b>Asia/Phnom_Penh</b> · ជួរតម្លៃ Setpoint៖ <b>0–10</b></p><p class="dim">តម្លៃទាំងនេះកំណត់ក្នុង Backend (PLANT_LIST, PERIOD_LABELS) — កែក្នុង pdf.gs / Api.gs។</p></div>`}};
+const SO={Draft:0,Submitted:1,Reviewed:2,Approved:3,Rejected:4};let sk="date",sd=-1;
+function formsTbl(l,o){o=o||{};const cl=!!o.click,srt=!!o.sort,
+ th=(k,t,c)=>srt?`<th class="${c||""}" data-sort="${k}" tabindex="0" aria-sort="${sk===k?(sd>0?"ascending":"descending"):"none"}">${t}<span class="ar" aria-hidden="true">${sk===k?(sd>0?"▲":"▼"):"↕"}</span></th>`:`<th class="${c||""}">${t}</th>`;
+ return `<div class="tw${o.sc?" sc":""}"><table class="ft2"><thead><tr>${th("no","លេខ")}${th("date","កាលបរិច្ឆេទ")}${th("win","រយៈពេលវិភាគ","hm")}${th("by","អ្នកបង្កើត","hm")}${th("st","ស្ថានភាព")}${cl?'<th class="cv"><span class="sr"></span></th>':""}</tr></thead><tbody>${l.map(f=>{const op=cl&&open===f.no;return `<tr class="${cl?"cl":""}${op?" opn":""}" ${cl?`data-d="${esc(f.no)}" tabindex="0" aria-expanded="${op}"`:""}><td><b>${esc(f.no)}</b><small class="mo">${esc(f.window)}${f.by?" · "+esc(f.by):""}</small></td><td>${fd(f.date)}</td><td class="hm">${esc(f.window)||"-"}</td><td class="hm">${esc(f.by)}</td><td>${stc(f.status)}</td>${cl?`<td class="cv" aria-hidden="true">${op?"▴":"▾"}</td>`:""}</tr>${op?`<tr class="dr"><td class="det" colspan="6">${detail(f)}</td></tr>`:""}`}).join("")}</tbody></table></div>`}
+function detail(f){const sg=["Prepared","Reviewed","Approved"].map(k=>f.sig[k]?`${k}: <b>${esc(f.sig[k].name)}</b> <small class="dim">${esc(f.sig[k].pos)} · ${fd(f.sig[k].at)}</small>`:"").filter(Boolean).join("<br>");
+ return `<div class="meta"><span><small>រយៈពេលវិភាគ</small><b>${esc(f.window)||"-"}</b></span><span><small>អ្នកបង្កើត</small><b>${esc(f.by)||"-"}</b></span><span><small>កាលបរិច្ឆេទ</small><b>${fd(f.date)}</b></span></div>${tbl(["ស្ថានីយ","Old avg","New avg","Gap",...S.periods],S.plants.map(p=>{const v=f.vals[p];if(!v||!v.n||!v.o)return`<tr><td>${esc(p)}</td><td colspan="${3+S.periods.length}" class="dim">-</td></tr>`;const g=avg(v.n)-avg(v.o);return`<tr><td><b>${esc(p)}</b></td><td>${f2(avg(v.o))}</td><td>${f2(avg(v.n))}</td><td class="${g>.004?"up":g<-.004?"dn":""}">${gp(g)}</td>${v.n.map(x=>`<td>${f2(x)}</td>`).join("")}</tr>`}))}
+ <p>${sg}</p>${f.rec?`<p>អនុសាសន៍៖ ${esc(f.rec)}</p>`:""}${S.role==="Admin"||f.mine||f.status==="Approved"?`<button class="btn ghost" data-pdf="${esc(f.no)}">⬇ PDF</button>`:""}`}
+const trISO=ms=>new Date(ms).toLocaleDateString("en-CA",{timeZone:"Asia/Phnom_Penh"});
+function trAll(){return appr().map(f=>{let a=[];(tp<0?S.plants:[S.plants[tp]]).forEach(p=>{const v=f.vals[p];if(v&&v.n)a=a.concat(tm==="Avg"?[avg(v.n)]:v.n)});return a.length&&f.date?{t:f.date,no:f.no,v:tm==="Max"?Math.max(...a):tm==="Min"?Math.min(...a):avg(a)}:null}).filter(Boolean)}
+function trRange(){const d={"7D":7,"30D":30,"3M":92,"1Y":365};if(trR==="ALL")return[-Infinity,Infinity];if(d[trR]){const to=Date.now();return[to-d[trR]*864e5,to]}return[trF?new Date(trF+"T00:00:00").getTime():-Infinity,trT?new Date(trT+"T23:59:59").getTime():Infinity]}
+function trPts(){const[f,to]=trRange();return trAll().filter(x=>x.t>=f&&x.t<=to)}
+function trDates(){const A=trAll();if(trR==="custom")return[trF,trT];const r=trRange(),P=trPts();return[P.length?trISO(P[0].t):A.length?trISO(A[0].t):"",P.length?trISO(P[P.length-1].t):A.length?trISO(A[A.length-1].t):""]}
+function trPath(P,x,y){if(P.length<2)return"";const n=P.length,xs=P.map(q=>x(q.t)),ys=P.map(q=>y(q.v)),dx=[],sl=[],m=[];for(let i=0;i<n-1;i++){dx[i]=xs[i+1]-xs[i]||1e-6;sl[i]=(ys[i+1]-ys[i])/dx[i]}m[0]=sl[0];m[n-1]=sl[n-2];for(let i=1;i<n-1;i++)m[i]=sl[i-1]*sl[i]<=0?0:(sl[i-1]+sl[i])/2;
+ for(let i=0;i<n-1;i++){if(sl[i]===0){m[i]=m[i+1]=0}else{const a=m[i]/sl[i],b=m[i+1]/sl[i],s=a*a+b*b;if(s>9){const k=3/Math.sqrt(s);m[i]=k*a*sl[i];m[i+1]=k*b*sl[i]}}}
+ let d="M"+xs[0].toFixed(1)+","+ys[0].toFixed(1);for(let i=0;i<n-1;i++){const h=dx[i]/3;d+=" C"+(xs[i]+h).toFixed(1)+","+(ys[i]+m[i]*h).toFixed(1)+" "+(xs[i+1]-h).toFixed(1)+","+(ys[i+1]-m[i+1]*h).toFixed(1)+" "+xs[i+1].toFixed(1)+","+ys[i+1].toFixed(1)}return d}
+let trG=null;
+function chart(){const el=$("#ch");if(!el)return;const P=trPts(),pn=tp<0?"All plants":S.plants[tp];
+ if(P.length<2){el.innerHTML='<div class="card center"><p class="dim">ត្រូវការ Forms ដែលបានអនុម័តយ៉ាងតិច ២ ក្នុងជួរដែលបានជ្រើស</p></div>';trG=null;return}
+ const vs=P.map(q=>q.v),mx=P.reduce((a,q)=>q.v>a.v?q:a),mn=P.reduce((a,q)=>q.v<a.v?q:a),first=P[0],last=P[P.length-1],gp0=(last.v-first.v)/first.v*100,av=avg(vs);
+ const C=(c,l,v,s)=>`<div class="card tr-k" style="--ac:var(${c})"><small class="lb">${l}</small><div class="v">${v}</div><small class="dim">${s}</small></div>`;
+ const stats=`<div class="k4">${C("--river","សម្ពាធមធ្យម (Avg)",f2(av)+" bar","ជាមធ្យម · "+esc(pn)+" · "+P.length+" Forms")}${C("--warn","សម្ពាធអតិបរមា (Max Peak)",f2(mx.v)+" bar","កើតឡើង "+fd(mx.t))}${C("--ind","សម្ពាធអប្បបរមា (Min Drop)",f2(mn.v)+" bar","កើតឡើង "+fd(mn.t))}${C("--muted","ការប្រែប្រួលសរុប (Trend Gap)",(gp0>0?"▲ +":gp0<0?"▼ ":"● ")+(Math.abs(gp0)<.05?"0.0":gp0.toFixed(1))+"%",f2(first.v)+" → "+f2(last.v)+" bar")}</div>`;
+ if(trV==="table"){const rows=P.slice().reverse().map((q,i,A)=>{const pv=A[i+1],g=pv?q.v-pv.v:null;return`<tr><td>${fd(q.t)}</td><td><b>${esc(q.no)}</b></td><td>${f2(q.v)}</td><td class="${g==null?"":cpD(g)}">${g==null?"-":gp(g)}</td></tr>`});
+  el.innerHTML=stats+`<div class="card"><div class="hd"><div><h2>ប្រវត្តិ Setpoint (តារាង)</h2><small class="dim">${esc(pn)} · ${tm}</small></div></div><div class="tw" style="max-height:440px;overflow:auto"><table><thead><tr><th>កាលបរិច្ឆេទ</th><th>Form</th><th>${tm} (bar)</th><th>ប្តូរពីមុន</th></tr></thead><tbody>${rows.join("")}</tbody></table></div></div>`;trG=null;return}
+ const W=900,H=340,L=52,Rr=24,T=24,B=40,t0=first.t,t1=last.t,lo=Math.min(...vs),hi=Math.max(...vs),pad=(hi-lo)*.12||.1,y0=lo-pad,y1=hi+pad,x=ms=>L+(ms-t0)/((t1-t0)||1)*(W-L-Rr),y=v=>H-B-(v-y0)/(y1-y0)*(H-B-T),d=trPath(P,x,y),
+  tk=[0,1,2,3].map(i=>y0+(y1-y0)*i/3),xl=[0,.5,1].map(f=>t0+(t1-t0)*f),dot=(q,c,dl)=>`<circle class="tr-pt" cx="${x(q.t).toFixed(1)}" cy="${y(q.v).toFixed(1)}" r="5" fill="${c}" stroke="var(--surface)" stroke-width="2" style="animation-delay:${dl}ms"><title>${fd(q.t)}: ${f2(q.v)}</title></circle>`;
+ el.innerHTML=stats+`<div class="card tr-ch"><div class="hd"><div><h2>ប្រវត្តិ Setpoint តាមពេលវេលា</h2><small class="dim">${esc(pn)} · ទិន្នន័យប្រវត្តិ ${tm} ពី Forms ដែលបានអនុម័ត (${P.length})</small></div><div class="tr-lg"><span><i style="background:var(--river)"></i>បន្ទាត់ ${tm}</span><span><i style="background:var(--warn)"></i>ខ្ពស់បំផុត</span><span><i style="background:var(--ind)"></i>ទាបបំផុត</span></div></div>
+ <div class="tr-wrap" id="trw"><svg id="trsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Setpoint history chart"><defs><linearGradient id="trgd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--river)" stop-opacity=".35"/><stop offset="1" stop-color="var(--river)" stop-opacity="0"/></linearGradient></defs>
+ ${tk.map(v=>`<line x1="${L}" x2="${W-Rr}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="4 4"/><text x="${L-8}" y="${(y(v)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--muted)">${f2(v)}</text>`).join("")}
+ <path class="tr-ar" d="${d} L${x(t1).toFixed(1)},${H-B} L${x(t0).toFixed(1)},${H-B} Z" fill="url(#trgd)"/><path class="tr-ln" pathLength="1" d="${d}" fill="none" stroke="var(--river)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+ ${dot(mx,"var(--warn)",1500)}${dot(mn,"var(--ind)",1650)}<circle class="tr-pu" cx="${x(last.t).toFixed(1)}" cy="${y(last.v).toFixed(1)}" r="5" fill="var(--river)"/>${dot(last,"var(--river)",1800)}
+ <line id="trx" y1="${T}" y2="${H-B}" stroke="var(--muted)" stroke-dasharray="3 3" opacity="0"/><circle id="trd" r="5" fill="var(--river)" stroke="var(--surface)" stroke-width="2" opacity="0"/>
+ ${xl.map((m,i)=>`<text x="${x(m).toFixed(1)}" y="${H-12}" text-anchor="${i===0?"start":i===2?"end":"middle"}" font-size="11" fill="var(--muted)">${fd(m)}</text>`).join("")}</svg><div class="tr-tip" id="trtip" role="status"></div></div></div>`;
+ trG={P,x,y,W,H,T,B};}
+document.addEventListener("pointermove",e=>{const s=e.target.closest&&e.target.closest("#trsvg");const tip=$("#trtip");if(!s||!trG||!tip)return;const r=s.getBoundingClientRect(),g=trG,px=(e.clientX-r.left)/r.width*g.W;let bi=0,bd=1e9;g.P.forEach((q,i)=>{const dd=Math.abs(g.x(q.t)-px);if(dd<bd){bd=dd;bi=i}});const q=g.P[bi],cx=g.x(q.t),cy=g.y(q.v),pv=g.P[bi-1];
+ const xl=$("#trx"),dt=$("#trd");xl.setAttribute("x1",cx);xl.setAttribute("x2",cx);xl.setAttribute("opacity",1);dt.setAttribute("cx",cx);dt.setAttribute("cy",cy);dt.setAttribute("opacity",1);
+ tip.innerHTML=`<b>${f2(q.v)} bar</b><br><small>${fd(q.t)} · ${esc(q.no)}</small>${pv?`<br><small class="${cpD(q.v-pv.v)}">${gp(q.v-pv.v)} ពីមុន</small>`:""}`;tip.style.opacity=1;const w=r.width;let lx=cx/g.W*w;tip.style.left=Math.min(Math.max(lx,70),w-70)+"px";tip.style.top=Math.max(cy/g.H*r.height-62,0)+"px"});
+document.addEventListener("pointerleave",e=>{},true);
+document.addEventListener("pointerout",e=>{if(e.target.closest&&e.target.closest("#trsvg")&&!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest("#trsvg"))){["#trx","#trd"].forEach(k=>{const n=$(k);n&&n.setAttribute("opacity",0)});const tp2=$("#trtip");tp2&&(tp2.style.opacity=0)}});
+document.addEventListener("click",e=>{const g=e.target.closest("[data-trg]"),v=e.target.closest("[data-trv]");if(g){trR=g.dataset.trg;trF=trT="";render();return}if(v){trV=v.dataset.trv;render();return}
+ if(e.target.closest("#trcsv")){const q=s=>'"'+String(s).replace(/"/g,'""')+'"',rows=[["Date","Form No",(tp<0?"All plants":S.plants[tp])+" "+tm+" (bar)"],...trPts().map(z=>[fd(z.t),z.no,f2(z.v)])],a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"}));a.download="SetPoint_Trend_"+trISO(Date.now())+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+ if(e.target.closest("#trpng")){const s=$("#trsvg");if(!s){toast("PNG ត្រូវការទិដ្ឋភាពក្រាហ្វ",1);return}const cs=getComputedStyle(document.documentElement),vr=k=>cs.getPropertyValue(k).trim()||"#888";let x=new XMLSerializer().serializeToString(s).replace(/var\((--[\w-]+)\)/g,(m,k)=>vr(k));x=x.replace(/<svg /,'<svg width="900" height="340" font-family="sans-serif" ').replace(/(<defs>)/,'<rect width="100%" height="100%" fill="'+vr("--surface")+'"/>$1');
+  const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=1800;c.height=680;const k=c.getContext("2d");k.drawImage(im,0,0,1800,680);c.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="SetPoint_Trend_"+trISO(Date.now())+".png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)})};im.onerror=()=>toast("បង្កើត PNG មិនបាន",1);im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(x)}});
+document.addEventListener("change",e=>{if(e.target.id==="trf"||e.target.id==="trt"){const a=$("#trf").value,b=$("#trt").value;trR="custom";trF=a;trT=b;if(a&&b&&a>b){toast("កាលបរិច្ឆេទចាប់ផ្តើមត្រូវមុនកាលបរិច្ឆេទបញ្ចប់",1);return}render()}});
+function dashAnim(){const v=$("#v"),rm=matchMedia("(prefers-reduced-motion:reduce)").matches;
+ [...v.querySelectorAll(".alert,.k4 .kpi,.dg2>.card,#v>.card:not(.alert)")].forEach((e,i)=>e.style.setProperty("--i",i));
+ [...v.querySelectorAll("tbody tr")].forEach((e,i)=>e.style.setProperty("--r",i));
+ [...v.querySelectorAll(".dg2 .li .bar i")].forEach((e,i)=>e.style.setProperty("--r",i));
+ if(rm)return;v.querySelectorAll(".k4 .kpi .v").forEach((e,i)=>{const s=e.textContent.trim();if(!/^\d+(\.\d+)?$/.test(s))return;const n=parseFloat(s),dc=(s.split(".")[1]||"").length,t0=performance.now()+150+i*80,D=1000;e.textContent=(0).toFixed(dc);
+  const st=now=>{const k=Math.min(1,Math.max(0,(now-t0)/D)),ez=1-Math.pow(1-k,3);e.textContent=(n*ez).toFixed(dc);if(k<1&&document.body.contains(e))requestAnimationFrame(st);else e.textContent=s};requestAnimationFrame(st)})}
+function dashTrend(an){const el=$("#dch");if(!el)return;const L=appr().slice(-12);
+ const pts=L.map(f=>{let a=[];S.plants.forEach(p=>{const v=f.vals[p];if(v&&v.n)a=a.concat(dtm==="Avg"?[avg(v.n)]:v.n)});return a.length?[f.date,dtm==="Max"?Math.max(...a):dtm==="Min"?Math.min(...a):avg(a)]:null}).filter(Boolean);
+ if(pts.length<2){el.innerHTML='<p class="dim">ត្រូវការ Forms ដែលបានអនុម័តយ៉ាងតិច ២</p>';return}
+ const W=640,H=210,vs=pts.map(p=>p[1]),mn=Math.min(...vs)-.1,mx=Math.max(...vs)+.1,x=i=>46+i*(W-66)/(pts.length-1),y=v=>H-30-(v-mn)/(mx-mn)*(H-46),ln=pts.map((p,i)=>x(i)+","+y(p[1])).join(" ");
+ el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Setpoint trend">${[0,1,2,3].map(i=>{const v=mn+(mx-mn)*i/3;return`<line x1="46" x2="${W-20}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-dasharray="${i?"4 4":"0"}"/><text x="40" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${f2(v)}</text>`}).join("")}<polygon points="${x(0)},${H-30} ${ln} ${x(pts.length-1)},${H-30}" fill="var(--river)" ${an?'class="tr-ar" style="--o:.12"':'opacity=".1"'}/><polyline fill="none" stroke="var(--river)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" ${an?'class="tr-ln" pathLength="1"':""} points="${ln}"/>${an?`<circle class="tr-pu" cx="${x(pts.length-1)}" cy="${y(pts[pts.length-1][1])}" r="4.5" fill="var(--river)" style="animation-delay:1.9s"/>`:""}${pts.map((p,i)=>`<circle ${an?`class="tr-pt" style="animation-delay:${300+Math.round(i*1300/pts.length)}ms"`:""} cx="${x(i)}" cy="${y(p[1])}" r="${i===pts.length-1?4.5:3}" fill="var(--river)"><title>${fd(p[0])}: ${f2(p[1])}</title></circle>`).join("")}${[0,Math.floor((pts.length-1)/2),pts.length-1].map(i=>`<text x="${x(i)}" y="${H-8}" text-anchor="${i===0?"start":i===pts.length-1?"end":"middle"}" font-size="11" fill="var(--muted)">${fd(pts[i][0])}</text>`).join("")}</svg>`}
+document.addEventListener("change",e=>{if(e.target.id==="dtm"){dtm=e.target.value;dashTrend(true)}});
+const CPC=["#2F7DD1","#087E8B","#5B5BD6","#9B59D0","#E8920F","#16A34A","#E5484D"];
+function cpRows(){const L=appr();return S.plants.map((p,i)=>{const c=S.current[p];if(!c)return null;
+ let old=null;for(let k=L.length-1;k>=0;k--){const v=L[k].vals[p];if(v&&v.n&&v.o){old=v.o;break}}
+ const sp=L.map(f=>f.vals[p]&&f.vals[p].n?avg(f.vals[p].n):null).filter(x=>x!==null).slice(-6),a=avg(c.v),oa=old?avg(old):null;
+ return{p,col:CPC[i%CPC.length],v:c.v,old,a,oa,gap:oa==null?null:a-oa,t:c.t,sp}}).filter(Boolean)}
+function cpSpark(r,n){if(r.sp.length<2)return'<span class="dim">-</span>';const W=84,H=28,mn=Math.min(...r.sp),mx=Math.max(...r.sp),x=i=>3+i*(W-6)/(r.sp.length-1),y=v=>mx===mn?H/2:H-4-(v-mn)/(mx-mn)*(H-8),pt=r.sp.map((s,i)=>x(i)+","+y(s)).join(" "),li=r.sp.length-1,d=(n||0)*90;
+ return`<svg class="cp-sp" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="color:${r.col}" role="img" aria-label="Trend ${esc(r.p)}"><polygon class="cp-ar" points="${x(0)},${H-2} ${pt} ${x(li)},${H-2}" fill="currentColor" style="animation-delay:${d+500}ms"/><polyline class="cp-ln" pathLength="1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" points="${pt}" style="animation-delay:${d}ms"/><circle class="cp-pl" cx="${x(li)}" cy="${y(r.sp[li])}" r="3" fill="currentColor" style="animation-delay:${d+900}ms"/><circle class="cp-pu" cx="${x(li)}" cy="${y(r.sp[li])}" r="3" fill="currentColor" style="animation-delay:${d+1100}ms"/></svg>`}
+const cpD=g=>g==null?"cp-n":g>.004?"cp-u":g<-.004?"cp-d":"cp-n";
+function cpFiltered(){const q=cpq.toLowerCase().trim();return cpRows().filter(r=>(!q||r.p.toLowerCase().includes(q))&&(cps==="all"||(cps==="up"?r.gap!=null&&r.gap>.004:r.gap!=null&&r.gap<-.004)))}
+function cpTable(){const R=cpFiltered(),all=cpRows();
+ if(!R.length)return'<p class="dim center" style="padding:24px">គ្មានរោងចក្រត្រូវនឹងតម្រង</p>';
+ const up=R.filter(r=>r.gap!=null&&r.gap>.004).length,rest=R.length-up,ta=avg(R.map(r=>r.a));
+ return`<div class="tw"><table class="cpt"><thead><tr><th>រោងចក្រ</th>${S.periods.map(x=>`<th class="c">${esc(x).replace("-"," - ")}</th>`).join("")}<th class="c cp-av">មធ្យម (Avg)</th><th class="c">ទិន្នាការ (Sparkline)</th><th class="c">កាលបរិច្ឆេទ</th></tr></thead><tbody>${R.map((r,ri)=>`<tr><td><span class="cp-dot" style="background:${r.col}"></span><b>${esc(r.p)}</b></td>${r.v.map((x,k)=>{const g=r.old?x-r.old[k]:null;return`<td class="c"><b class="cp-m">${f2(x)}</b><small class="cp-s">${r.old?"ចាស់ "+f2(r.old[k])+' <span class="'+cpD(g)+'">('+gp(g)+")</span>":"-"}</small></td>`}).join("")}<td class="c cp-av"><b class="cp-m cp-blue">${f2(r.a)}</b><small class="cp-s ${cpD(r.gap)}">${r.gap==null?"-":(r.gap>.004?"▲ ":r.gap<-.004?"▼ ":"● ")+gp(r.gap)+" bar"}</small></td><td class="c">${cpSpark(r,ri)}</td><td class="c dim">${fd(r.t)}</td></tr>`).join("")}</tbody></table></div>
+ <div class="cp-ft"><span>បង្ហាញ <b>${R.length}</b> រោងចក្រ · សម្ពាធមធ្យមសរុបនេះ <b class="cp-blue">${f2(ta)} bar</b></span><span><span class="cp-d">●</span> ថយចុះ/ថេរ (${rest}) <span class="cp-u">●</span> កើនឡើង (${up})</span></div>`}
+function cpText(){return cpFiltered().map(r=>[r.p,...r.v.map(f2),"avg "+f2(r.a),fd(r.t)].join("\t")).join("\n")}
+function cpCsv(){const q=s=>'"'+String(s).replace(/"/g,'""')+'"',h=["Plant",...S.periods.map(x=>"New "+x),"New Avg",...S.periods.map(x=>"Old "+x),"Old Avg","Gap","Updated"];
+ return"\uFEFF"+[h,...cpFiltered().map(r=>[r.p,...r.v.map(f2),f2(r.a),...(r.old?r.old.map(f2):S.periods.map(()=>"")),r.oa==null?"":f2(r.oa),r.gap==null?"":gp(r.gap),fd(r.t)])].map(r=>r.map(q).join(",")).join("\r\n")}
+function cpPdf(){const R=cpFiltered();if(!R.length){toast("គ្មានទិន្នន័យសម្រាប់ Export",1);return}
+ const iso=new Date().toISOString().slice(0,10),ta=avg(R.map(r=>r.a)),gc=g=>g==null?"#666":g>.004?"#B26A00":g<-.004?"#0A7A66":"#666";
+ const up=R.filter(r=>r.gap!=null&&r.gap>.004).length,dates=S.plants.map(p=>S.current[p]&&S.current[p].t).filter(Boolean),
+  flt=(cps==="up"?"កើនឡើង":cps==="down"?"ថយចុះ":"ទាំងអស់")+(cpq.trim()?' · "'+esc(cpq.trim())+'"':"");
+ const rows=R.map(r=>`<tr><td class="p"><i style="background:${r.col}"></i>${esc(r.p)}</td>${r.v.map((x,k)=>{const g=r.old?x-r.old[k]:null;return`<td><b>${f2(x)}</b><small>${r.old?"ចាស់ "+f2(r.old[k])+' <span style="color:'+gc(g)+'">('+gp(g)+")</span>":"-"}</small></td>`}).join("")}<td class="av"><b>${f2(r.a)}</b><small style="color:${gc(r.gap)}">${r.gap==null?"-":(r.gap>.004?"▲ ":r.gap<-.004?"▼ ":"● ")+gp(r.gap)+" bar"}</small></td><td>${fd(r.t)}</td></tr>`).join("");
+ const html=`<!doctype html><html lang="km"><head><meta charset="utf-8"><title>SetPoint_Current_${iso}</title><style>
+@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}
+body{margin:0;font-family:"Kantumruy Pro","Noto Sans Khmer",Inter,system-ui,sans-serif;color:#183247;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #087E8B;padding-bottom:8px;margin-bottom:10px}
+.hd h1{margin:0;font-size:17px}.hd small{color:#647789;display:block;margin-top:2px}.hd .r{text-align:right;color:#647789;font-size:10.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse}th,td{border:1px solid #DCE5EC;padding:6px 8px;text-align:center}
+th{background:#EDF2F6;color:#33495B;font-size:10.5px}td b{display:block;font-size:13px}td small{display:block;color:#647789;font-size:9.5px;margin-top:1px}
+td.p{text-align:left;font-weight:700;font-size:12px}td.p i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+td.av,th.av{background:#E1F1F3}td.av b{color:#087E8B}tr{page-break-inside:avoid}
+.ft{display:flex;justify-content:space-between;margin-top:10px;color:#647789;font-size:10.5px}.ft b{color:#087E8B}
+</style></head><body>
+<div class="hd"><div><h1>សម្ពាធកំណត់បច្ចុប្បន្ន (Current Setpoint)</h1><small>PSMD-Digital · PRD-Set-Point · តម្រង៖ ${flt}</small></div>
+<div class="r">កាលបរិច្ឆេទ Export៖ ${fd(Date.now())}${dates.length?"<br>កាលបរិច្ឆេទកែចុងក្រោយ៖ "+fd(Math.max(...dates)):""}</div></div>
+<table><thead><tr><th style="text-align:left">រោងចក្រ</th>${S.periods.map(x=>`<th>${esc(x).replace("-"," - ")}</th>`).join("")}<th class="av">មធ្យម (Avg)</th><th>កាលបរិច្ឆេទ</th></tr></thead><tbody>${rows}</tbody></table>
+<div class="ft"><span>បង្ហាញ <b>${R.length}</b> រោងចក្រ · សម្ពាធមធ្យមសរុប <b>${f2(ta)} bar</b></span><span>កើនឡើង (${up}) · ថយចុះ/ថេរ (${R.length-up})</span></div>
+</body></html>`;
+ const fr=document.createElement("iframe");fr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0";document.body.appendChild(fr);
+ const w=fr.contentWindow,d=w.document;d.open();d.write(html);d.close();
+ const lk=d.createElement("link");lk.rel="stylesheet";lk.href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap";
+ const loaded=new Promise(r=>{lk.onload=lk.onerror=r});d.head.appendChild(lk);
+ const done=()=>{try{fr.remove()}catch(e){}document.title=old},old=document.title;
+ Promise.race([loaded.then(()=>Promise.all([d.fonts.load('400 12px "Kantumruy Pro"',"ក"),d.fonts.load('700 12px "Kantumruy Pro"',"ក")])).then(()=>d.fonts.ready),new Promise(r=>setTimeout(r,4000))]).catch(()=>{}).then(()=>setTimeout(()=>{document.title="SetPoint_Current_"+iso;w.onafterprint=done;w.focus();w.print();setTimeout(done,120000)},200))}
+document.addEventListener("click",async e=>{const s=e.target.closest("[data-cps]");if(s){cps=s.dataset.cps;if(cur==="2")render();return}
+ if(e.target.closest("#cpcopy")){try{await navigator.clipboard.writeText(cpText());toast("បានចម្លងតារាង")}catch(x){toast("ចម្លងមិនបាន",1)}}
+ if(e.target.closest("#cppdf")){cpPdf();return}
+ if(e.target.closest("#cpcsv")){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([cpCsv()],{type:"text/csv;charset=utf-8"}));a.download="SetPoint_Current_"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}});
+document.addEventListener("input",e=>{if(e.target.id==="cpq"){cpq=e.target.value;$("#cpt").innerHTML=cpTable()}});
+function flist(){const q=fq.toLowerCase().trim(),cnt={};S.forms.forEach(f=>cnt[f.status]=(cnt[f.status]||0)+1);const pw=(cnt.Submitted||0)+(cnt.Reviewed||0);
+ const mt=f=>fs==="PEND"?(f.status==="Submitted"||f.status==="Reviewed"):(!fs||f.status===fs);
+ let l=S.forms.filter(f=>mt(f)&&(!q||[f.no,f.by,f.window,f.rec,fd(f.date),ST[f.status]].join(" ").toLowerCase().includes(q)));
+ const kf={no:f=>f.no,date:f=>f.date||0,win:f=>f.window||"",by:f=>f.by||"",st:f=>SO[f.status]==null?9:SO[f.status]};
+ l=l.slice().sort((x,y)=>{const p=kf[sk](x),r=kf[sk](y);return(p<r?-1:p>r?1:(x.no<y.no?-1:1))*sd});
+ const chip=(k,t,n)=>`<button type="button" class="chip${fs===k?" on":""}" data-fs="${k}" aria-pressed="${fs===k}">${t}<b>${n}</b></button>`;
+ $("#chips").innerHTML=chip("","ទាំងអស់",S.forms.length)+chip("PEND","រង់ចាំ",pw)+chip("Approved",ST.Approved,cnt.Approved||0)+chip("Rejected",ST.Rejected,cnt.Rejected||0)+(cnt.Draft?chip("Draft",ST.Draft,cnt.Draft):"");
+ const PS=25,pk=fq+"|"+fs+"|"+sk+sd;if(pk!==pgKey){pgKey=pk;pg=0}const pc=Math.max(1,Math.ceil(l.length/PS));pg=Math.min(pg,pc-1);const a0=pg*PS;
+ $("#fl").innerHTML=`<div class="rc dim">បង្ហាញ ${l.length?a0+1:0}–${Math.min(l.length,a0+PS)} / ${l.length} · ចុចលើជួរដើម្បីមើលលម្អិត</div>`+(l.length?formsTbl(l.slice(a0,a0+PS),{click:1,sort:1,sc:1}):`<div class="empty">គ្មានទម្រង់ត្រូវនឹងការស្វែងរក ឬតម្រង</div>`)+(pc>1?`<div class="pgr"><button type="button" class="btn ghost" data-pg="-1" aria-label="ទំព័រមុន"${pg?"":" disabled"}>‹</button><span>${pg+1} / ${pc}</span><button type="button" class="btn ghost" data-pg="1" aria-label="ទំព័របន្ទាប់"${pg<pc-1?"":" disabled"}>›</button></div>`:"")}
+/* shell */
+let cur="1",pg=0,pgKey="";
+/* ===== New form (Admin only: Staff_List Supervisor) ===== */
+let N=null;
+function saveDraft(){try{localStorage.setItem("sp_draft2",JSON.stringify({vals:N.vals,win:N.winManual?N.win:"",winManual:!!N.winManual,rec:N.rec}))}catch(e){}}
+/* Analysis window = last Setpoint change date (SetPoint_Current Updated At, same as the \"កែចុងក្រោយ\" column) -> today (auto; a manually typed window is kept) */
+function autoWin(dt){const dm=s=>s.split("-").reverse().join("/"),up=Object.values(S.updated||{}).filter(Boolean).sort().pop();let st="";
+ if(up)st=dm(up);else{const ap=(S.forms||[]).filter(f=>f.status==="Approved"&&f.date).map(f=>f.date);if(ap.length)st=fd(Math.max(...ap))}
+ const en=/^\d{4}-\d{2}-\d{2}$/.test(dt||"")?dt:S.today;return st?st+" - "+dm(en):""}
+const isoDmy=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||"")?s.split("-").reverse().join("/"):"";
+function fmt2(v){const t=String(v==null?"":v).trim().replace(",",".");if(t==="")return"";const n=Number(t);return isFinite(n)?f2(n):""}   /* 2 → 2.00 · 0.5 → 0.50 · 1.234 → 1.23 */
+function initNew(){let d=null;try{d=JSON.parse(localStorage.getItem("sp_draft2")||"null");localStorage.removeItem("sp_draft")}catch(e){}   /* old "sp_draft" held pre-filled old values: dropped */
+ const vals={};S.plants.forEach(q=>{vals[q]=(d&&d.vals&&d.vals[q]&&d.vals[q].length===5?d.vals[q]:["","","","",""]).map(x=>x==null?"":String(x))});   /* empty boxes by default */
+ const man=!!(d&&d.winManual&&d.win);
+ N={vals,date:S.today,win:man?d.win:autoWin(S.today),winManual:man,rec:(d&&d.rec)||"",grp:!!S.groupOn}}
+V.new=function(){if(!S.old||!Object.keys(S.old).length)return `<div class="card center">មិនមានទិន្នន័យ Setpoint បច្ចុប្បន្នទេ</div>`;if(!N)initNew();if(!N.winManual)N.win=autoWin(N.date);
+ const w=S.forms.filter(f=>f.status==="Submitted"||f.status==="Reviewed");
+ return `${w.length?`<div class="card" style="border-color:var(--warn)">⚠ មាន ${w.length} ទម្រង់កំពុងរង់ចាំដំណើរការ (${w.slice(0,3).map(f=>esc(f.no)).join(", ")}) · ពិនិត្យមុនបង្កើតថ្មី</div>`:""}
+ <div class="card"><h2>ព័ត៌មានទម្រង់</h2><div class="row"><label>កាលបរិច្ឆេទ<br><span style="position:relative;display:inline-block"><input type="text" id="ndt" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="dd/mm/yyyy" value="${esc(isoDmy(N.date))}" style="width:160px;padding-right:38px"><button type="button" class="ib" id="ncal" title="ប្រតិទិន" style="position:absolute;right:2px;top:2px;bottom:2px;padding:0 8px;border:0">📅</button><input type="date" id="nd" value="${esc(N.date)}" tabindex="-1" aria-hidden="true" style="position:absolute;left:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;padding:0;border:0"></span></label><label style="flex:1;min-width:220px">រយៈពេលវិភាគ<br><input type="text" id="nw2" maxlength="60" value="${esc(N.win)}" style="width:100%"></label></div><label>អនុសាសន៍<br><textarea id="nr" maxlength="500" rows="2" style="width:100%">${esc(N.rec)}</textarea></label></div>
+ ${S.plants.map(q=>`<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">${esc(q)}</h2><span class="bchg" id="bc-${esc(q)}" hidden>បានកែ</span></div><div class="g5">${S.periods.map((pe,i)=>{const t=pe.split("-");return `<div class="pc"><div class="pe">${esc(t[0])}<br>${esc(t[1]||"")}</div><input inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="${esc(q)} ${esc(pe)}" data-n="${esc(q)}" data-i="${i}" value="${esc(N.vals[q][i])}"><div class="ol" title="ចាស់ · old">${f2(S.old[q][i])}</div><div class="dl" id="dl-${esc(q)}-${i}">-</div></div>`}).join("")}</div><div class="ft"><span>ថ្មី <b id="av-${esc(q)}">-</b></span><span>ចាស់ <b>${f2(avg(S.old[q]))}</b></span><span>Gap <b id="gp-${esc(q)}">-</b></span></div><div class="row" style="margin:10px 0 0"><button class="btn ghost" data-reset="${esc(q)}">ដូចចាស់</button><button class="btn ghost" data-clear="${esc(q)}">សម្អាត</button></div></div>`).join("")}
+ <div class="card"><div class="row" style="margin:0">${S.role==="Admin"&&S.groupOn?`<label><input type="checkbox" id="ng" ${N.grp?"checked":""}> ផ្ញើ PDF (ព្រាង) ទៅ Group ដើម្បីឱ្យក្រុមរោងចក្រអនុវត្ត</label>`:""}${S.emergency?`<button class="btn bad" data-emg style="margin-left:auto" title="Admin បង្កើត និងអនុម័តដោយខ្លួនឯង — មិនឆ្លង Prepared by / Reviewed by">⚡ បង្កើត + អនុម័តបន្ទាន់</button>`:""}<button class="btn" data-sub${S.emergency?"":' style="margin-left:auto"'}>បញ្ជូនសំណើ</button></div></div>`};
+const arrow=d=>Math.abs(d)<.005?"-":(d>0?"+":"")+f2(d)+(d>0?" ▲":" ▼"),sgn=d=>d>.004?"up":d<-.004?"dn":"";
+function syncNew(q,skip){if(!N||!N.vals[q])return;const o=S.old[q],raw=N.vals[q],nums=raw.map(x=>String(x).trim()===""?NaN:Number(String(x).replace(",",".")));
+ if(!skip)document.querySelectorAll('[data-n="'+q+'"]').forEach((el,i)=>el.value=raw[i]);
+ let any=false;document.querySelectorAll('[data-n="'+q+'"]').forEach((el,i)=>{const n=nums[i],ok=isFinite(n),d=ok?n-o[i]:0,c=ok&&Math.abs(d)>=.005;if(c)any=true;
+  el.classList.toggle("chg",c);el.classList.toggle("bd",ok&&(n<0||n>10));const dl=$("#dl-"+q+"-"+i);if(dl){dl.textContent=ok?arrow(d):"-";dl.className="dl "+(ok?sgn(d):"")}});
+ const all=nums.every(isFinite),g=all?avg(nums)-avg(o):0,a=$("#av-"+q),b=$("#gp-"+q),bc=$("#bc-"+q);
+ if(a)a.textContent=all?f2(avg(nums)):"-";if(b){b.textContent=all?arrow(g):"-";b.className=all?sgn(g):""}if(bc)bc.hidden=!any;saveDraft()}
+function newClick(b){const d=b.dataset;
+ if(d.reset){N.vals[d.reset]=S.old[d.reset].map(f2);syncNew(d.reset);return true}
+ if(d.clear){N.vals[d.clear]=["","","","",""];syncNew(d.clear);return true}
+ if(d.sub!==undefined){submitNew(b);return true}if(d.emg!==undefined){submitNew(b,true);return true}return false}
+async function submitNew(b,emg){const bad=[],nv={};let ch=0;
+ S.plants.forEach(q=>{const v=N.vals[q].map(x=>String(x).trim()===""?NaN:Number(String(x).replace(",",".")));if(v.length!==5||v.some(x=>!isFinite(x)||x<0||x>10))bad.push(q);else{nv[q]=v.map(x=>Math.round(x*100)/100);if(nv[q].some((x,i)=>Math.abs(x-S.old[q][i])>1e-9))ch++}});
+ if(bad.length)return toast("សូមបំពេញគ្រប់ប្រអប់ (0.00–10.00)៖ "+bad.join(", "),1);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(N.date))return toast("កាលបរិច្ឆេទមិនត្រឹមត្រូវ",1);
+ if(!N.win.trim())return toast("សូមបំពេញរយៈពេលវិភាគ",1);
+ if(!ch)return toast("មិនមានការផ្លាស់ប្តូរពីតម្លៃចាស់ទេ",1);
+ let reason="";if(emg){reason=prompt("⚡ អនុម័តបន្ទាន់ — Form នឹងត្រូវបានបង្កើត និងអនុម័តភ្លាមៗដោយអ្នក (គ្មាន Prepared by / Reviewed by) ហើយ Setpoint ថ្មីនឹងចូលជាធរមានភ្លាម។ ការនេះត្រូវបានកត់ត្រា ហើយអ្នកគ្រប់គ្រងផ្សេងទៀតនឹងទទួលដំណឹង។\n\nមូលហេតុបន្ទាន់ (មិនបំពេញក៏បាន)៖","");if(reason===null)return}else if(!b.dataset.sure){b.dataset.sure=1;const t=b.textContent;b.textContent="បញ្ជាក់? បញ្ជូន ("+ch+" រោងចក្រផ្លាស់ប្តូរ)";setTimeout(()=>{delete b.dataset.sure;b.textContent=t},5000);return}
+ document.querySelectorAll("[data-sub],[data-emg]").forEach(x=>x.disabled=true);const t0=b.textContent;b.textContent="កំពុងបញ្ជូន... (អាចចំណាយពេលបន្តិច)";
+ try{const r=await api(emg?"aEmergency":"aCreate",{date:N.date,window:N.win.trim(),recommend:N.rec.trim(),newVals:nv,reason:reason},{sendGroup:!!(N.grp&&S.role==="Admin")},150000);
+  try{localStorage.removeItem("sp_draft2")}catch(e){}N=null;open=r.formNo;
+  toast(emg?"⚡ អនុម័តបន្ទាន់រួចរាល់ "+r.formNo+(r.warn?" · ប៉ុន្តែ PDF/ជូនដំណឹងមានបញ្ហា៖ "+r.warn:""):"បានបញ្ជូន "+r.formNo+(r.sent?" · ផ្ញើ PDF ទៅ Group រួច":"")+(r.warn?" · ផ្ញើ Group បរាជ័យ៖ "+r.warn:""),!!r.warn);
+  await load(1);location.hash="#5"}
+ catch(x){toast(x.message,1);document.querySelectorAll("[data-sub],[data-emg]").forEach(y=>y.disabled=false);b.textContent=t0}}
+function nav(){const ok=m=>!S||S.menus.includes(m[0]);let h1=0,h2=0;$("#nav").innerHTML=M.filter(ok).map(m=>{const i=+m[0],hd=i<7&&!h1?(h1=1,'<div class="sec">MAIN MENU · ម៉ឺនុយមេ</div>'):i>=7&&!h2?(h2=1,'<div class="sec">ADMINISTRATION · ការគ្រប់គ្រងប្រព័ន្ធ</div>'):"";return hd+`<a href="#${m[0]}" title="${m[1]}" ${m[0]===cur?'aria-current="page"':''} class="${m[0]===cur?"on":""}"><i class="c${m[0]}">${IC[m[0]]||m[3]}</i><span class="n"><b>${kn(m[0])}. ${m[1]}</b><small>${m[2]}</small></span>${m[0]==="6"&&pend()?`<span class="bd">${pend()}</span>`:""}</a>`}).join("")}
+function render(){cur=location.hash.slice(1)||"1";const m=cur==="new"&&S&&S.role==="Admin"?["new","បង្កើតទម្រង់ថ្មី","New Setpoint Form","＋","បំពេញតម្លៃ Setpoint ថ្មី ហើយបញ្ជូនសំណើ (Admin)"]:(M.find(x=>x[0]===cur&&(!S||S.menus.includes(x[0])))||M[0]);cur=m[0];nav();$("#ttl").innerHTML=`<div class="crumb">PSMD-Digital › PRD-Set-Point › ${m[1]}</div>${m[0]==="new"?"":m[0]+". "}${m[1]}<small>${m[2]}</small>`;
+ if(!S)return;$("#v").innerHTML=`<p class="desc">${m[4]}</p>`+V[cur]();
+ {const nf=dAn!==cur;dAn=cur;$("#v").classList.toggle("anim",cur==="1"&&nf);if(cur==="1"){dashTrend(nf);if(nf)dashAnim()}}if(cur==="3")chart();if(cur==="5")flist();if(cur==="new")S.plants.forEach(q=>syncNew(q,1));$("#side").classList.remove("open");$("#ov").classList.remove("open");document.body.classList.remove("lock")}
+async function load(quiet){try{S=await api("aInit");try{localStorage.setItem("sp_role",S.role+"|"+SESSION.slice(-12))}catch(e){}$("#who").textContent=S.user.name;$("#who").title=S.user.name;$("#whr").textContent=[S.user.role||S.role,S.owner?"Owner":""].filter(Boolean).join(" · ");$("#av").textContent=initials(S.user.name);document.querySelector(".pill").textContent=S.role==="Admin"?"ADMIN":"VIEWER";$("#nw").style.display=S.role==="Admin"?"":"none";render()}catch(e){if(!quiet||!S)$("#v").innerHTML=`<div class="card center"><p>${esc(e.message)}</p><button class="btn" id="retry">សាកម្តងទៀត</button> <a class="btn ghost" style="text-decoration:none;display:inline-block" href="index.html">ត្រឡប់ទៅ Hub</a></div>`,$("#retry").onclick=()=>load();else toast(e.message,1)}}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-act],[data-d],[data-pdf],[data-reset],[data-clear],[data-sub],[data-emg]");if(!b)return;if(newClick(b))return;
+ if(b.dataset.pdf){b.disabled=true;try{const r=await api("wPdf",null,{formNo:b.dataset.pdf}),a=document.createElement("a");a.href="data:application/pdf;base64,"+r.b64;a.download=r.name;document.body.appendChild(a);a.click();a.remove()}catch(x){toast(x.message,1)}b.disabled=false;return}
+ if(b.dataset.d){open=open===b.dataset.d?null:b.dataset.d;render();return}
+ let reason="";if(b.dataset.act==="em"){reason=prompt("⚡ អនុម័តបន្ទាន់ "+b.dataset.no+" — Form នឹងត្រូវអនុម័តភ្លាមៗ ដោយមិនឆ្លងការត្រួតពិនិត្យ (ហត្ថលេខា Prepared/Reviewed ដែលមានស្រាប់នៅដដែល) ហើយ Setpoint ថ្មីនឹងចូលជាធរមានភ្លាម។ ការនេះត្រូវបានកត់ត្រា ហើយអ្នកគ្រប់គ្រងផ្សេងទៀតនឹងទទួលដំណឹង។\n\nមូលហេតុបន្ទាន់ (មិនបំពេញក៏បាន)៖","");if(reason===null)return}else if(!b.dataset.sure){b.dataset.sure=1;const t=b.textContent;b.textContent="បញ្ជាក់? "+t;setTimeout(()=>{delete b.dataset.sure;b.textContent=t},4000);return}
+ document.querySelectorAll("[data-act]").forEach(x=>x.disabled=true);
+ try{await api("wAct",null,{formNo:b.dataset.no,act:b.dataset.act,reason:reason},b.dataset.act==="em"?150000:undefined);toast(b.dataset.act==="em"?"⚡ អនុម័តបន្ទាន់រួចរាល់":"រួចរាល់");await load(1)}catch(x){toast(x.message,1);await load(1)}});
+async function saveUser(el){const p={id:el.dataset.u},k=el.dataset.k;p[k]=k==="notify"?el.checked:k==="status"?(el.checked?"Active":"Revoked"):el.value;
+ try{const r=await api("aUser",p);S.users=r.users;toast("បានរក្សាទុក");render()}catch(x){toast(x.message,1);render()}}
+document.addEventListener("keydown",e=>{const t=e.target;if(e.key==="Enter"&&t.dataset&&t.dataset.n){e.preventDefault();const l=[...document.querySelectorAll("[data-n]")],n=l[l.indexOf(t)+1];if(n)n.focus();else t.blur()}});
+document.addEventListener("change",e=>{const t=e.target;if(N&&t.dataset.n){const v=fmt2(t.value);t.value=v;N.vals[t.dataset.n][+t.dataset.i]=v;syncNew(t.dataset.n,1);return}if(t.id==="ng"){N.grp=t.checked;return}if(t.dataset.u)return saveUser(t);
+ if(t.id==="pl"){tp=t.value;chart()}else if(t.id==="md"){tm=t.value;chart()}else if(t.id==="cfs"){cf=t.value;render()}else if(t.id==="fs"){fs=t.value;flist()}else if(t.id==="hf"){hf=t.value;render()}});
+document.addEventListener("input",e=>{const t=e.target;if(N){if(t.dataset.n){let v=t.value.replace(",",".").replace(/[^0-9.]/g,"");const k=v.indexOf(".");if(k>=0)v=v.slice(0,k+1)+v.slice(k+1).replace(/\./g,"");if(v!==t.value)t.value=v;N.vals[t.dataset.n][+t.dataset.i]=v;syncNew(t.dataset.n,1);return}if(t.id==="nd"){N.date=t.value;const x=$("#ndt");if(x)x.value=isoDmy(N.date);if(!N.winManual){N.win=autoWin(N.date);const w=$("#nw2");if(w)w.value=N.win}saveDraft();return}
+ if(t.id==="ndt"){const v=t.value.replace(/\D/g,"").slice(0,8);let o=v;if(v.length>4)o=v.slice(0,2)+"/"+v.slice(2,4)+"/"+v.slice(4);else if(v.length>2)o=v.slice(0,2)+"/"+v.slice(2);if(o!==t.value)t.value=o;
+  const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o);let iso="";if(m){iso=m[3]+"-"+m[2]+"-"+m[1];const dd=new Date(iso+"T12:00:00");if(isNaN(dd)||dd.getDate()!==+m[1])iso=""}
+  N.date=iso;const nd=$("#nd");if(nd)nd.value=iso;if(!N.winManual){N.win=autoWin(N.date);const w=$("#nw2");if(w)w.value=N.win}saveDraft();return}if(t.id==="nw2"){N.win=t.value;N.winManual=t.value.trim()!=="";saveDraft();return}if(t.id==="nr"){N.rec=t.value;saveDraft();return}}if(t.id==="q"){fq=t.value;flist()}});
+document.addEventListener("click",e=>{if(e.target.closest("#ncal")){const d=$("#nd");try{d.showPicker()}catch(x){d.focus();d.click()}}});
+(function(){const side=$("#side"),ov=$("#ov"),bg=$("#bg"),app=document.querySelector(".app"),mq=matchMedia("(max-width:860px)");
+try{if(localStorage.getItem("psmd_mini")==="1")app.classList.add("mini")}catch(e){}
+bg.setAttribute("aria-controls","side");
+const sync=()=>bg.setAttribute("aria-expanded",mq.matches?String(side.classList.contains("open")):String(!app.classList.contains("mini")));
+const close=(back)=>{side.classList.remove("open");ov.classList.remove("open");document.body.classList.remove("lock");sync();if(back)bg.focus()};
+const open=()=>{side.classList.add("open");ov.classList.add("open");document.body.classList.add("lock");sync();const a=side.querySelector("nav a.on")||side.querySelector("nav a");a&&a.focus({preventScroll:true})};
+bg.onclick=()=>{if(mq.matches){side.classList.contains("open")?close(true):open()}else{app.classList.toggle("mini");try{localStorage.setItem("psmd_mini",app.classList.contains("mini")?"1":"0")}catch(e){}sync()}};
+ov.onclick=()=>close(true);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&side.classList.contains("open"))close(true);
+ if(e.key==="Tab"&&mq.matches&&side.classList.contains("open")){const f=[...side.querySelectorAll("a[href],a[id],button")].filter(x=>x.offsetParent);if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+side.addEventListener("click",e=>{if(mq.matches&&e.target.closest("nav a"))close(false)});
+mq.addEventListener("change",()=>{close(false)});
+$("#lo")&&$("#lo").setAttribute("tabindex","0");$("#cl")&&($("#cl").onclick=()=>bg.onclick());sync();})();
+/* 02/03 interactions: KPI links, status chips, column sorting, keyboard */
+document.addEventListener("click",e=>{const b=e.target.closest("[data-pg]");if(b&&!b.disabled){pg+=Number(b.dataset.pg);flist()}});
+$("#gs").addEventListener("keydown",e=>{if(e.key!=="Enter")return;fq=e.target.value;fs="";if(location.hash==="#5")render();else location.hash="#5"});
+document.addEventListener("click",e=>{const c=e.target.closest(".chip[data-fs]");if(c){fs=c.dataset.fs;flist();return}
+ const h=e.target.closest("th[data-sort]");if(h){const k=h.dataset.sort;if(sk===k)sd=-sd;else{sk=k;sd=k==="date"?-1:1}flist();return}
+ const g=e.target.closest("[data-go]");if(g){if(g.dataset.fs!==undefined)fs=g.dataset.fs;const t="#"+g.dataset.go;if(location.hash===t)render();else location.hash=t}});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const t=e.target.closest&&e.target.closest("tr.cl,[data-go],th[data-sort]");if(t&&t===e.target){e.preventDefault();t.click()}});
+$("#rf").onclick=()=>load();$("#nw").onclick=()=>{location.hash="#new"};$("#lo").onclick=logout;
+$("#th").onclick=()=>{const d=document.documentElement,n=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=n;try{localStorage.setItem("psmd_theme",n)}catch(e){}};
+addEventListener("hashchange",render);
+if(!SESSION)location.replace("index.html");else{nav();load()}
+</script></body></html>

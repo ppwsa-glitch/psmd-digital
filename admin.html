@@ -1,0 +1,1640 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRD-Calendar Admin</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#EEF3F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A1A22" media="(prefers-color-scheme: dark)">
+<script>try{var m=localStorage.getItem("psmd_theme")||"auto";document.documentElement.dataset.theme=(m==="auto"?matchMedia("(prefers-color-scheme: dark)").matches:m==="dark")?"dark":"light"}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F6; --surface:#FFFFFF; --surface2:#F6F9FB; --ink:#0C2B38; --muted:#52707E; --line:#D5E1E7;
+  --brand:#0A5C7A; --brand-ink:#FFFFFF; --focus:#F4B400; --shadow:0 1px 2px rgba(6,55,74,.06),0 6px 18px -8px rgba(6,55,74,.18);
+  --st-p:#2458D6; --st-p-bg:#E6EEFF;
+  --st-i:#9A5B00; --st-i-bg:#FFF0D2;
+  --st-c:#14753F; --st-c-bg:#DFF4E7;
+  --st-o:#C42B26; --st-o-bg:#FDE4E3;
+  --st-x:#5B6772; --st-x-bg:#E8ECEF;
+  --side-w:264px;
+  box-sizing:border-box;
+}
+:root[data-theme="dark"]{
+  --bg:#0A1A22; --surface:#10303D; --surface2:#0D2832; --ink:#E6F1F5; --muted:#9DB8C4; --line:#1D4556;
+  --brand:#2B93B8; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px -10px rgba(0,0,0,.6);
+  --st-p:#8CB0FF; --st-p-bg:rgba(60,110,230,.22);
+  --st-i:#F4C25A; --st-i-bg:rgba(230,160,20,.20);
+  --st-c:#6FDB9C; --st-c-bg:rgba(40,170,100,.22);
+  --st-o:#FF8D87; --st-o-bg:rgba(220,60,55,.24);
+  --st-x:#B4BFC8; --st-x-bg:rgba(150,165,178,.18);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Kantumruy Pro","Noto Sans Khmer",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.7;font-size:15px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+[hidden]{display:none !important}
+
+/* ---------- shell ---------- */
+.app{display:flex;min-height:100vh;min-height:100dvh}
+.side{width:var(--side-w);flex:none;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px;position:sticky;top:0;height:100vh;height:100dvh;overflow-y:auto;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.brand .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#3FC0D6,#0A5C7A);display:grid;place-items:center;color:#fff;flex:none}
+.brand b{display:block;font-size:.98rem;line-height:1.6}
+.brand small{color:var(--muted);font-size:.78rem}
+.nav{display:grid;gap:2px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border:0;border-radius:10px;background:none;min-height:44px}
+.nav button:hover{background:var(--surface2)}
+.nav button[aria-current="page"]{background:var(--brand);color:var(--brand-ink)}
+.nav .navgrp{font-size:.74rem;font-weight:600;letter-spacing:0;color:var(--muted);padding:6px 12px 4px}
+.nav .navgrp:not(:first-child){margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.nav .ic{width:20px;height:20px;flex:none}
+.nav .lbl{flex:1;min-width:0}
+.nav .lbl small{display:block;color:var(--muted);font-size:.74rem;line-height:1.6}
+.nav button[aria-current="page"] .lbl small{color:rgba(255,255,255,.8)}
+.nav .soon{font-size:.68rem;padding:1px 7px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.side-foot{margin-top:auto;padding:12px 8px 0;font-size:.78rem;color:var(--muted)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top h1{margin:0;font-size:1.15rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:inline-grid;place-items:center;flex:none}
+.iconbtn:hover{background:var(--surface2)}
+.iconbtn svg{width:20px;height:20px}
+.me{font-size:.85rem;color:var(--muted);max-width:30ch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.burger{display:none}
+.scrim{display:none}
+#view{padding:18px 20px 40px;flex:1}
+@media (max-width:999px){
+  .side{position:fixed;left:0;top:0;transform:translateX(-102%);transition:transform .2s ease;box-shadow:var(--shadow)}
+  body.nav-open .side{transform:none}
+  body.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25}
+  .burger{display:inline-grid}
+  .me{display:none}
+  .top{padding:10px 12px}
+  #view{padding:12px 12px 32px}
+}
+
+/* ---------- toolbar / filters ---------- */
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.bar .grow{flex:1}
+.btn{min-height:40px;padding:6px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 14px;min-height:40px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+.range-title{font-size:1.1rem;font-weight:700;min-width:11ch;text-align:center}
+.field{display:grid;gap:2px;font-size:.76rem;color:var(--muted)}
+.field select,.field input{min-height:40px;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;max-width:100%}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c);display:inline-block;flex:none}
+.s-p{--c:var(--st-p);--b:var(--st-p-bg)} .s-i{--c:var(--st-i);--b:var(--st-i-bg)} .s-c{--c:var(--st-c);--b:var(--st-c-bg)}
+.s-o{--c:var(--st-o);--b:var(--st-o-bg)} .s-x{--c:var(--st-x);--b:var(--st-x-bg)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:1px 9px;border-radius:999px;background:var(--b);color:var(--c);font-weight:600;font-size:.8rem;white-space:nowrap}
+.note{padding:10px 14px;border-radius:12px;background:var(--st-i-bg);color:var(--st-i);margin-bottom:10px;font-size:.88rem}
+
+/* ---------- calendar ---------- */
+.cal{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dow div{padding:8px 6px;text-align:center;font-weight:700;font-size:.8rem;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--line)}
+.cell{min-height:118px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;display:flex;flex-direction:column;gap:3px;min-width:0;background:var(--surface)}
+.cell:nth-child(7n){border-right:0}
+.cell.out{background:var(--surface2)}
+.cell.out .dn{opacity:.55}
+.dn{align-self:flex-start;min-width:26px;height:26px;border-radius:13px;display:inline-grid;place-items:center;font-weight:700;font-size:.82rem;border:0;background:none;padding:0 6px}
+.dn:hover{background:var(--surface2)}
+.cell.today .dn{background:var(--brand);color:var(--brand-ink)}
+.ev{display:flex;align-items:center;gap:5px;width:100%;text-align:left;border:0;border-left:4px solid var(--c);background:var(--b);color:var(--ink);border-radius:6px;padding:2px 6px;font-size:.76rem;line-height:1.6;min-width:0;min-height:24px}
+.ev:hover{filter:brightness(.97)}
+.ev .tm{color:var(--c);font-weight:700;flex:none}
+.ev .ttl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev .pg{flex:none;color:var(--c);font-weight:700}
+.more{border:0;background:none;color:var(--brand);font-weight:700;font-size:.76rem;text-align:left;padding:2px 6px;min-height:24px}
+.dots{display:none;gap:3px;flex-wrap:wrap;padding:0 4px}
+@media (max-width:699px){
+  .cell{min-height:64px;padding:2px;cursor:pointer}
+  .cell .ev,.cell .more{display:none}
+  .dots{display:flex}
+  .dow div{padding:6px 0;font-size:.68rem}
+}
+.cols{display:grid;gap:0;grid-template-columns:repeat(7,minmax(0,1fr))}
+.col{border-right:1px solid var(--line);min-width:0;display:flex;flex-direction:column;gap:6px;padding:6px;min-height:260px}
+.col:last-child{border-right:0}
+.col h3{margin:0;font-size:.85rem;display:flex;align-items:center;gap:6px}
+.col.today h3 span{background:var(--brand);color:var(--brand-ink);border-radius:999px;padding:0 8px}
+.card{display:block;width:100%;text-align:left;border:0;border-left:4px solid var(--c);background:var(--b);color:var(--ink);border-radius:8px;padding:6px 8px;min-width:0}
+.card:hover{filter:brightness(.97)}
+.card .t1{font-weight:700;font-size:.84rem;overflow-wrap:anywhere}
+.card .t2{font-size:.76rem;color:var(--muted)}
+.card .t3{font-size:.76rem;color:var(--c);font-weight:700}
+.daylist{display:grid;gap:8px;padding:12px}
+.dayrow{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start}
+.dayrow .tm{font-weight:700;color:var(--muted);padding-top:8px;font-size:.88rem}
+.bar2{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar2 i{display:block;height:100%;background:var(--st-c)}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+@media (max-width:899px){
+  .cols{grid-template-columns:1fr}
+  .col{border-right:0;border-bottom:1px solid var(--line);min-height:0}
+  .dayrow{grid-template-columns:70px 1fr}
+}
+
+/* ---------- detail panel ---------- */
+.panel{position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(440px,100vw);background:var(--surface);border-left:1px solid var(--line);box-shadow:-10px 0 30px -12px rgba(0,0,0,.35);z-index:40;display:flex;flex-direction:column;transform:translateX(105%);transition:transform .2s ease}
+.panel.open{transform:none}
+.panel header{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+.panel header h2{margin:0;font-size:1.05rem;flex:1;overflow-wrap:anywhere}
+.panel .body{overflow-y:auto;padding:14px 16px 28px}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 10px;margin:0 0 14px;font-size:.9rem}
+.kv dt{color:var(--muted)} .kv dd{margin:0;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+table.t{width:100%;border-collapse:collapse;font-size:.84rem}
+table.t th{position:sticky;top:0;text-align:left;color:var(--muted);font-weight:600;padding:6px 6px;border-bottom:1px solid var(--line);background:var(--surface)}
+table.t td{padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+a{color:var(--brand)}
+:root[data-theme="dark"] a{color:#7CCBE6}
+
+/* ---------- dashboard ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);border-top:4px solid var(--c,var(--brand))}
+.kpi .n{font-size:1.7rem;font-weight:700;line-height:1.15}
+.kpi .l{color:var(--muted);font-size:.82rem}
+.kpi .d{font-size:.78rem;font-weight:600}
+.d.up{color:var(--st-c)} .d.down{color:var(--st-o)} .d.flat{color:var(--muted)}
+button.kc{text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%}button.kc:hover,.panelbox[data-kpi]:hover{border-color:var(--c,var(--brand))}
+.kc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);display:grid;gap:6px}.kc .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;background:var(--b);color:var(--c)}.kc .n{font-size:1.9rem;font-weight:700;line-height:1.05}.kc .l{color:var(--muted);font-size:.85rem}
+.bar3{height:7px;background:var(--line);border-radius:4px;overflow:hidden}.bar3 i{display:block;height:100%;border-radius:4px}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:10px}.sc>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer}.sc>summary::-webkit-details-marker{display:none}
+.av3{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;flex:none}.sc .nm{min-width:0;flex:1}.sc .nm b{font-size:1.02rem}.sc .nm small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:0}.sc .rl{color:var(--st-p);font-weight:600;font-size:.85rem}.sc .m{color:var(--muted);font-size:.85rem}
+.sc .pc3{text-align:right;font-weight:700;font-size:1.15rem;flex:none}.sc .chev{color:var(--muted);transition:transform .15s;flex:none}.sc[open] .chev{transform:rotate(180deg)}
+.sc-body{padding:0 14px 14px;display:grid;gap:8px}.oc{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:4px}.oc .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.oc .m{color:var(--muted);font-size:.85rem}
+.panelbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:12px;overflow-x:auto}
+.panelbox h3{margin:0 0 8px;font-size:1rem}
+.rate{display:flex;align-items:center;gap:8px;min-width:150px}
+.rate .trk{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.rate .trk i{display:block;height:100%;background:var(--st-c)}
+.stack{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}
+.stack i{display:block;height:100%}
+.ph{max-width:60ch;margin:40px auto;text-align:center;color:var(--muted)}
+.ph h2{color:var(--ink)}
+.gate{max-width:520px;margin:12vh auto;padding:24px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}.side,.panel{transition:none}}
+.field textarea{min-height:70px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;resize:vertical}
+.shm{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:200}.shc{background:var(--surface);color:var(--ink);padding:18px;border-radius:14px;width:min(440px,92vw);display:grid;gap:10px;box-shadow:0 20px 50px rgba(0,0,0,.3)}.shc h3{margin:0;font-size:1rem;word-break:break-all}.shc .btn{text-align:center;text-decoration:none;display:block}.shc .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.asg{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:10px}.asg legend{font-weight:600;padding:0 6px}.seg{display:flex;gap:14px;flex-wrap:wrap}.seg label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.slist{max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:10px}.slist label{display:flex;gap:8px;padding:6px 10px;align-items:center;cursor:pointer}.slist label:hover{background:var(--surface2)}
+/* ---------- Phase 4: settings / audit ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs button{border:0;background:none;padding:10px 14px;min-height:44px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{color:#7CCBE6;border-bottom-color:#7CCBE6}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:999px;font-size:.74rem;font-weight:600;background:var(--surface2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.pill.good{background:var(--st-c-bg);color:var(--st-c);border-color:transparent}
+.pill.warn{background:var(--st-i-bg);color:var(--st-i);border-color:transparent}
+.pill.bad{background:var(--st-o-bg);color:var(--st-o);border-color:transparent}
+.pill.adm{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+.btn.sm{min-height:32px;padding:2px 10px;font-size:.8rem;border-radius:8px}
+.btn.danger{border-color:var(--st-o);color:var(--st-o)}
+.btn.danger.fill{background:var(--st-o);color:#fff}
+.acts{display:flex;flex-wrap:wrap;gap:4px}
+.mono{font-variant-numeric:tabular-nums;white-space:nowrap}
+.dlg{background:var(--surface);color:var(--ink);padding:18px;border-radius:14px;width:min(520px,94vw);max-height:92vh;overflow:auto;display:grid;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.dlg h3{margin:0;font-size:1.05rem}
+.dlg .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.dlg .opt{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.dlg .opt input{margin-top:5px}
+.dlg .pw{display:flex;gap:6px}.dlg .pw input{flex:1;min-width:0;font-family:ui-monospace,Consolas,monospace}
+.dlg input[type=text],.dlg input[type=password],.dlg select{min-height:40px;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.dlg .err{color:var(--st-o);font-weight:600;min-height:1.2em}
+.secret{font:700 1.3rem ui-monospace,Consolas,monospace;letter-spacing:.06em;padding:10px;border-radius:10px;background:var(--surface2);border:1px dashed var(--line);text-align:center;overflow-wrap:anywhere;user-select:all}
+.yn{font-weight:700}.yn.y{color:var(--st-c)}.yn.n{color:var(--muted);font-weight:400}
+.lang-opt{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;margin-bottom:6px}
+
+.myf{display:grid;gap:10px;padding:14px}.myf .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ---------- Phase 5: notifications ---------- */
+.bellwrap{position:relative;flex:none}
+.bellcnt{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--st-o);color:#fff;font-size:.7rem;font-weight:700;line-height:15px;text-align:center;border:2px solid var(--surface);pointer-events:none}
+.nav .cnt{flex:none;min-width:20px;padding:0 7px;border-radius:999px;background:var(--st-o);color:#fff;font-size:.7rem;font-weight:700;text-align:center;line-height:1.5}
+.nav button[aria-current="page"] .cnt{background:#fff;color:var(--st-o)}
+.npop{position:absolute;right:0;top:calc(100% + 8px);width:min(420px,calc(100vw - 24px));max-height:min(70vh,560px);display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow),0 18px 40px -16px rgba(0,0,0,.35);z-index:50;overflow:hidden}
+@media (max-width:699px){.bellwrap{position:static}.npop{position:fixed;left:12px;right:12px;top:58px;width:auto}}
+.nphead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.nphead b{flex:1}
+.nplist{overflow-y:auto}
+.npfoot{padding:8px 12px;border-top:1px solid var(--line);text-align:center}
+.nlist{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.ngrp{font-size:.76rem;font-weight:600;color:var(--muted);padding:10px 12px 4px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.nitem{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-bottom:1px solid var(--line);border-left:4px solid var(--c);background:var(--surface)}
+.nitem:last-child{border-bottom:0}
+.nitem.unread{background:var(--b)}
+.nudot{width:9px;height:9px;border-radius:50%;background:var(--c);margin-top:7px;flex:none}
+.nitem:not(.unread) .nudot{background:transparent;border:1px solid var(--line)}
+.nmain{flex:1;min-width:0;display:grid;gap:2px;text-align:left;border:0;background:none;padding:0;color:var(--ink)}
+.nmain .nt{font-weight:700;font-size:.9rem;overflow-wrap:anywhere}
+.nitem:not(.unread) .nmain .nt{font-weight:600}
+.nmain .nb{font-size:.86rem;overflow-wrap:anywhere}
+.nmain .nm{font-size:.76rem;color:var(--muted);overflow-wrap:anywhere}
+.nmain[data-nopen]:hover .nt{text-decoration:underline}
+.nx{flex:none}
+</style>
+</head>
+<body>
+<div id="gate" class="gate" hidden></div>
+<div class="app" id="app" hidden>
+  <aside class="side" id="side" aria-label="Admin menu">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></div>
+      <div><b>PRD-Calendar</b><small>Admin Portal · PPWSA</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn burger" id="burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <h1 id="title">Dashboard</h1>
+      <span class="me" id="me"></span>
+      <span class="bellwrap"><button class="iconbtn" id="bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></button><span class="bellcnt" id="bellCnt" hidden></span><div class="npop" id="npop" role="region" aria-label="Notifications" hidden></div></span>
+      <button class="iconbtn" id="refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+      <button class="iconbtn" id="theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 13.5A8.5 8.5 0 1 1 10.5 3a7 7 0 0 0 10.5 10.5z"/></svg></button>
+    </header>
+    <main id="view" tabindex="-1"></main>
+  </div>
+</div>
+<aside class="panel" id="panel" aria-label="Activity detail" aria-hidden="true"></aside>
+
+<script>
+"use strict";
+/* ===== Config — same backend + browser session as the Hub ===== */
+const API_URL = "https://script.google.com/macros/s/AKfycbzU9Shv_f8c5pAAa6woqYOoBV6kLmb9H0Id6wOWlnlr6T9YUgoo0gn43YdYyypDtq6A/exec";
+const SESSION_KEY = "psmd_digital_session_v1", THEME_KEY = "psmd_theme";
+// UX only — admin-api.gs decides who may see what, and how much. Same tiers as the staff app's Reports tab.
+const portalRole = r => { r = String(r || "").trim(); return r === "Super Admin" || r === "Supervisor"; };   // UX only — the server decides (admin-api.gs)
+
+/* ===== transport (same fetch → JSONP fallback as the Hub) ===== */
+let _jp = 0;
+function jsonp(url){
+  return new Promise((res, rej) => {
+    const cb = "__adm_cb_" + (++_jp), s = document.createElement("script");
+    const clean = () => { delete window[cb]; s.remove(); };
+    const tm = setTimeout(() => { clean(); rej(new Error("timeout")); }, 30000);
+    window[cb] = d => { clearTimeout(tm); clean(); res(d); };
+    s.onerror = () => { clearTimeout(tm); clean(); rej(new Error("script_load_failed")); };
+    s.src = url + "&callback=" + cb; document.body.appendChild(s);
+  });
+}
+async function viaFetch(url){
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 30000);
+  try { const r = await fetch(url, { method: "GET", redirect: "follow", signal: ac.signal }); if (!r.ok) throw new Error("http_" + r.status); return await r.json(); }
+  finally { clearTimeout(tm); }
+}
+async function transport(url){ try { return await viaFetch(url); } catch (e) { return await jsonp(url); } }
+function getSession(){ try { return localStorage.getItem(SESSION_KEY) || ""; } catch (e) { return ""; } }
+async function api(action, payload){
+  const q = encodeURIComponent(JSON.stringify({ action, initData: "", browserSession: getSession(), payload: payload || {} }));
+  const d = await transport(API_URL + "?data=" + q);
+  if (!d.ok) { const e = new Error(d.detail ? d.error + ": " + d.detail : (d.error || "api_error")); e.code = d.error; e.payload = d; throw e; }
+  return d;
+}
+
+/* ===== helpers ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = u => /^https?:\/\//i.test(String(u || "")) ? String(u) : "";
+const pad = n => String(n).padStart(2, "0");
+const toISO = d => d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate());
+const fromISO = s => { const p = s.split("-").map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2])); };
+const addDays = (s, n) => toISO(new Date(fromISO(s).getTime() + n * 864e5));
+const mondayOf = s => addDays(s, -((fromISO(s).getUTCDay() + 6) % 7));
+const localISO = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+const monthStart = s => s.slice(0, 8) + "01";
+const monthEnd = s => { const d = fromISO(monthStart(s)); d.setUTCMonth(d.getUTCMonth() + 1, 0); return toISO(d); };
+const addMonths = (s, n) => { const d = fromISO(monthStart(s)); d.setUTCMonth(d.getUTCMonth() + n, 1); return toISO(d); };
+const MONTHS = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
+const DOW = ["ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍", "អាទិត្យ"];
+const fmtDay = s => { const d = fromISO(s); return DOW[(d.getUTCDay() + 6) % 7] + " " + d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear(); };
+const PLANTS = { bkg: "BKG WTP", ppr: "PPR WTP", ccw: "CCW WTP", ccm: "CCM WTP", nr: "NR WTP", bth: "BTH WTP", tkm: "TKM WTP", mlc: "MLC WTP", tbk: "TBK WTP" };
+const plantLabel = p => PLANTS[p] || (p ? p : "ការិយាល័យកណ្ដាល · Central office");
+const OFFICES = { production: "PRDO", lab: "LABO", mech_elec: "MNEO" };
+const REPEAT = { none: "មិនធ្វើម្តងទៀត · No repeat", daily: "រាល់ថ្ងៃ · Daily", workday: "រាល់ថ្ងៃធ្វើការ · Every workday", every2d: "រៀងរាល់ ២ ថ្ងៃ · Every 2 days", every3d: "រៀងរាល់ ៣ ថ្ងៃ · Every 3 days", every4d: "រៀងរាល់ ៤ ថ្ងៃ · Every 4 days", weekly: "រាល់សប្តាហ៍ · Weekly", every2w: "រៀងរាល់ ២ សប្តាហ៍ · Every 2 weeks", every3w: "រៀងរាល់ ៣ សប្តាហ៍ · Every 3 weeks", monthly: "រាល់ខែ · Monthly", quarterly: "រាល់ត្រីមាស · Quarterly", every6m: "រាល់ ៦ ខែ · Every 6 months" };
+// Notify choices (minutes before start) — same list as the Telegram Mini App
+const NOTIFY_OPTS = [[5, "5 នាទីមុន · 5 mins before"], [10, "10 នាទីមុន · 10 mins before"], [15, "15 នាទីមុន · 15 mins before"], [20, "20 នាទីមុន · 20 mins before"], [30, "30 នាទីមុន · 30 mins before"], [60, "1 ម៉ោងមុន · 1 hour before"], [120, "2 ម៉ោងមុន · 2 hours before"], [180, "3 ម៉ោងមុន · 3 hours before"], [240, "4 ម៉ោងមុន · 4 hours before"], [360, "6 ម៉ោងមុន · 6 hours before"], [1440, "1 ថ្ងៃមុន · 1 day before"], [2880, "2 ថ្ងៃមុន · 2 days before"]];
+// Duration choices (minutes) — picks the End time automatically
+const DURATION_OPTS = [[15, "15 នាទី · 15 mins"], [30, "30 នាទី · 30 mins"], [45, "45 នាទី · 45 mins"], [60, "1 ម៉ោង · 1 hour"], [90, "1.5 ម៉ោង · 1.5 hours"], [120, "2 ម៉ោង · 2 hours"], [180, "3 ម៉ោង · 3 hours"], [240, "4 ម៉ោង · 4 hours"], [360, "6 ម៉ោង · 6 hours"], [480, "8 ម៉ោង · 8 hours"], [720, "12 ម៉ោង · 12 hours"]];
+const SCOPE = { direct: "បុគ្គលិកម្នាក់ / Individual", team: "ក្រុម / Team", plant: "ទាំងរោងចក្រ / Whole plant", office: "ការិយាល័យ / Office", dept: "ទាំងនាយកដ្ឋាន / Department" };
+const ST = {
+  p: { en: "Planned", kh: "ផែនការ", ic: "○" }, i: { en: "In Progress", kh: "កំពុងធ្វើ", ic: "◐" },
+  c: { en: "Completed", kh: "បានបញ្ចប់", ic: "✓" }, o: { en: "Overdue", kh: "ហួសកំណត់", ic: "!" }, x: { en: "Cancelled", kh: "បានលុបចោល", ic: "✕" }
+};
+const badge = k => `<span class="badge s-${k}">${ST[k].ic} ${ST[k].kh} · ${ST[k].en}</span>`;
+const staffName = s => s ? (s.kh || s.en || s.id) : "—";
+const taskTitle = t => t.kh || t.en || "(គ្មានចំណងជើង)";
+const norm = v => String(v || "").normalize("NFC").toLowerCase();
+
+/* ===== state ===== */
+const S = { me: null, view: "dashboard", mode: "month", anchor: localISO(), loadedMonth: "", data: null, f: { plant: "", team: "", staff: "", status: "", q: "" }, dash: null, tok: 0 };
+let D = null, OCC = [];   // current calendar dataset
+
+function prepare(raw){
+  const occ = raw.occ.map(a => ({ ti: a[0], t: raw.tasks[a[0]], date: a[1], s: raw.staff[a[2]], st: a[3], at: a[4], link: a[5] }));
+  occ.forEach(o => { o.h = null; });
+  return { raw, staff: raw.staff, tasks: raw.tasks, occ };
+}
+const hay = o => o.h || (o.h = norm([o.t.kh, o.t.en, o.t.loc, o.t.desc, o.s && o.s.kh, o.s && o.s.en, o.s && o.s.id].join(" ")));
+function passes(o, f){
+  const q = norm(f.q).trim();
+  return (!f.plant || (o.s && o.s.plant === (f.plant === "_" ? "" : f.plant))) && (!f.team || (o.s && o.s.team === (f.team === "_" ? "" : f.team)))
+    && (!f.staff || (o.s && o.s.id === f.staff)) && (!f.status || o.st === f.status) && (!q || hay(o).includes(q));
+}
+function groupOcc(list){
+  const m = new Map();
+  list.forEach(o => {
+    const k = o.ti + "|" + o.date; let g = m.get(k);
+    if (!g) { g = { k, ti: o.ti, t: o.t, date: o.date, occs: [], c: { p: 0, i: 0, c: 0, o: 0, x: 0 } }; m.set(k, g); }
+    g.occs.push(o); g.c[o.st]++;
+  });
+  const out = [...m.values()];
+  out.forEach(g => { const n = g.occs.length, live = n - g.c.x; g.n = n; g.live = live;
+    g.st = g.c.x === n ? "x" : g.c.c === live ? "c" : g.c.o > 0 ? "o" : (g.c.i > 0 || g.c.c > 0) ? "i" : "p"; });
+  out.sort((a, b) => (a.t.start || "99:99").localeCompare(b.t.start || "99:99") || taskTitle(a.t).localeCompare(taskTitle(b.t)));
+  return out;
+}
+function stats(list){
+  const c = { p: 0, i: 0, c: 0, o: 0, x: 0 }; list.forEach(o => c[o.st]++);
+  const total = c.p + c.i + c.c + c.o; return Object.assign(c, { total, rate: total ? c.c / total * 100 : 0 });
+}
+
+/* ===== gate / boot ===== */
+function showGate(html){ $("#app").hidden = true; const g = $("#gate"); g.hidden = false; g.innerHTML = html; }
+function hideGate(){ $("#gate").hidden = true; $("#app").hidden = false; }
+function errText(e){
+  if (/not_allowed_to_assign_others/.test(String(e && e.message || ""))) return "អ្នកអាចចាត់តាំងការងារបានតែសម្រាប់ខ្លួនឯងប៉ុណ្ណោះ។ / You can only create tasks for yourself.";
+  const m = {
+    auth_failed: "ការចូលប្រើផុតកំណត់ ឬមិនត្រឹមត្រូវ — សូមចូលប្រើម្តងទៀតតាម Hub។ / Session expired — please sign in again via the Hub.",
+    permission_denied: "គណនីនេះមិនមានសិទ្ធិ Admin ទេ។ / This account does not have Admin access.",
+    unknown_action: "Backend មិនទាន់មាន admin-api.gs ឬមិនទាន់ Deploy កំណែថ្មី។ / The backend has no admin action yet — add admin-api.gs and redeploy.",
+    bad_range: "ជួរកាលបរិច្ឆេទមិនត្រឹមត្រូវ (អតិបរមា ៧០ ថ្ងៃ)។ / Invalid date range (max 70 days).",
+    has_completions: "ការងារនេះមានអ្នកបញ្ចប់រួចហើយ មិនអាចលុបបានទេ — សូមប្រើ «បោះបង់» វិញ។ / Someone already completed this task, so it cannot be deleted — use Cancel instead.",
+    task_not_found: "រកមិនឃើញការងារនេះ (អាចត្រូវបានលុបរួច)។ / Task not found (it may already be deleted).",
+    missing_title: "សូមបញ្ចូលចំណងជើង។ / Title is required.", bad_task_time: "កាលបរិច្ឆេទ ឬម៉ោងមិនត្រឹមត្រូវ។ / Invalid date or time.", bad_link: "Link ត្រូវចាប់ផ្តើមដោយ https:// / Link must start with https://",
+    server_busy_please_retry: "ម៉ាស៊ីនបម្រើកំពុងរវល់ សូមព្យាយាមម្តងទៀត។ / Server busy — please retry.",
+    session_revoked: "ការចូលប្រើត្រូវបានបិទដោយ Admin — សូមចូលម្តងទៀត។ / Your session was ended by an admin — please sign in again.",
+  };
+  return m[e.code] || ("មិនអាចទាញទិន្នន័យបាន / Could not load data: " + (e.message || e));
+}
+async function boot(){
+  showGate('<span class="spin"></span>កំពុងផ្ទុក… / Loading…');
+  const m = location.hash.match(/psmd_session=([^&]+)/);
+  if (m) { try { localStorage.setItem(SESSION_KEY, decodeURIComponent(m[1])); } catch (e) {} history.replaceState(null, "", location.pathname + location.search); }
+  if (!getSession()) return showGate('<h2>សូមចូលប្រើជាមុន</h2><p>Please sign in through the Hub first.</p><p><a class="btn primary" href="./" style="display:inline-block;text-decoration:none;line-height:28px">ទៅ Hub / Open Hub</a></p>');
+  try { const w = await api("whoAmI"); S.me = w.me; S.must = !!w.mustChangePin; }
+  catch (e) {
+    return showGate(`<h2>⚠️</h2><p>${esc(errText(e))}</p><p><button class="btn primary" id="retry">ព្យាយាមម្តងទៀត / Retry</button> <a class="btn" href="./" style="display:inline-block;text-decoration:none;line-height:28px">Hub</a></p>`), $("#retry").addEventListener("click", boot);
+  }
+  if (S.must) { try { localStorage.setItem("psmd_digital_mustpin_v1", "1"); } catch (e) {}
+    return showGate('<h2>🔑</h2><p>សូមកំណត់ពាក្យសម្ងាត់ផ្ទាល់ខ្លួនជាមុននៅ Hub។</p><p>Please set your own password in the Hub first.</p><p><a class="btn primary" href="./" style="display:inline-block;text-decoration:none;line-height:28px">ទៅ Hub / Open Hub</a></p>'); }
+  try { S.sc = (await api("adminGetScope")).scope || null; }
+  catch (e) {
+    if (e.code === "unknown_action" && portalRole(S.me.role)) S.sc = { level: "all", label: "" };   // backend not updated yet: keep the old admin-only behaviour
+    else return showGate(`<h2>⚠️</h2><p>${esc(errText(e))}</p><p><button class="btn primary" id="retry">ព្យាយាមម្តងទៀត / Retry</button> <a class="btn" href="./" style="display:inline-block;text-decoration:none;line-height:28px">Hub</a></p>`), $("#retry").addEventListener("click", boot);
+  }
+  if (!S.sc)
+    return showGate('<h2>🔒</h2><p>គណនីនេះមិនមានសិទ្ធិចូល Admin Portal ទេ។ សូមប្រើកម្មវិធី PRD-Calendar ធម្មតា។</p><p>This account does not have Admin access. Please keep using the regular PRD-Calendar app.</p><p><a class="btn primary" href="./" style="display:inline-block;text-decoration:none;line-height:28px">Hub</a></p>');
+  hideGate();
+  $("#me").textContent = (S.me.khmer_name || S.me["khmer _name"] || S.me.name || "") + " · " + S.me.role;
+  buildNav(); route(); ntStart();
+}
+
+/* ===== nav / routing ===== */
+const NAV = [
+  { id: "dashboard", kh: "ផ្ទាំងគ្រប់គ្រង", en: "Dashboard", ic: "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10" },
+  { id: "mytask", kh: "កិច្ចការងាររបស់ខ្ញុំ", en: "My Task", ic: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h9" },
+  { id: "calendar", kh: "ប្រតិទិន", en: "Calendar", ic: "M3 6h18v15H3zM8 2v4M16 2v4M3 10h18" },
+  { id: "staff", kh: "បុគ្គលិក និងអង្គភាព", en: "Staff & Organization", ic: "M16 19v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 9a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 19v-2a4 4 0 0 0-3-3.9" },
+  { id: "tasks", kh: "សកម្មភាព និងកិច្ចការ", en: "Activities & Tasks", ic: "M9 11l3 3 8-8M4 4h10M4 10h3M4 16h8" },
+  { id: "perf", kh: "តារាងរបាយការណ៍សកម្មភាព/ទិន្នន័យ", en: "Performance Reports / Export Data", ic: "M4 20V10M10 20V4M16 20v-7M22 20H2" },
+  { id: "settings", kh: "ការកំណត់ និងកំណត់ត្រាសវនកម្ម", en: "Admin Settings & Audit Log", ic: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z", },
+  { id: "notify", kh: "ការជូនដំណឹង", en: "Notifications", ic: "M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" }
+];
+const PLANNED = {
+  staff: ["Staff_List មានស្រាប់ (បុគ្គលិក តួនាទី ក្រុម រោងចក្រ) — តម្រូវតែ UI និង action អានបញ្ជី។", "Staff_List already holds staff, role, team and factory; needs a read view."],
+  tasks: ["Tasks + Task_Completions មានស្រាប់ — តម្រូវតារាងស្វែងរក/ត្រង។", "Tasks and Task_Completions already exist; needs a searchable table."],
+  feed: ["គ្មានតារាងសារ/ជជែកទេ។ អាចបង្កើតបញ្ជីសកម្មភាពពី Task_Completions (ពេលបញ្ចប់) និង Tasks (created_at)។ ជជែក តម្រូវ Sheet ថ្មី។", "No chat/message store exists. A chronological feed can be derived from Task_Completions and Tasks; chat itself needs a new sheet."],
+  reports: ["Reports និង Export មានក្នុងកម្មវិធីបុគ្គលិក (sendReportDocument_) — អាចប្រើឡើងវិញ។", "Report export exists for staff (sendReportDocument_) and can be reused."],
+  settings: ["មិនមាន Audit_Log ទេ — តម្រូវ Sheet ថ្មី និងការកត់ត្រានៅក្នុង saveTask/deleteTask/toggleDone។", "There is no audit log; it needs a new sheet and write hooks in saveTask/deleteTask/toggleDone."],
+};
+const navLbl = (kh, en) => LANG === "both" ? esc(kh) + "<small>" + esc(en) + "</small>" : esc(LANG === "kh" ? kh : en);
+/* Menus by scope (UX only — the server enforces every action): all = everything; self = my own data; office/plant/team = everything except Admin Settings */
+const isAll = () => !!S.sc && S.sc.level === "all";
+const navAllowed = n => { const l = S.sc && S.sc.level; if (l === "all") return true; if (n.id === "settings") return false; if (l === "self") return ["dashboard", "mytask", "calendar", "perf", "notify"].includes(n.id); return !!l; };
+function buildNav(){
+  $("#nav").innerHTML = NAV.filter(navAllowed).map(n => (n.id === "dashboard" ? '<div class="navgrp">ម៉ឺនុយ · Menu</div>' : n.id === "settings" ? '<div class="navgrp">ទូទៅ · General</div>' : "") + `<button data-nav="${n.id}"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${n.ic}"/></svg><span class="lbl">${navLbl(n.kh, n.en)}</span>${n.soon ? `<span class="soon">${n.soon}</span>` : ""}${n.id === "notify" ? ntNavBadge() : ""}</button>`).join("") + '<button id="navHub"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg><span class="lbl">' + navLbl("ត្រឡប់ទៅ Hub", "Back to Hub") + '</span></button><button id="navLogout"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="lbl">' + navLbl("ចាកចេញ", "Logout") + '</span></button>';
+}
+function route(){
+  const id = (location.hash.replace(/^#\/?/, "") || "dashboard").split("?")[0];
+  S.view = NAV.some(n => n.id === id && navAllowed(n)) ? id : "dashboard";
+  document.querySelectorAll("#nav button").forEach(b => { if (b.dataset.nav === S.view) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  const n = NAV.find(x => x.id === S.view); $("#title").textContent = L(n.kh, n.en);
+  document.body.classList.remove("nav-open"); closePanel(); ntClosePop();
+  if (S.view === "calendar") renderCalendar(); else if (S.view === "dashboard") renderDashboard(); else if (["staff", "tasks", "perf", "mytask"].includes(S.view)) loadP2(S.view); else if (S.view === "settings") renderSettings(); else if (S.view === "notify") renderNotify(); else renderPlanned(n);
+}
+function renderPlanned(n){
+  const p = PLANNED[n.id];
+  $("#view").innerHTML = `<div class="ph"><h2>${esc(n.kh)} · ${esc(n.en)}</h2><p>កំពុងរៀបចំ — ${esc(n.soon)}<br>Planned — ${esc(n.soon)}</p><p>${esc(p[0])}</p><p>${esc(p[1])}</p></div>`;
+}
+
+function showScope(sc){
+  if (!sc) return; const el = $("#me");
+  el.textContent = (S.me.khmer_name || S.me["khmer _name"] || S.me.name || "") + " · " + S.me.role + (sc.level === "all" ? "" : " · " + sc.label);
+}
+/* ===== data loading ===== */
+async function fetchRange(from, to){ return prepare(await api("adminGetCalendarData", { from, to })); }
+async function ensureCalendarData(force){
+  const key = S.anchor.slice(0, 7);
+  if (!force && D && S.loadedMonth === key) return true;
+  const my = ++S.tok, gs = mondayOf(monthStart(S.anchor));
+  $("#view").insertAdjacentHTML("afterbegin", '<div class="note" id="busy"><span class="spin"></span>កំពុងទាញទិន្នន័យ… / Loading…</div>');
+  try {
+    const d = await fetchRange(gs, addDays(gs, 41));
+    if (my !== S.tok) return false;
+    D = d; OCC = d.occ; S.loadedMonth = key; showScope(d.raw.scope); return true;
+  } catch (e) {
+    if (my !== S.tok) return false;
+    $("#view").innerHTML = `<div class="gate" style="margin:40px auto"><p>${esc(errText(e))}</p><p><button class="btn primary" id="retry2">ព្យាយាមម្តងទៀត / Retry</button></p></div>`;
+    $("#retry2").addEventListener("click", () => route()); return false;
+  }
+}
+
+/* ===== calendar ===== */
+function visibleRange(){
+  if (S.mode === "day") return [S.anchor, S.anchor];
+  if (S.mode === "week") { const m = mondayOf(S.anchor); return [m, addDays(m, 6)]; }
+  const gs = mondayOf(monthStart(S.anchor)); return [gs, addDays(gs, 41)];
+}
+function rangeLabel(){
+  const d = fromISO(S.anchor);
+  if (S.mode === "month") return MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear();
+  if (S.mode === "week") { const m = mondayOf(S.anchor), e = addDays(m, 6); return fromISO(m).getUTCDate() + " " + MONTHS[fromISO(m).getUTCMonth()] + " – " + fromISO(e).getUTCDate() + " " + MONTHS[fromISO(e).getUTCMonth()] + " " + fromISO(e).getUTCFullYear(); }
+  return fmtDay(S.anchor);
+}
+function opt(v, l, cur){ return `<option value="${esc(v)}"${String(v) === String(cur) ? " selected" : ""}>${esc(l)}</option>`; }
+function filterOptions(){
+  const st = D ? D.staff : [], f = S.f;
+  const plants = [...new Set(st.map(s => s.plant))].sort();
+  const inPlant = st.filter(s => !f.plant || s.plant === (f.plant === "_" ? "" : f.plant));
+  const teams = [...new Set(inPlant.map(s => s.team))].sort();
+  const people = inPlant.filter(s => !f.team || s.team === (f.team === "_" ? "" : f.team)).sort((a, b) => staffName(a).localeCompare(staffName(b)));
+  return { plants, teams, people };
+}
+function renderCalendar(){
+  const view = $("#view");
+  view.innerHTML = '<div class="note"><span class="spin"></span>កំពុងទាញទិន្នន័យ… / Loading…</div>';
+  ensureCalendarData(false).then(ok => { if (ok && S.view === "calendar") { paintCalendar(); ntAfterCalendar(); } });
+}
+function paintCalendar(){
+  const f = S.f, { plants, teams, people } = filterOptions();
+  const [from, to] = visibleRange();
+  const list = OCC.filter(o => o.date >= from && o.date <= to && passes(o, f));
+  const groups = groupOcc(list);
+  const mk = (id, l, body) => `<label class="field">${l}${body}</label>`;
+  let html = `
+  <div class="bar" role="toolbar" aria-label="Calendar navigation">
+    <button class="btn" data-act="today">ថ្ងៃនេះ · Today</button>
+    <button class="iconbtn" data-act="prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <button class="iconbtn" data-act="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+    <div class="range-title" aria-live="polite">${esc(rangeLabel())}</div>
+    <input type="date" id="jump" value="${esc(S.anchor)}" aria-label="Go to date" class="btn" style="padding:4px 8px">
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="View">
+      ${["day", "week", "month"].map(m => `<button data-mode="${m}" aria-pressed="${S.mode === m}">${{ day: "ថ្ងៃ · Day", week: "សប្តាហ៍ · Week", month: "ខែ · Month" }[m]}</button>`).join("")}
+    </div>
+  </div>
+  <div class="filters">
+    ${mk("plant", "រោងចក្រ · Factory", `<select id="fPlant">${opt("", "ទាំងអស់ · All", f.plant)}${plants.map(p => opt(p || "_", plantLabel(p), f.plant)).join("")}</select>`)}
+    ${mk("team", "ក្រុម · Team", `<select id="fTeam">${opt("", "ទាំងអស់ · All", f.team)}${teams.map(t => opt(t || "_", t || "— (គ្មានក្រុម)", f.team)).join("")}</select>`)}
+    ${mk("staff", "បុគ្គលិក · Staff", `<select id="fStaff">${opt("", "ទាំងអស់ · All", f.staff)}${people.map(s => opt(s.id, staffName(s), f.staff)).join("")}</select>`)}
+    ${mk("status", "ស្ថានភាព · Status", `<select id="fStatus">${opt("", "ទាំងអស់ · All", f.status)}${Object.keys(ST).map(k => opt(k, ST[k].kh + " · " + ST[k].en, f.status)).join("")}</select>`)}
+    ${mk("q", "ស្វែងរក · Search", `<input id="fQ" type="search" value="${esc(f.q)}" placeholder="ចំណងជើង / បុគ្គលិក / ទីតាំង">`)}
+  </div>
+  <div class="legend" aria-label="Legend">${Object.keys(ST).map(k => `<span class="s-${k}"><i class="dot"></i>${ST[k].kh} · ${ST[k].en}</span>`).join("")}</div>
+  ${D.raw.truncated ? '<div class="note">ទិន្នន័យច្រើនពេក ត្រូវបានកាត់បន្ថយ / Data was truncated by the server cap — narrow the range.</div>' : ""}`;
+  html += S.mode === "month" ? monthHTML(groups, from) : S.mode === "week" ? weekHTML(groups, from) : dayHTML(groups);
+  $("#view").innerHTML = html;
+}
+const evLabel = g => g.n > 1 ? `${g.c.c}/${g.live || g.n}` : staffName(g.occs[0].s);
+function monthHTML(groups, gs){
+  const by = {}; groups.forEach(g => (by[g.date] = by[g.date] || []).push(g));
+  const cur = S.anchor.slice(0, 7), today = localISO();
+  let h = `<div class="cal"><div class="dow">${DOW.map(d => `<div>${d}</div>`).join("")}</div><div class="grid">`;
+  for (let i = 0; i < 42; i++) {
+    const d = addDays(gs, i), gl = by[d] || [], inM = d.slice(0, 7) === cur;
+    const dots = gl.slice(0, 12).map(g => `<i class="dot s-${g.st}" title="${esc(taskTitle(g.t))}"></i>`).join("");
+    h += `<div class="cell${inM ? "" : " out"}${d === today ? " today" : ""}" data-day="${d}">
+      <button class="dn" data-day="${d}" aria-label="${esc(fmtDay(d))}">${+d.slice(8)}</button>
+      ${gl.slice(0, 3).map(g => `<button class="ev s-${g.st}" data-k="${esc(g.k)}" title="${esc(taskTitle(g.t))}"><span class="tm">${esc(g.t.start)}</span><span class="ttl">${esc(taskTitle(g.t))}</span><span class="pg">${esc(evLabel(g))}</span></button>`).join("")}
+      ${gl.length > 3 ? `<button class="more" data-day="${d}">+${gl.length - 3} ផ្សេងទៀត · more</button>` : ""}
+      <div class="dots">${dots}</div></div>`;
+  }
+  return h + "</div></div>";
+}
+function cardHTML(g, wide){
+  const who = g.n > 1 ? `${g.n} នាក់ · staff` : staffName(g.occs[0].s);
+  const time = g.t.start ? g.t.start + (g.t.end ? "–" + g.t.end : "") : "";
+  const pct = g.live ? Math.round(g.c.c / g.live * 100) : 0;
+  return `<button class="card s-${g.st}" data-k="${esc(g.k)}"><div class="t1">${esc(taskTitle(g.t))}</div>${g.t.kh && g.t.en ? `<div class="t2">${esc(g.t.en)}</div>` : ""}
+    <div class="t2">${wide ? "" : esc(time) + " · "}${esc(who)}${g.t.loc ? " · " + esc(g.t.loc) : ""}</div>
+    <div class="t3">${ST[g.st].ic} ${ST[g.st].kh}${g.n > 1 ? ` · ${g.c.c}/${g.live || g.n} (${pct}%)` : ""}</div>${g.n > 1 ? `<div class="bar2"><i style="width:${pct}%"></i></div>` : ""}</button>`;
+}
+function weekHTML(groups, mon){
+  const by = {}; groups.forEach(g => (by[g.date] = by[g.date] || []).push(g)); const today = localISO();
+  let h = '<div class="cal"><div class="cols">';
+  for (let i = 0; i < 7; i++) { const d = addDays(mon, i), gl = by[d] || [];
+    h += `<div class="col${d === today ? " today" : ""}"><h3><span>${DOW[i]} ${+d.slice(8)}</span></h3>${gl.length ? gl.map(g => cardHTML(g)).join("") : '<div class="t2" style="color:var(--muted);font-size:.8rem">—</div>'}</div>`; }
+  return h + "</div></div>";
+}
+function dayHTML(groups){
+  if (!groups.length) return `<div class="cal"><div class="empty">គ្មានសកម្មភាពក្នុងថ្ងៃនេះទេ។<br>No activities on this day.</div></div>`;
+  const by = new Map(); groups.forEach(g => { const k = g.t.start || "—"; (by.get(k) || by.set(k, []).get(k)).push(g); });
+  return `<div class="cal"><div class="daylist">${[...by.entries()].map(([tm, gl]) => `<div class="dayrow"><div class="tm">${esc(tm)}</div><div style="display:grid;gap:6px">${gl.map(g => cardHTML(g, true)).join("")}</div></div>`).join("")}</div></div>`;
+}
+
+/* ===== detail panel ===== */
+function openDetail(k){
+  const [ti, date] = k.split("|"), t = D.tasks[+ti]; if (!t) return;
+  const occs = OCC.filter(o => o.ti === +ti && o.date === date).sort((a, b) => staffName(a.s).localeCompare(staffName(b.s)));
+  const g = groupOcc(occs)[0], by = D.staff.find(s => s.id === t.assignedBy);
+  const time = t.start ? t.start + (t.end ? " – " + t.end : "") : "មិនបានកំណត់ / Not set";
+  const scope = SCOPE[t.scope] + (t.plantScope ? " · " + plantLabel(t.plantScope) : "") + (t.teamScope && t.teamScope !== "all" ? " · " + t.teamScope : "") + (t.officeScope && t.officeScope !== "dept_all" ? " · " + (OFFICES[t.officeScope] || t.officeScope) : "");
+  const online = safeUrl(t.onlineLink);
+  const chips = ["c", "i", "p", "o", "x"].filter(k => g.c[k]).map(k => `<span class="badge s-${k}">${ST[k].ic} ${ST[k].kh} ${g.c[k]}</span>`).join("");
+  $("#panel").innerHTML = `
+    <header><h2>${esc(taskTitle(t))}${t.kh && t.en ? `<br><small style="color:var(--muted);font-weight:400">${esc(t.en)}</small>` : ""}</h2><button class="iconbtn" id="closeP" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <div class="body">
+      <div style="margin-bottom:10px">${badge(g.st)}</div>
+      <dl class="kv">
+        <dt>កាលបរិច្ឆេទ · Date</dt><dd>${esc(fmtDay(date))}</dd>
+        <dt>ម៉ោងកំណត់ · Scheduled</dt><dd>${esc(time)}</dd>
+        <dt>ម្ចាស់កិច្ចការ · Scope</dt><dd>${esc(scope)}</dd>
+        <dt>ទីតាំង · Location</dt><dd>${esc(t.loc) || "—"}</dd>
+        <dt>ធ្វើម្តងទៀត · Repeat</dt><dd>${esc(REPEAT[t.repeat] || t.repeat)}</dd>
+        <dt>ចាត់តាំងដោយ · Assigned by</dt><dd>${by ? esc(staffName(by)) + " · " + esc(by.role) : (esc(t.byName || "") || "—")}</dd>
+        ${online ? `<dt>Online</dt><dd><a href="${esc(online)}" target="_blank" rel="noopener noreferrer">${esc(online)}</a></dd>` : ""}
+        <dt>កំណត់ចំណាំ · Notes</dt><dd>${esc(t.desc) || "—"}</dd>
+      </dl>
+      <div class="chips">${chips}</div>
+      <table class="t"><thead><tr><th>បុគ្គលិក · Staff</th><th>ក្រុម · Team</th><th>ស្ថានភាព</th><th>បញ្ចប់ម៉ោង · Done at</th></tr></thead><tbody>
+      ${occs.map(o => { const lk = safeUrl(o.link); return `<tr><td>${esc(staffName(o.s))}<br><small style="color:var(--muted)">${esc(o.s.role)} · ${esc(plantLabel(o.s.plant))}</small></td><td>${esc(o.s.team) || "—"}</td><td>${badge(o.st)}</td><td>${o.at ? esc(o.at) : "—"}${lk ? `<br><a href="${esc(lk)}" target="_blank" rel="noopener noreferrer">📍 ទីតាំង</a>` : ""}</td></tr>`; }).join("")}
+      </tbody></table>
+      ${isAll() ? `<div class="acts" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
+        <button class="btn" data-tact="edit" data-ti="${+ti}" data-date="${esc(date)}">✎ ${esc(L("កែការងារ", "Edit task"))}</button>
+        ${g.st === "x" ? `<button class="btn" data-tact="restore" data-tid="${esc(t.id)}">↩ ${esc(L("ស្តារវិញ", "Restore"))}</button>` : `<button class="btn" data-tact="cancel" data-tid="${esc(t.id)}" data-rep="${t.repeat && t.repeat !== "none" ? 1 : 0}">⛔ ${esc(L("បោះបង់", "Cancel task"))}</button>`}
+        <button class="btn danger" data-tact="delete" data-tid="${esc(t.id)}" data-rep="${t.repeat && t.repeat !== "none" ? 1 : 0}">🗑 ${esc(L("លុប", "Delete"))}</button>
+      </div>` : ""}
+    </div>`;
+  const p = $("#panel"); p.classList.add("open"); p.setAttribute("aria-hidden", "false"); $("#closeP").focus();
+  $("#closeP").addEventListener("click", closePanel);
+}
+function closePanel(){ const p = $("#panel"); p.classList.remove("open"); p.setAttribute("aria-hidden", "true"); }
+
+/* ===== dashboard ===== */
+function dashRange(){ if (!S.dash) { const t = localISO(); S.dash = { from: monthStart(t), to: monthEnd(t), cmp: false }; } return S.dash; }
+async function renderDashboard(){
+  const dr = dashRange();
+  $("#view").innerHTML = '<div class="note"><span class="spin"></span>កំពុងទាញទិន្នន័យ… / Loading…</div>';
+  const my = ++S.tok;
+  try {
+    const span = Math.round((fromISO(dr.to) - fromISO(dr.from)) / 864e5);
+    const cur = await fetchRange(dr.from, dr.to);
+    let prev = null;
+    if (dr.cmp) prev = await fetchRange(addDays(dr.from, -(span + 1)), addDays(dr.from, -1));
+    if (my !== S.tok || S.view !== "dashboard") return;
+    showScope(cur.raw.scope); paintDashboard(cur, prev, span);
+  } catch (e) {
+    if (my !== S.tok) return;
+    $("#view").innerHTML = `<div class="gate" style="margin:40px auto"><p>${esc(errText(e))}</p><p><button class="btn primary" id="retry3">ព្យាយាមម្តងទៀត / Retry</button></p></div>`;
+    $("#retry3").addEventListener("click", renderDashboard);
+  }
+}
+function delta(c, p, suffix, goodUp){
+  if (p == null) return ""; const d = c - p; if (Math.abs(d) < 0.05) return `<div class="d flat">= ${"ដូចដើម"} (${p.toFixed(suffix ? 1 : 0)}${suffix})</div>`;
+  const up = d > 0, good = goodUp ? up : !up;
+  return `<div class="d ${good ? "up" : "down"}">${up ? "▲" : "▼"} ${Math.abs(d).toFixed(suffix ? 1 : 0)}${suffix} · មុន ${p.toFixed(suffix ? 1 : 0)}${suffix}</div>`;
+}
+function paintDashboard(cur, prev, span){
+  const dr = S.dash, s = stats(cur.occ), ps = prev ? stats(prev.occ) : null;
+  const plants = [...new Set(cur.staff.map(x => x.plant))];
+  const kp = (l, n, k, d) => `<div class="kpi" style="--c:var(--st-${k || "p"})"><div class="n">${n}</div><div class="l">${l}</div>${d || ""}</div>`;
+  const rows = plants.sort().map(p => {
+    const ss = cur.staff.filter(x => x.plant === p), st = stats(cur.occ.filter(o => o.s && o.s.plant === p));
+    const pst = prev ? stats(prev.occ.filter(o => o.s && o.s.plant === p)) : null;
+    return { p, n: ss.length, st, pst };
+  }).sort((a, b) => b.st.total - a.st.total);
+  const seg = k => s.total ? `<i style="width:${s[k] / s.total * 100}%;background:var(--st-${k})" title="${ST[k].en} ${s[k]}"></i>` : "";
+  $("#view").innerHTML = `
+  <div class="bar">
+    <label class="field">ចាប់ពី · From<input type="date" id="dFrom" value="${esc(dr.from)}"></label>
+    <label class="field">ដល់ · To<input type="date" id="dTo" value="${esc(dr.to)}"></label>
+    <button class="btn primary" id="dApply" style="align-self:end">អនុវត្ត · Apply</button>
+    <label style="align-self:end;display:flex;gap:6px;align-items:center;min-height:40px"><input type="checkbox" id="dCmp"${dr.cmp ? " checked" : ""}> ប្រៀបធៀបរយៈពេលមុន · Compare previous period</label>
+    <span class="grow"></span>
+    <span class="me" style="display:inline">${esc(fmtDay(dr.from))} → ${esc(fmtDay(dr.to))}</span>
+  </div>
+  ${cur.raw.truncated ? '<div class="note">ទិន្នន័យត្រូវបានកាត់បន្ថយ / Truncated by server cap.</div>' : ""}
+  <div class="kpis">
+    ${kp("បុគ្គលិក · Staff", cur.staff.length, "p")}
+    ${kp("កិច្ចការសរុប · Total tasks", s.total, "p")}
+    ${kp("ផែនការ · Planned", s.p, "p", delta(s.p, ps && ps.p, "", true))}
+    ${kp("កំពុងធ្វើ · In progress", s.i, "i")}
+    ${kp("បានបញ្ចប់ · Completed", s.c, "c", delta(s.c, ps && ps.c, "", true))}
+    ${kp("ហួសកំណត់ · Overdue", s.o, "o", delta(s.o, ps && ps.o, "", false))}
+    ${kp("អត្រាបញ្ចប់ · Completion rate", s.rate.toFixed(1) + "%", "c", delta(s.rate, ps && ps.rate, "%", true))}
+  </div>
+  <div class="panelbox"><h3>ការចែកចាយស្ថានភាព · Status distribution (${s.total} សកម្មភាព${s.x ? ` · ${s.x} បានលុបចោល` : ""})</h3>
+    <div class="stack" role="img" aria-label="Status distribution">${["c", "i", "p", "o"].map(seg).join("")}</div>
+    <div class="legend" style="margin:8px 0 0">${["c", "i", "p", "o"].map(k => `<span class="s-${k}"><i class="dot"></i>${ST[k].kh} ${s[k]}</span>`).join("")}</div></div>
+  <div class="panelbox"><h3>ប្រៀបធៀបតាមរោងចក្រ · By factory</h3>
+    <table class="t"><thead><tr><th>រោងចក្រ · Factory</th><th>បុគ្គលិក</th><th>ផែនការ</th><th>កំពុងធ្វើ</th><th>បានបញ្ចប់</th><th>ហួសកំណត់</th><th>អត្រា · Rate${prev ? " (មុន)" : ""}</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td><b>${esc(plantLabel(r.p))}</b></td><td>${r.n}</td><td>${r.st.p}</td><td>${r.st.i}</td><td>${r.st.c}</td><td>${r.st.o}</td>
+      <td><div class="rate"><span class="trk"><i style="width:${r.st.rate}%"></i></span><b>${r.st.rate.toFixed(1)}%</b>${r.pst ? `<small style="color:var(--muted)">(${r.pst.rate.toFixed(1)}%)</small>` : ""}</div></td></tr>`).join("")}
+    </tbody></table></div>
+  <p class="note" style="background:var(--surface2);color:var(--muted)">ស្ថានភាព «កំពុងធ្វើ» និង «ហួសកំណត់» គណនាពីម៉ោងកំណត់ និងម៉ោងបច្ចុប្បន្ន (Sheet រក្សាទុកតែ បានបញ្ចប់/មិនទាន់)។ អត្រា = បានបញ្ចប់ ÷ (ផែនការ + កំពុងធ្វើ + បានបញ្ចប់ + ហួសកំណត់)។<br>
+  "In progress" and "Overdue" are derived from scheduled times; the sheets only store done / not done. Rate = Completed ÷ (Planned + In progress + Completed + Overdue); cancelled activities are excluded.</p>`;
+}
+
+/* ===== events ===== */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-nav],[data-act],[data-mode],[data-k],[data-day],#burger,#scrim,#refresh,#theme,#dApply");
+  if (!t) return;
+  if (t.dataset.nav) { location.hash = "#/" + t.dataset.nav; return; }
+  if (t.id === "burger") { document.body.classList.toggle("nav-open"); return; }
+  if (t.id === "scrim") { document.body.classList.remove("nav-open"); return; }
+  if (t.id === "theme") { const dark = document.documentElement.dataset.theme === "dark"; document.documentElement.dataset.theme = dark ? "light" : "dark"; try { localStorage.setItem(THEME_KEY, dark ? "light" : "dark"); } catch (x) {} return; }
+  if (t.id === "refresh") { if (S.view === "calendar") { closePanel(); renderCalendarForce(); } else if (S.view === "dashboard") renderDashboard(); else if (["staff", "tasks", "perf", "mytask"].includes(S.view)) loadP2(S.view); else if (S.view === "settings") renderSettings(true); else if (S.view === "notify") ntLoad(true); return; }
+  if (t.id === "dApply") {
+    const f = $("#dFrom").value, to = $("#dTo").value, span = f && to ? Math.round((fromISO(to) - fromISO(f)) / 864e5) : -1;
+    if (span < 0 || span > 70) { alert("ជួរកាលបរិច្ឆេទមិនត្រឹមត្រូវ (១–៧១ ថ្ងៃ) / Invalid range (max 71 days)"); return; }
+    S.dash = { from: f, to, cmp: $("#dCmp").checked }; renderDashboard(); return;
+  }
+  if (t.dataset.k) { openDetail(t.dataset.k); return; }
+  if (t.dataset.day && (t.matches("button.dn,button.more") || (t.matches(".cell") && matchMedia("(max-width:699px)").matches))) { S.anchor = t.dataset.day; S.mode = "day"; calChanged(); return; }
+  if (t.dataset.mode) { S.mode = t.dataset.mode; calChanged(); return; }
+  if (t.dataset.act === "today") { S.anchor = localISO(); calChanged(); }
+  else if (t.dataset.act === "prev" || t.dataset.act === "next") {
+    const s = t.dataset.act === "next" ? 1 : -1;
+    S.anchor = S.mode === "month" ? addMonths(S.anchor, s) : addDays(S.anchor, s * (S.mode === "week" ? 7 : 1)); calChanged();
+  }
+});
+function calChanged(){ closePanel(); if (D && S.loadedMonth === S.anchor.slice(0, 7)) paintCalendar(); else renderCalendar(); }
+function renderCalendarForce(){ D = null; renderCalendar(); }
+document.addEventListener("change", e => {
+  const i = e.target.id, f = S.f;
+  if (i === "jump") { if (e.target.value) { S.anchor = e.target.value; calChanged(); } return; }
+  if (i === "fPlant") { f.plant = e.target.value; f.team = ""; f.staff = ""; }
+  else if (i === "fTeam") { f.team = e.target.value; f.staff = ""; }
+  else if (i === "fStaff") f.staff = e.target.value;
+  else if (i === "fStatus") f.status = e.target.value;
+  else return;
+  paintCalendar();
+});
+let qT = 0;
+document.addEventListener("input", e => {
+  if (e.target.id !== "fQ") return; S.f.q = e.target.value; clearTimeout(qT);
+  qT = setTimeout(() => { const pos = e.target.selectionStart; paintCalendar(); const q = $("#fQ"); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (x) {} } }, 250);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closePanel(); document.body.classList.remove("nav-open"); } });
+window.addEventListener("hashchange", () => { if (!$("#app").hidden) route(); });
+/* ===== Phase 2: Staff & Organization + Activities & Tasks (reuse adminGetCalendarData) ===== */
+function p2(){ if (!S.p2) { const t = localISO(); S.p2 = { from: monthStart(t), to: monthEnd(t), plant: "", role: "", status: "", scope: "", q: "" }; } return S.p2; }
+async function loadP2(view){
+  const r = p2(), my = ++S.tok;
+  $("#view").innerHTML = '<div class="note"><span class="spin"></span>កំពុងទាញទិន្នន័យ… / Loading…</div>';
+  try {
+    const d = await fetchRange(r.from, r.to);
+    if (my !== S.tok || S.view !== view) return;
+    D = d; OCC = d.occ; S.loadedMonth = ""; showScope(d.raw.scope);
+    ({ staff: paintStaff, tasks: paintTasks, perf: paintPerf, mytask: paintMy })[view]();
+  } catch (e) {
+    if (my !== S.tok) return;
+    $("#view").innerHTML = `<div class="gate" style="margin:40px auto"><p>${esc(errText(e))}</p><p><button class="btn primary" id="pRetry">ព្យាយាមម្តងទៀត / Retry</button></p></div>`;
+    $("#pRetry").addEventListener("click", () => loadP2(view));
+  }
+}
+const rateCell = k => `<div class="rate"><span class="trk"><i style="width:${k.rate}%"></i></span><b>${k.rate.toFixed(1)}%</b></div>`;
+const fld = (l, body) => `<label class="field">${l}${body}</label>`;
+function p2Bar(filters){
+  const r = p2();
+  return `<div class="bar">${fld("ចាប់ពី · From", `<input type="date" id="pFrom" value="${esc(r.from)}">`)}${fld("ដល់ · To", `<input type="date" id="pTo" value="${esc(r.to)}">`)}
+    <button class="btn primary" id="pApply" style="align-self:end">អនុវត្ត · Apply</button></div>
+    <div class="filters">${filters}${fld("ស្វែងរក · Search", `<input id="pQ" type="search" value="${esc(r.q)}" placeholder="ឈ្មោះ / ចំណងជើង / ទីតាំង">`)}</div>
+    ${D.raw.truncated ? '<div class="note">ទិន្នន័យត្រូវបានកាត់បន្ថយ / Truncated by server cap.</div>' : ""}`;
+}
+function paintStaff(){
+  const r = p2(), st = D.staff, q = norm(r.q).trim(), by = {};
+  OCC.forEach(o => { if (o.s) (by[o.s.id] = by[o.s.id] || []).push(o); });
+  const plants = [...new Set(st.map(s => s.plant))].sort(), roles = [...new Set(st.map(s => s.role).filter(Boolean))].sort();
+  const rows = st.filter(s => (!r.plant || s.plant === (r.plant === "_" ? "" : r.plant)) && (!r.role || s.role === r.role) && (!q || norm([s.kh, s.en, s.id, s.role, s.team].join(" ")).includes(q)))
+    .map(s => ({ s, k: stats(by[s.id] || []) })).sort((a, b) => staffName(a.s).localeCompare(staffName(b.s)));
+  const org = plants.map(p => { const m = st.filter(s => s.plant === p); return { p, n: m.length, teams: new Set(m.map(s => s.team).filter(Boolean)).size, k: stats(m.flatMap(s => by[s.id] || [])) }; });
+  const kp = (l, n) => `<div class="kpi" style="--c:var(--st-p)"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $("#view").innerHTML = p2Bar(fld("រោងចក្រ · Factory", `<select id="pPlant">${opt("", "ទាំងអស់ · All", r.plant)}${plants.map(p => opt(p || "_", plantLabel(p), r.plant)).join("")}</select>`) + fld("តួនាទី · Role", `<select id="pRole">${opt("", "ទាំងអស់ · All", r.role)}${roles.map(x => opt(x, x, r.role)).join("")}</select>`)) + `
+  <div class="kpis">${kp("បុគ្គលិក · Staff", st.length)}${kp("រោងចក្រ · Factories", plants.filter(Boolean).length)}${kp("ក្រុម · Teams", new Set(st.map(s => s.team).filter(Boolean)).size)}${kp("តួនាទី · Roles", roles.length)}</div>
+  <div class="panelbox"><h3>រចនាសម្ព័ន្ធតាមរោងចក្រ · Organization by factory</h3><table class="t"><thead><tr><th>រោងចក្រ · Factory</th><th>បុគ្គលិក</th><th>ក្រុម</th><th>សកម្មភាព</th><th>អត្រាបញ្ចប់ · Rate</th></tr></thead><tbody>
+  ${org.map(o => `<tr><td><b>${esc(plantLabel(o.p))}</b></td><td>${o.n}</td><td>${o.teams}</td><td>${o.k.total}</td><td>${rateCell(o.k)}</td></tr>`).join("")}</tbody></table></div>
+  <div class="panelbox"><h3>បញ្ជីបុគ្គលិក · Staff (${rows.length}) — ចុចជួរដើម្បីមើលក្នុងប្រតិទិន · click a row to open in Calendar</h3><div style="overflow:auto"><table class="t"><thead><tr><th>ឈ្មោះ · Name</th><th>លេខ · ID</th><th>តួនាទី · Role</th><th>រោងចក្រ</th><th>ក្រុម · Team</th><th>ការិយាល័យ</th><th>សកម្មភាព</th><th>បញ្ចប់</th><th>ហួសកំណត់</th><th>អត្រា</th></tr></thead><tbody>
+  ${rows.map(({ s, k }) => `<tr data-staff="${esc(s.id)}" style="cursor:pointer"><td><b>${esc(staffName(s))}</b>${s.kh && s.en ? `<br><small style="color:var(--muted)">${esc(s.en)}</small>` : ""}</td><td>${esc(s.id)}</td><td>${esc(s.role)}</td><td>${esc(plantLabel(s.plant))}</td><td>${esc(s.team) || "—"}</td><td>${esc(s.office) || "—"}</td><td>${k.total}</td><td>${k.c}</td><td>${k.o}</td><td>${rateCell(k)}</td></tr>`).join("") || '<tr><td colspan="10" class="empty">គ្មានទិន្នន័យ · No staff</td></tr>'}</tbody></table></div></div>`;
+}
+/* Activities & Tasks — "by staff member" layout (KPI cards, overall progress, one expandable card per person) */
+const P3open = new Set(), AVC = ["#E5484D", "#3E63DD", "#12A594", "#F76B15", "#8E4EC6", "#0091FF"]; let P3by = {}, P3rows = [];
+const rateClr = r => r >= 70 ? "var(--st-c)" : r >= 40 ? "var(--st-i)" : "var(--st-o)";
+const initials = s => { const w = String(s.en || "").split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0]).join("").toUpperCase(); return w || [...String(s.kh || s.id)][0] || "?"; };
+function p3Occ(sid){
+  return (P3by[sid] || []).slice().sort((a, b) => a.date.localeCompare(b.date) || (a.t.start || "").localeCompare(b.t.start || "")).map(o => `<div class="oc" data-k="${o.ti}|${esc(o.date)}" style="cursor:pointer"><div class="h"><div style="font-weight:600">${esc(taskTitle(o.t))}</div>${badge(o.st)}</div>
+    <div class="m">📅 ${esc(o.date)} · 🕐 ${esc(o.t.start)}${o.t.end ? " – " + esc(o.t.end) : ""}${o.t.repeat && o.t.repeat !== "none" ? " · " + esc(REPEAT[o.t.repeat] || o.t.repeat) : ""}</div>
+    ${safeUrl(o.link) ? `<a href="${esc(safeUrl(o.link))}" target="_blank" rel="noopener noreferrer">📍 មើលទីតាំង / View location</a>` : (o.t.loc ? `<div class="m">📍 ${esc(o.t.loc)}</div>` : "")}</div>`).join("") || '<div class="empty" style="padding:12px">គ្មានកិច្ចការ · No tasks</div>';
+}
+function paintTasks(){
+  const r = p2(), q = norm(r.q).trim(); P3by = {};
+  const okOcc = o => o.s && (!r.scope || o.t.scope === r.scope) && (!r.status || o.st === r.status);
+  const byStaff = {}; OCC.forEach(o => { if (okOcc(o)) (byStaff[o.s.id] = byStaff[o.s.id] || []).push(o); });
+  const rows = [];
+  D.staff.forEach(s => {
+    const nameHit = !q || norm([s.kh, s.en, s.id, s.role, s.team].join(" ")).includes(q);
+    const list = (byStaff[s.id] || []).filter(o => nameHit || norm([o.t.kh, o.t.en, o.t.loc, o.t.desc].join(" ")).includes(q));
+    if (!nameHit && !list.length) return;
+    if ((r.status || r.scope) && !list.length) return;          // an active filter hides people with nothing to show
+    P3by[s.id] = list; rows.push({ s, list, k: stats(list) });
+  });
+  rows.sort((a, b) => (b.k.total > 0) - (a.k.total > 0) || staffName(a.s).localeCompare(staffName(b.s)));
+  P3rows = rows; const tot = stats(rows.flatMap(x => x.list)), pend = tot.p + tot.i + tot.o, pct = Math.round(tot.rate), emp = p3People(rows).filter(g => g.k.c > 0).length;
+  const kc = (key, ic, n, l, c, bg) => `<button type="button" class="kc" data-kpi="${key}" title="ចុចមើលលម្អិត · click for detail" style="--c:${c};--b:${bg}"><div class="ic">${ic}</div><div class="n">${n}</div><div class="l">${l}</div></button>`;
+  $("#view").innerHTML = p2Bar(fld("ប្រភេទ · Scope", `<select id="pScope">${opt("", "ទាំងអស់ · All", r.scope)}${Object.keys(SCOPE).map(k => opt(k, SCOPE[k], r.scope)).join("")}</select>`) + fld("ស្ថានភាព · Status", `<select id="pStatus">${opt("", "ទាំងអស់ · All", r.status)}${Object.keys(ST).map(k => opt(k, ST[k].kh + " · " + ST[k].en, r.status)).join("")}</select>`)) + `
+  <div class="kpis">${kc("emp", "👥", emp + '<small style="font-size:.9rem;color:var(--muted);font-weight:600"> / ' + new Set(D.staff.map(p3Key)).size + "</small>", "បុគ្គលិកបានបញ្ចប់កិច្ចការ · Employees who completed tasks", "var(--st-p)", "var(--st-p-bg)")}${kc("total", "☑", tot.total, "កិច្ចការសរុប · Total tasks", "var(--st-p)", "var(--st-p-bg)")}${kc("done", "✓", tot.c, "បានបញ្ចប់ · Completed", "var(--st-c)", "var(--st-c-bg)")}${kc("pend", "⏱", pend, "រង់ចាំ · Pending" + (tot.o ? " (" + tot.o + " overdue)" : ""), "var(--st-i)", "var(--st-i-bg)")}${kc("rate", "📈", pct + "%", "អត្រាបញ្ចប់ · Completion", "var(--st-c)", "var(--st-c-bg)")}</div>
+  <div class="panelbox" data-kpi="rate" title="ចុចមើលលម្អិត · click for detail" style="cursor:pointer"><div style="display:flex;justify-content:space-between;font-weight:700"><span>វឌ្ឍនភាពសរុប · Overall progress</span><span style="color:var(--st-p)">${pct}%</span></div><div class="bar3" style="margin-top:8px"><i style="width:${pct}%;background:var(--st-p)"></i></div></div>
+  <h3 style="margin:14px 0 8px">តាមបុគ្គលិក · By staff member <small style="color:var(--muted);font-weight:400">(${rows.length} staff in scope)</small></h3>
+  ${rows.map(({ s, k }) => `<details class="sc" data-sid="${esc(s.id)}"${P3open.has(s.id) ? " open" : ""}><summary><div class="av3" style="background:${AVC[[...String(s.id)].reduce((a, c) => a + c.charCodeAt(0), 0) % AVC.length]}">${esc(initials(s))}</div>
+    <div class="nm"><b>${esc(s.kh || s.en || s.id)}</b>${s.kh && s.en ? `<small>${esc(s.en)}</small>` : ""}<div class="rl">${esc(s.role)}${s.team ? " · " + esc(s.team) : ""}</div><div class="m">${k.total ? esc(k.c + "/" + k.total + " completed") : "មិនទាន់មានកិច្ចការ / No tasks yet"}</div></div>
+    <div class="pc3" style="color:${rateClr(k.rate)}">${Math.round(k.rate)}%<div class="bar3" style="width:86px;margin-top:6px"><i style="width:${k.rate}%;background:${rateClr(k.rate)}"></i></div></div><span class="chev">⌃</span></summary><div class="sc-body">${P3open.has(s.id) ? p3Occ(s.id) : ""}</div></details>`).join("") || '<div class="empty">គ្មានទិន្នន័យ · No data</div>'}
+  <p class="note" style="background:var(--surface2);color:var(--muted)">បង្ហាញតែកិច្ចការដែលមានសកម្មភាពក្នុងរយៈពេលដែលបានជ្រើស។ ចុច ឈ្មោះបុគ្គលិកដើម្បីមើលកិច្ចការ ហើយចុចចំណងជើងដើម្បីមើលលម្អិត។ / Only tasks with an occurrence in the selected range are counted. Tap a person to expand; tap a title for detail.</p>`;
+}
+
+/* ---- Activities & Tasks: every summary card opens a detail panel ---- */
+/* One PERSON = one count: the same name on two Staff_List rows (two Staff IDs) is merged, so nobody is counted twice */
+function p3Key(s){ const k = norm(s.kh).trim() + "|" + norm(s.en).trim(); return k === "|" ? "id:" + s.id : k; }
+function p3People(rows){
+  const m = new Map();
+  rows.forEach(x => { const k = p3Key(x.s); let g = m.get(k); if (!g) { g = { s: x.s, ids: [], list: [] }; m.set(k, g); } g.ids.push(x.s.id); g.list = g.list.concat(x.list); });
+  return [...m.values()].map(g => Object.assign(g, { k: stats(g.list) }));
+}
+function p3Panel(title, body){
+  $("#panel").innerHTML = `<header><h2>${title}</h2><button class="iconbtn" id="closeP" aria-label="Close">✕</button></header><div class="body" style="display:grid;gap:8px">${body}</div>`;
+  const pn = $("#panel"); pn.classList.add("open"); pn.setAttribute("aria-hidden", "false"); $("#closeP").addEventListener("click", closePanel);
+}
+const p3Item = o => `<div class="oc" data-k="${o.ti}|${esc(o.date)}" style="cursor:pointer"><div class="h"><div style="font-weight:600">${esc(taskTitle(o.t))}</div>${badge(o.st)}</div><div class="m">👤 ${esc(staffName(o.s))} · 📅 ${esc(o.date)} · 🕐 ${esc(o.t.start)}${o.t.end ? " – " + esc(o.t.end) : ""}</div></div>`;
+function p3Detail(kind){
+  const incl = P3rows.flatMap(x => x.list), all = incl.filter(o => o.st !== "x"), MAX = 300, nz = '<div class="empty">គ្មានទិន្នន័យ · No data</div>';
+  const items = l => { const s = l.slice().sort((a, b) => a.date.localeCompare(b.date) || (a.t.start || "").localeCompare(b.t.start || "") || staffName(a.s).localeCompare(staffName(b.s))); return (s.slice(0, MAX).map(p3Item).join("") || nz) + (s.length > MAX ? `<p class="note">បង្ហាញ ${MAX} ដំបូង / first ${MAX} of ${s.length}</p>` : ""); };
+  const hint = '<div style="padding:8px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink);font-size:.85rem">ចុចកិច្ចការដើម្បីមើលលម្អិត · tap an item for detail</div>';
+  if (kind === "total") return p3Panel(`កិច្ចការសរុប · Total tasks (${all.length})`, hint + items(all));
+  if (kind === "done") { const l = all.filter(o => o.st === "c"); return p3Panel(`បានបញ្ចប់ · Completed (${l.length})`, hint + items(l)); }
+  if (kind === "pend") { const l = all.filter(o => o.st !== "c"); return p3Panel(`រង់ចាំ · Pending (${l.length})`, hint + items(l)); }
+  const staffRow = ({ s, k }, extra) => `<div class="oc" data-gosid="${esc(s.id)}" style="cursor:pointer"><div class="h"><div style="font-weight:600">${esc(staffName(s))}</div><b>${extra}</b></div><div class="m">${esc(s.role)}${s.team ? " · " + esc(s.team) : ""} · ${k.c}/${k.total} completed${k.o ? " · " + k.o + " overdue" : ""}</div></div>`;
+  if (kind === "emp") {
+    const l = p3People(P3rows).filter(x => x.k.c > 0).sort((a, b) => b.k.c - a.k.c || b.k.rate - a.k.rate || staffName(a.s).localeCompare(staffName(b.s)));
+    return p3Panel(`បុគ្គលិកបានបញ្ចប់កិច្ចការ · Employees who completed tasks (${l.length})`,
+      '<div style="padding:10px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink);font-size:.85rem;line-height:1.6">បុគ្គលិកម្នាក់រាប់តែមួយ (ឈ្មោះដូចគ្នាលើ Staff ID ច្រើន ត្រូវបានបញ្ចូលគ្នា)។ រាប់បុគ្គលិកដែលបានបញ្ចប់កិច្ចការយ៉ាងហោចណាស់ ១ (មិនរាប់កិច្ចការដែលបានលុបចោល)។<br>One person = one count (the same name on several Staff IDs is merged). Counted = completed at least one task in the selected range (cancelled tasks are ignored). Tap a name to open the card.</div>'
+      + (l.map(x => staffRow(x, x.k.c + " completed" + (x.ids.length > 1 ? " · " + x.ids.length + " IDs" : ""))).join("") || nz));
+  }
+  const tot = stats(all), cnt = { c: 0, i: 0, p: 0, o: 0, x: 0 }; incl.forEach(o => cnt[o.st]++);
+  const bars = ["c", "i", "p", "o"].map(k => `<div><div style="display:flex;justify-content:space-between"><span>${badge(k)}</span><b>${cnt[k]} · ${tot.total ? Math.round(cnt[k] / tot.total * 100) : 0}%</b></div><div class="bar3" style="margin-top:4px"><i style="width:${tot.total ? cnt[k] / tot.total * 100 : 0}%;background:var(--st-${k})"></i></div></div>`).join("");
+  const low = P3rows.filter(x => x.k.total > 0).sort((a, b) => a.k.rate - b.k.rate || b.k.o - a.k.o).slice(0, 8);
+  p3Panel(`អត្រាបញ្ចប់ · Completion ${Math.round(tot.rate)}%`, bars + (cnt.x ? `<div class="m">${badge("x")} ${cnt.x}</div>` : "") + `<h3 style="margin:10px 0 0">អត្រាទាបបំផុត · Lowest completion</h3>` + (low.map(x => staffRow(x, Math.round(x.k.rate) + "%")).join("") || nz));
+}
+document.addEventListener("click", e => {
+  if (S.view !== "tasks") return;
+  const k = e.target.closest("[data-kpi]"); if (k) return p3Detail(k.dataset.kpi);
+  const g = e.target.closest("[data-gosid]"); if (!g) return;
+  const sid = g.dataset.gosid; closePanel(); P3open.add(sid); paintTasks();
+  const el = [...document.querySelectorAll("[data-sid]")].find(x => x.dataset.sid === sid); if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+});
+document.addEventListener("click", e => { if (S.view === "tasks" && e.target.closest(".oc a")) e.stopPropagation(); }, true);   // a location link must not also open the detail panel
+document.addEventListener("toggle", e => {   // <details> toggle does not bubble: capture it, fill the body lazily, remember which people are open
+  const d = e.target; if (!d.classList || !d.classList.contains("sc") || S.view !== "tasks") return;
+  const sid = d.dataset.sid;
+  if (d.open) { P3open.add(sid); d.querySelector(".sc-body").innerHTML = p3Occ(sid); } else P3open.delete(sid);
+}, true);
+document.addEventListener("click", e => {
+  const a = e.target.closest("#pApply,#pXls,#pPdf,[data-staff]"); if (!a) return;
+  if (a.id === "pXls" || a.id === "pPdf") { perfExport(a.id); return; }
+  if (a.id === "pApply") {
+    const f = $("#pFrom").value, to = $("#pTo").value, span = f && to ? Math.round((fromISO(to) - fromISO(f)) / 864e5) : -1;
+    if (span < 0 || span > 70) { alert("ជួរកាលបរិច្ឆេទមិនត្រឹមត្រូវ (១–៧១ ថ្ងៃ) / Invalid range (max 71 days)"); return; }
+    Object.assign(p2(), { from: f, to }); loadP2(S.view); return;
+  }
+  S.f = { plant: "", team: "", staff: a.dataset.staff, status: "", q: "" }; S.mode = "month"; S.anchor = localISO(); D = null; location.hash = "#/calendar";
+});
+document.addEventListener("change", e => {
+  const k = { pPlant: "plant", pRole: "role", pStatus: "status", pScope: "scope", pType: "type" }[e.target.id]; if (!k) return;
+  p2()[k] = e.target.value; paintP2();
+});
+let pT = 0;
+document.addEventListener("input", e => {
+  if (e.target.id !== "pQ") return; p2().q = e.target.value; clearTimeout(pT);
+  pT = setTimeout(() => { const pos = e.target.selectionStart; paintP2(); const q = $("#pQ"); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (x) {} } }, 250);
+});
+
+/* ===== Phase 3: Performance Reports / Export Data (client-side; reuses adminGetCalendarData) ===== */
+const paintP2 = () => ({ staff: paintStaff, tasks: paintTasks, perf: paintPerf, mytask: paintMy })[S.view]();
+const PTYPES = { staff: "តាមបុគ្គលិក · By staff", team: "តាមក្រុម · By team", factory: "តាមរោងចក្រ · By factory", detail: "ទិន្នន័យលម្អិត · Detail (every activity)" };
+const AH = ["សកម្មភាព · Total", "ផែនការ · Planned", "កំពុងធ្វើ · In progress", "បានបញ្ចប់ · Completed", "ហួសកំណត់ · Overdue", "បានលុបចោល · Cancelled", "អត្រា % · Rate"];
+const aRow = k => [k.total, k.p, k.i, k.c, k.o, k.x, k.rate.toFixed(1)];
+function perfData(){
+  const r = p2(), q = norm(r.q).trim(), t = r.type || "staff";
+  const st = D.staff.filter(s => (!r.plant || s.plant === (r.plant === "_" ? "" : r.plant)) && (!r.role || s.role === r.role) && (!q || norm([s.kh, s.en, s.id, s.team].join(" ")).includes(q)));
+  const ids = new Set(st.map(s => s.id)), by = {};
+  OCC.forEach(o => { if (o.s && ids.has(o.s.id) && (!r.status || o.st === r.status)) (by[o.s.id] = by[o.s.id] || []).push(o); });
+  const all = st.flatMap(s => by[s.id] || []);
+  let head, rows;
+  if (t === "detail") {
+    head = ["កាលបរិច្ឆេទ · Date", "ម៉ោង · Time", "កិច្ចការ · Task", "លេខ · ID", "បុគ្គលិក · Staff", "ក្រុម · Team", "រោងចក្រ · Factory", "ស្ថានភាព · Status", "បញ្ចប់ម៉ោង · Done at", "ទីតាំង · Location link"];
+    rows = all.slice().sort((a, b) => a.date.localeCompare(b.date) || (a.t.start || "").localeCompare(b.t.start || ""))
+      .map(o => [o.date, o.t.start + (o.t.end ? "–" + o.t.end : ""), taskTitle(o.t), o.s.id, staffName(o.s), o.s.team, plantLabel(o.s.plant), ST[o.st].en, o.at, safeUrl(o.link)]);
+  } else if (t === "team") {
+    head = ["រោងចក្រ · Factory", "ក្រុម · Team", "បុគ្គលិក · Staff", ...AH]; const m = new Map();
+    st.forEach(s => { const k = s.plant + "|" + s.team; (m.get(k) || m.set(k, []).get(k)).push(s); });
+    rows = [...m.values()].map(g => [plantLabel(g[0].plant), g[0].team || "—", g.length, ...aRow(stats(g.flatMap(s => by[s.id] || [])))]).filter(x => !r.status || x[3] > 0);
+  } else if (t === "factory") {
+    head = ["រោងចក្រ · Factory", "បុគ្គលិក · Staff", ...AH]; const m = new Map();
+    st.forEach(s => (m.get(s.plant) || m.set(s.plant, []).get(s.plant)).push(s));
+    rows = [...m.values()].map(g => [plantLabel(g[0].plant), g.length, ...aRow(stats(g.flatMap(s => by[s.id] || [])))]).filter(x => !r.status || x[2] > 0);
+  } else {
+    head = ["លេខ · ID", "ឈ្មោះ · Name", "តួនាទី · Role", "រោងចក្រ · Factory", "ក្រុម · Team", "ការិយាល័យ · Office", ...AH];
+    rows = st.map(s => [s.id, staffName(s), s.role, plantLabel(s.plant), s.team, s.office, ...aRow(stats(by[s.id] || []))]).filter(x => !r.status || x[6] > 0).sort((a, b) => String(a[1]).localeCompare(String(b[1])));
+  }
+  return { t, head, rows, st, all };
+}
+function paintPerf(){
+  const r = p2(); r.type = r.type || "staff";
+  const d = perfData(), k = stats(d.all), plants = [...new Set(D.staff.map(s => s.plant))].sort(), roles = [...new Set(D.staff.map(s => s.role).filter(Boolean))].sort();
+  const kp = (l, n, c) => `<div class="kpi" style="--c:var(--st-${c})"><div class="n">${n}</div><div class="l">${l}</div></div>`, MAX = 500;
+  $("#view").innerHTML = p2Bar(fld("ប្រភេទរបាយការណ៍ · Report", `<select id="pType">${Object.keys(PTYPES).map(x => opt(x, PTYPES[x], r.type)).join("")}</select>`)
+    + fld("រោងចក្រ · Factory", `<select id="pPlant">${opt("", "ទាំងអស់ · All", r.plant)}${plants.map(p => opt(p || "_", plantLabel(p), r.plant)).join("")}</select>`)
+    + fld("តួនាទី · Role", `<select id="pRole">${opt("", "ទាំងអស់ · All", r.role)}${roles.map(x => opt(x, x, r.role)).join("")}</select>`)
+    + fld("ស្ថានភាព · Status", `<select id="pStatus">${opt("", "ទាំងអស់ · All", r.status)}${Object.keys(ST).map(x => opt(x, ST[x].kh + " · " + ST[x].en, r.status)).join("")}</select>`)) + `
+  <div class="kpis">${kp("បុគ្គលិក · Staff", d.st.length, "p")}${kp("សកម្មភាព · Activities", k.total, "p")}${kp("បានបញ្ចប់ · Completed", k.c, "c")}${kp("ហួសកំណត់ · Overdue", k.o, "o")}${kp("អត្រា · Rate", k.rate.toFixed(1) + "%", "c")}</div>
+  <div class="bar"><button class="btn primary" id="pPdf">📄 Export PDF</button><button class="btn primary" id="pXls">📊 Export Excel</button><span class="grow"></span><span class="me" style="display:inline">${esc(fmtDay(r.from))} → ${esc(fmtDay(r.to))} · ${d.rows.length} ជួរ · rows</span></div>
+  <div class="panelbox"><h3>${esc(PTYPES[d.t])}</h3><div style="overflow:auto"><table class="t"><thead><tr>${d.head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>
+  ${d.rows.slice(0, MAX).map(x => `<tr>${x.map(c => `<td>${/^https?:/.test(c) ? `<a href="${esc(c)}" target="_blank" rel="noopener noreferrer">📍</a>` : esc(c)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${d.head.length}" class="empty">គ្មានទិន្នន័យ · No data</td></tr>`}</tbody></table></div>
+  ${d.rows.length > MAX ? `<p class="note">បង្ហាញ ${MAX} ជួរដំបូង — ការ Export មានទាំងអស់ ${d.rows.length} ជួរ។ / Showing first ${MAX} rows; the export contains all ${d.rows.length}.</p>` : ""}</div>`;
+}
+const safeCell = v => { v = String(v == null ? "" : v); return /^[=+\-@\t\r]/.test(v) ? "'" + v : v; };   // block spreadsheet formula injection
+const LIBS = { xlsx: ["XLSX", "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"], jspdf: ["jspdf", "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"], h2c: ["html2canvas", "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"] };
+const need = k => window[LIBS[k][0]] ? Promise.resolve() : new Promise((ok, no) => { const el = document.createElement("script"); el.src = LIBS[k][1]; el.onload = ok; el.onerror = () => no(new Error("Cannot load " + k + " library — check the internet connection")); document.head.appendChild(el); });
+function shm(inner){
+  let m = $("#shareM"); if (!m) { m = document.createElement("div"); m.id = "shareM"; m.className = "shm"; m.addEventListener("click", e => { if (e.target === m || e.target.closest("[data-shclose]")) { m.remove(); } }); document.body.appendChild(m); }
+  m.innerHTML = '<div class="shc">' + inner + "</div>";
+  return m;
+}
+function showShare(file, subject){
+  const url = URL.createObjectURL(file), canNative = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+  const m = shm(`<h3>✅ ${esc(file.name)}</h3><p class="note" style="margin:0">${(file.size / 1024).toFixed(0)} KB — ចែករំលែក ឬទាញយក · Share or download</p>
+    ${canNative ? '<button class="btn primary" id="shNative">↗ ចែករំលែក · Share (Telegram / Messenger / Email …)</button>' : ""}
+    <a class="btn" href="${url}" download="${esc(file.name)}">⬇ ទាញយក · Download</a>
+    ${canNative ? "" : '<p class="note" style="margin:0;font-size:.8rem">កម្មវិធីរុករកនេះមិនអាចចែករំលែកឯកសារដោយផ្ទាល់ — សូមទាញយកជាមុន រួចភ្ជាប់ (attach) ក្នុង Telegram/Messenger/Email។ · This browser cannot share files directly: download first, then attach it in the app.</p>'}
+    <button class="btn" data-shclose>បិទ · Close</button>`);
+  const n = m.querySelector("#shNative");
+  if (n) n.addEventListener("click", async () => { try { await navigator.share({ files: [file], title: subject, text: subject }); } catch (e) { if (e.name !== "AbortError") alert(e.message); } });
+}
+async function makePdf(d, title, busy){
+  await need("jspdf"); await need("h2c"); if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" }), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+  const host = document.createElement("div"); host.style.cssText = "position:fixed;left:-99999px;top:0;width:1120px;background:#fff;color:#000;padding:18px;font:12px 'Noto Sans Khmer',Arial,sans-serif";
+  document.body.appendChild(host);
+  const MAXR = 1000, rows = d.rows.slice(0, MAXR), PER = 22, pages = Math.max(1, Math.ceil(rows.length / PER));
+  try {
+    for (let i = 0; i < pages; i++) {
+      busy("កំពុងបង្កើត PDF… · Building PDF " + (i + 1) + "/" + pages);
+      host.innerHTML = `<h3 style="margin:0 0 8px">${esc(title)}</h3><table style="border-collapse:collapse;width:100%"><thead><tr>${d.head.map(h => `<th style="border:1px solid #999;padding:4px 6px;background:#e8eef2;text-align:left">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.slice(i * PER, (i + 1) * PER).map(x => `<tr>${x.map(c => `<td style="border:1px solid #999;padding:4px 6px">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table><div style="text-align:right;margin-top:6px;color:#555">${i + 1}/${pages}${d.rows.length > MAXR && i === pages - 1 ? " — PDF មានតែ " + MAXR + " ជួរដំបូង · first " + MAXR + " rows only (use Excel for all " + d.rows.length + ")" : ""}</div>`;
+      const cv = await window.html2canvas(host, { scale: 1.5, backgroundColor: "#ffffff" }), r = Math.min(W / cv.width, H / cv.height);
+      if (i) doc.addPage(); doc.addImage(cv.toDataURL("image/jpeg", 0.85), "JPEG", 0, 0, cv.width * r, cv.height * r);
+    }
+  } finally { host.remove(); }
+  return doc.output("blob");
+}
+async function perfExport(kind){
+  const d = perfData(), r = p2(), name = "PPWSA-Performance-" + d.t + "-" + r.from + "_" + r.to;
+  const title = "PPWSA Performance Report — " + PTYPES[d.t] + " · " + r.from + " → " + r.to, busy = m => shm('<p><span class="spin"></span> ' + esc(m) + "</p>");
+  const grid = [d.head, ...d.rows];
+  try {
+    let blob, file;
+    if (kind === "pXls") {
+      busy("កំពុងបង្កើត Excel… · Building Excel"); await need("xlsx");
+      const X = window.XLSX, ws = X.utils.aoa_to_sheet(grid), wb = X.utils.book_new(); ws["!cols"] = d.head.map(() => ({ wch: 20 })); X.utils.book_append_sheet(wb, ws, "Report");
+      blob = new Blob([X.write(wb, { bookType: "xlsx", type: "array" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }); file = new File([blob], name + ".xlsx", { type: blob.type });
+    } else {
+      blob = await makePdf(d, title, busy); file = new File([blob], name + ".pdf", { type: "application/pdf" });
+    }
+    showShare(file, title);
+  } catch (e) { shm(`<p style="color:#e5484d">${esc(e.message || e)}</p><button class="btn" data-shclose>បិទ · Close</button>`); }
+}
+function dl(name, mime, content){
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([content], { type: mime })); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+/* ===== Phase 4: My Task (+ Add Task). Uses existing backend actions saveTask / toggleDone / deleteTask ===== */
+const myTabsHTML = tab => `<div class="tabs" role="group">${[["mine", "ការងាររបស់ខ្ញុំ", "My tasks"], ["sent", "ការងារដែលខ្ញុំបានផ្ញើ", "Assigned by me"]].filter(t => !(S.sc && S.sc.level === "self" && t[0] === "sent")).map(t => `<button data-mytab="${t[0]}" aria-selected="${tab === t[0]}">${esc(L(t[1], t[2]))}</button>`).join("")}</div>`;
+/* "Assigned by me": tasks I sent to other people, one row per task + day, with the team's progress. Only tasks created after
+   assigned_by started being recorded for single-person assignments are included (broadcasts always had it). */
+function paintSent(){
+  const r = p2(), q = norm(r.q).trim(), meId = String(S.me.staff_id);
+  const sent = OCC.filter(o => o.s && o.t.assignedBy === meId && o.s.id !== meId), k = stats(sent);
+  const groups = groupOcc(sent.filter(o => !q || norm([o.t.kh, o.t.en, o.t.loc, o.t.desc, o.s.kh, o.s.en, o.s.id].join(" ")).includes(q)))
+    .filter(g => !r.status || g.st === r.status).sort((a, b) => b.date.localeCompare(a.date) || (a.t.start || "").localeCompare(b.t.start || ""));
+  const kp = (l, n, c) => `<div class="kpi" style="--c:var(--st-${c})"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $("#view").innerHTML = myTabsHTML("sent") + p2Bar(fld("ស្ថានភាព · Status", `<select id="pStatus">${opt("", "ទាំងអស់ · All", r.status)}${Object.keys(ST).map(x => opt(x, ST[x].kh + " · " + ST[x].en, r.status)).join("")}</select>`)) + `
+  <div class="bar"><button class="btn primary" id="myAdd">＋ បង្កើតការងារ · Add Task</button></div>
+  <div class="kpis">${kp("ការងារដែលបានផ្ញើ · Tasks sent", new Set(sent.map(o => o.ti + "|" + o.date)).size, "p")}${kp("អ្នកទទួល · Recipients", new Set(sent.map(o => o.s.id)).size, "p")}${kp("បានបញ្ចប់ · Completed", k.c, "c")}${kp("ហួសកំណត់ · Overdue", k.o, "o")}${kp("អត្រា · Rate", k.rate.toFixed(1) + "%", "c")}</div>
+  <div class="panelbox"><h3>ការងារដែលខ្ញុំបានផ្ញើ · Assigned by me (${groups.length})</h3><div style="overflow:auto"><table class="t"><thead><tr><th>កាលបរិច្ឆេទ · Date</th><th>ម៉ោង</th><th>ចំណងជើង · Title</th><th>ផ្ញើទៅ · Assigned to</th><th>វឌ្ឍនភាព · Progress</th><th>ស្ថានភាព</th></tr></thead><tbody>
+  ${groups.slice(0, 500).map(g => { const live = g.live || g.n, pct = live ? g.c.c / live * 100 : 0, who = g.n > 1 ? g.n + " នាក់ · staff" : staffName(g.occs[0].s);
+    return `<tr data-k="${esc(g.k)}" style="cursor:pointer"><td>${esc(fmtDay(g.date))}</td><td>${esc(g.t.start)}${g.t.end ? "–" + esc(g.t.end) : ""}</td><td><b>${esc(taskTitle(g.t))}</b>${g.t.repeat && g.t.repeat !== "none" ? `<br><small style="color:var(--muted)">${esc(REPEAT[g.t.repeat] || g.t.repeat)}</small>` : ""}</td><td>${esc(who)}${g.n === 1 ? `<br><small style="color:var(--muted)">${esc(g.occs[0].s.team || g.occs[0].s.role)}</small>` : `<br><small style="color:var(--muted)">${esc(SCOPE[g.t.scope] || "")}</small>`}</td>
+    <td><div class="rate"><span class="trk"><i style="width:${pct}%"></i></span><b>${g.c.c}/${live}</b></div></td><td>${badge(g.st)}</td></tr>`; }).join("") || '<tr><td colspan="6" class="empty">គ្មានការងារដែលបានផ្ញើក្នុងរយៈពេលនេះ · Nothing assigned by you in this range</td></tr>'}</tbody></table></div>
+  ${groups.length > 500 ? `<p class="note">បង្ហាញ ៥០០ ដំបូង · showing the first 500 of ${groups.length}</p>` : ""}
+  <p class="note" style="background:var(--surface2);color:var(--muted);margin:8px 0 0">ចុចជួរដើម្បីមើលលម្អិត កែ បោះបង់ ឬលុប។ ការងារដែលផ្ញើទៅបុគ្គលិកម្នាក់ មុនពេលមុខងារនេះចាប់ផ្តើមកត់ត្រា មិនបង្ហាញទីនេះទេ។ / Click a row for detail, edit, cancel or delete. Tasks sent to a single person before this feature started recording the sender are not listed.</p></div>`;
+}
+document.addEventListener("click", e => { const t = e.target.closest("[data-mytab]"); if (!t || S.view !== "mytask") return; p2().myTab = t.dataset.mytab; paintMy(); });
+function paintMy(){
+  if (p2().myTab === "sent") return paintSent();
+  const r = p2(), q = norm(r.q).trim(), meId = String(S.me.staff_id);
+  const mine = OCC.filter(o => o.s && o.s.id === meId), k = stats(mine);
+  const rows = mine.filter(o => (!r.status || o.st === r.status) && (!q || norm([o.t.kh, o.t.en, o.t.loc, o.t.desc].join(" ")).includes(q)))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.t.start || "").localeCompare(b.t.start || ""));
+  const kp = (l, n, c) => `<div class="kpi" style="--c:var(--st-${c})"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $("#view").innerHTML = myTabsHTML("mine") + p2Bar(fld("ស្ថានភាព · Status", `<select id="pStatus">${opt("", "ទាំងអស់ · All", r.status)}${Object.keys(ST).map(x => opt(x, ST[x].kh + " · " + ST[x].en, r.status)).join("")}</select>`)) + `
+  <div class="bar"><button class="btn primary" id="myAdd">＋ បង្កើតការងារ · Add Task</button></div>
+  <div class="kpis">${kp("កិច្ចការ · Tasks", k.total, "p")}${kp("បានបញ្ចប់ · Completed", k.c, "c")}${kp("ហួសកំណត់ · Overdue", k.o, "o")}${kp("អត្រា · Rate", k.rate.toFixed(1) + "%", "c")}</div>
+  <div class="panelbox"><h3>កិច្ចការរបស់ខ្ញុំ · My tasks (${rows.length})</h3><div style="overflow:auto"><table class="t"><thead><tr><th>កាលបរិច្ឆេទ · Date</th><th>ម៉ោង</th><th>ចំណងជើង · Title</th><th>ទីតាំង</th><th>ស្ថានភាព</th><th></th></tr></thead><tbody>
+  ${rows.map(o => `<tr><td>${esc(fmtDay(o.date))}</td><td>${esc(o.t.start)}${o.t.end ? "–" + esc(o.t.end) : ""}</td><td data-k="${o.ti}|${esc(o.date)}" style="cursor:pointer"><b>${esc(taskTitle(o.t))}</b>${o.t.repeat && o.t.repeat !== "none" ? `<br><small style="color:var(--muted)">${esc(REPEAT[o.t.repeat] || o.t.repeat)}</small>` : ""}</td><td>${esc(o.t.loc) || "—"}</td><td>${badge(o.st)}</td>
+  <td style="white-space:nowrap"><button class="btn" data-mydone="${esc(o.t.id)}|${esc(o.date)}|${o.st === "c" ? 0 : 1}" title="${o.st === "c" ? "Undo" : "Mark done"}">${o.st === "c" ? "↩" : "✔"}</button>${o.t.scope === "direct" || o.t.assignedBy === meId ? ` <button class="btn" data-mydel="${esc(o.t.id)}" title="Delete">🗑</button>` : ""}</td></tr>`).join("") || '<tr><td colspan="6" class="empty">គ្មានកិច្ចការ · No tasks — ចុច "បង្កើតការងារ" · click Add Task</td></tr>'}</tbody></table></div></div>`;
+}
+const OFFICE_OPTS = [["production", "PRDO · ការិយាល័យផលិតកម្ម · Production"], ["lab", "LABO · មន្ទីរពិសោធន៍ · Laboratory"], ["mech_elec", "MNEO · មេកានិច-អគ្គិសនី · Mech & Elec"]];
+let mSel = new Set();
+const plantOpts = sel => opt("", "ទាំងអស់ · All locations", sel) + Object.keys(PLANTS).map(k => opt(k, PLANTS[k], sel)).join("");
+function mMode(){ const r = document.querySelector('input[name="mMode"]:checked'); return r ? r.value : "me"; }
+function renderMList(){
+  const o = $("#mSOff").value, pl = $("#mSPlant").value, q = norm($("#mSQ").value).trim();
+  const list = D.staff.filter(x => (!o || x.office === o) && (!pl || x.plant === pl) && (!q || norm([x.kh, x.en, x.id, x.team].join(" ")).includes(q)))
+    .sort((x, y) => staffName(x).localeCompare(staffName(y)));
+  $("#mList").innerHTML = list.map(x => `<label><input type="checkbox" data-sid="${esc(x.id)}"${mSel.has(x.id) ? " checked" : ""}><span>${esc(staffName(x))}<small style="color:var(--muted)"> · ${esc(x.team || x.role)}</small></span></label>`).join("") || '<div class="empty" style="padding:10px">គ្មានបុគ្គលិក · No staff</div>';
+  $("#mList").dataset.ids = list.map(x => x.id).join(",");
+  $("#mCnt").textContent = "បានជ្រើស · Selected: " + mSel.size;
+}
+function syncMMode(){
+  const m = mMode(); $("#asOffice").hidden = m !== "office"; $("#asStaff").hidden = m !== "staff";
+  const dept = $("#mOff").value === "dept_all"; $("#mPlant").disabled = dept; if (m === "staff") renderMList();
+}
+let tBid = 0;
+function taskBlockHTML(date, removable){
+  const bid = ++tBid;
+  return `<section class="tblk" data-bid="${bid}" style="border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;background:var(--surface)">
+    <div style="display:flex;align-items:center;gap:8px"><b class="tnum" style="flex:1"></b>${removable ? `<button type="button" class="btn sm danger" data-tdel aria-label="Remove">✕</button>` : ""}</div>
+    ${fld("ចំណងជើង · Title *", '<input class="t-kh" maxlength="120">')}
+    ${fld("កាលបរិច្ឆេទ · Date *", `<input type="date" class="t-date" value="${date}">`)}
+    <div class="row2">${fld("ម៉ោងចាប់ផ្តើម · Start *", '<input type="time" class="t-start" value="09:00">')}${fld("ម៉ោងបញ្ចប់ · End", '<input type="time" class="t-end" value="10:00">')}</div>
+    ${fld("រយៈពេល · Duration (Auto)", '<input class="t-dur" readonly tabindex="-1" value="" style="background:var(--surface2);cursor:default">')}
+    ${fld("ធ្វើម្តងទៀត · Repeat", `<select class="t-rep">${Object.keys(REPEAT).map(x => opt(x, REPEAT[x], "none")).join("")}</select>`)}
+    ${fld("ជូនដំណឹង · Notify", `<select class="t-notify">${NOTIFY_OPTS.map(x => opt(x[0], x[1], 15)).join("")}</select>`)}
+    ${fld("ទីតាំង · Location", '<input class="t-loc" maxlength="120">')}${fld("កំណត់ចំណាំ · Notes", '<textarea class="t-desc" maxlength="500"></textarea>')}
+    <label class="field" style="grid-template-columns:auto 1fr;align-items:center;gap:8px"><input type="checkbox" class="t-online"> Online meeting</label>${fld("Link", '<input class="t-link" placeholder="https://…">')}
+  </section>`;
+}
+function renumberBlocks(){
+  const bl = [...document.querySelectorAll("#tList .tblk")];
+  bl.forEach((el, i) => { el.querySelector(".tnum").textContent = L("ការងារទី ", "Task ") + (i + 1); const d = el.querySelector("[data-tdel]"); if (d) d.hidden = bl.length < 2; });
+}
+function addTaskBlock(focus){
+  const list = $("#tList"); if (!list) return;
+  const prev = list.querySelector(".tblk:last-child .t-date");
+  list.insertAdjacentHTML("beforeend", taskBlockHTML(prev && prev.value ? prev.value : localISO(), true));
+  const blk = list.lastElementChild; syncDuration(blk); renumberBlocks();
+  if (focus) { blk.scrollIntoView({ block: "start", behavior: "smooth" }); blk.querySelector(".t-kh").focus({ preventScroll: true }); }
+}
+function openAddTask(){
+  const t = localISO(), uid = "web" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); mSel = new Set(); tBid = 0;
+  $("#panel").innerHTML = `<header><h2>បង្កើតការងារ · Add Task</h2><button class="iconbtn" id="closeP" aria-label="Close">✕</button></header>
+  <div class="body"><div class="myf" data-uid="${uid}">
+    <button type="button" id="tAddMore" class="btn" style="border:2px dashed var(--brand);color:var(--brand);background:var(--st-p-bg);min-height:48px">＋ បន្ថែមការងារមួយទៀត · Add Another Task</button>
+    <div id="tList" style="display:grid;gap:12px">${taskBlockHTML(t, false)}</div>
+    <fieldset class="asg"><legend>ចាត់តាំងទៅ · Assign to (ទាំងអស់ · all tasks)</legend>
+      <div class="seg"><label><input type="radio" name="mMode" value="me" checked> ខ្លួនខ្ញុំ · Myself</label>${(isAll() || S.me.role === "Manager") ? `<label><input type="radio" name="mMode" value="office"> ការិយាល័យ · Office</label>` : ""}${S.sc.level !== "self" ? `<label><input type="radio" name="mMode" value="staff"> បុគ្គលិក · Staff</label>` : ""}</div>
+      <div id="asOffice" hidden>${fld("ការិយាល័យ · Office", `<select id="mOff"><option value="dept_all">ទាំងនាយកដ្ឋាន · Whole department</option>${OFFICE_OPTS.map(x => opt(x[0], x[1], "production")).join("")}</select>`)}${fld("ទីតាំង · Location (រោងចក្រ · plant)", `<select id="mPlant">${plantOpts("")}</select>`)}
+        <small style="color:var(--muted)">ការងារនឹងផ្ញើទៅបុគ្គលិកទាំងអស់ក្នុងការិយាល័យ/ទីតាំងនេះ · Sent to everyone in this office/location.</small></div>
+      <div id="asStaff" hidden><div class="row2">${fld("ការិយាល័យ · Office", `<select id="mSOff"><option value="">ទាំងអស់ · All</option>${OFFICE_OPTS.map(x => opt(x[0], x[1], "")).join("")}</select>`)}${fld("ទីតាំង · Location", `<select id="mSPlant">${plantOpts("")}</select>`)}</div>
+        ${fld("ស្វែងរក · Search", '<input id="mSQ" type="search" placeholder="ឈ្មោះ / លេខ">')}
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="btn" id="mAll">ជ្រើសទាំងអស់ដែលបង្ហាញ · Select shown</button><button type="button" class="btn" id="mNone">សម្អាត · Clear</button><b id="mCnt" style="margin-left:auto"></b></div>
+        <div class="slist" id="mList"></div></div>
+    </fieldset>
+    <div id="mErr" style="color:#e5484d;font-size:.85rem"></div>
+    <button class="btn primary" id="mySave">រក្សាទុក · Save</button></div></div>`;
+  const pn = $("#panel"); pn.classList.add("open"); pn.setAttribute("aria-hidden", "false"); $("#closeP").addEventListener("click", closePanel);
+  const f = pn.querySelector(".tblk"); syncDuration(f); renumberBlocks(); f.querySelector(".t-kh").focus();
+}
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.name === "mMode" || t.id === "mOff") syncMMode();
+  else if (t.id === "mSOff" || t.id === "mSPlant") renderMList();
+  else if (t.dataset && t.dataset.sid) { t.checked ? mSel.add(t.dataset.sid) : mSel.delete(t.dataset.sid); $("#mCnt").textContent = "បានជ្រើស · Selected: " + mSel.size; }
+});
+document.addEventListener("input", e => { if (e.target.id === "mSQ") renderMList(); });
+const hmToMin = v => { const m = String(v || "").match(/^(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : null; };
+const minToHm = n => pad(Math.floor(((n % 1440) + 1440) % 1440 / 60)) + ":" + pad(((n % 60) + 60) % 60);
+function durLabel(d){
+  const h = Math.floor(d / 60), m = d % 60, kh = [], en = [];
+  if (h) { kh.push(h + " ម៉ោង"); en.push(h + (h === 1 ? " hour" : " hours")); }
+  if (m) { kh.push(m + " នាទី"); en.push(m + (m === 1 ? " min" : " mins")); }
+  return LANG === "en" ? en.join(" ") : LANG === "kh" ? kh.join(" ") : kh.join(" ") + " · " + en.join(" ");
+}
+function syncDuration(blk){                                    // read-only: always derived from that block's Start / End
+  const st = blk.querySelector(".t-start"), en = blk.querySelector(".t-end"), du = blk.querySelector(".t-dur"); if (!st || !en || !du) return;
+  const a = hmToMin(st.value), b = hmToMin(en.value);
+  if (a == null || b == null) { du.value = "—"; return; }
+  let d = b - a; if (d <= 0) d += 1440;                       // overnight shift ends next day
+  du.value = durLabel(d);
+}
+const onTimeEdit = e => { if (e.target.matches && e.target.matches(".t-start,.t-end")) syncDuration(e.target.closest(".tblk")); };
+document.addEventListener("change", onTimeEdit); document.addEventListener("input", onTimeEdit);
+document.addEventListener("click", e => {
+  if (e.target.closest("#tAddMore")) return addTaskBlock(true);
+  const d = e.target.closest("[data-tdel]");
+  if (d) { const blk = d.closest(".tblk"); if (document.querySelectorAll("#tList .tblk").length > 1) { blk.remove(); renumberBlocks(); } }
+});
+document.addEventListener("click", e => {
+  const b = e.target.closest("#mAll,#mNone"); if (!b) return;
+  if (b.id === "mAll") ($("#mList").dataset.ids || "").split(",").filter(Boolean).forEach(i => mSel.add(i)); else mSel.clear();
+  renderMList();
+});
+async function saveMyTask(btn){
+  const v = id => $("#" + id).value.trim(), err = m => { $("#mErr").textContent = m; };
+  const mode = mMode(), uid = document.querySelector(".myf").dataset.uid, blocks = [...document.querySelectorAll("#tList .tblk")];
+  const tasks = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const el = blocks[i], g = c => el.querySelector(c), n = blocks.length > 1 ? (L("ការងារទី ", "Task ") + (i + 1) + ": ") : "";
+    const kh = g(".t-kh").value.trim(), date = g(".t-date").value, start = g(".t-start").value, link = g(".t-link").value.trim(), online = g(".t-online").checked;
+    if (!kh) return err(n + "សូមបញ្ចូលចំណងជើង · Title is required");
+    if (!date || !start) return err(n + "សូមបញ្ចូលកាលបរិច្ឆេទ និងម៉ោងចាប់ផ្តើម · Date and start time are required");
+    if (online && link && !safeUrl(link)) return err(n + "Link ត្រូវចាប់ផ្តើមដោយ https:// · Link must start with https://");
+    tasks.push({ bid: el.dataset.bid, date, base: { kh, en: "", date, start, end: g(".t-end").value, loc: g(".t-loc").value.trim(), desc: g(".t-desc").value.trim(), repeat: g(".t-rep").value, notify: Number(g(".t-notify").value), online, onlineLink: online ? link : "" } });
+  }
+  if (mode === "staff" && !mSel.size) return err("សូមជ្រើសបុគ្គលិកយ៉ាងតិចម្នាក់ · Select at least one staff member");
+  const jobs = [];
+  tasks.forEach(t => {
+    const rid = uid + "-b" + t.bid;                         // stable per task block, so pressing Save again never duplicates one that already saved
+    if (mode === "office") { const o = v("mOff"); jobs.push({ ...t.base, officeScope: o, plantScope: o === "dept_all" ? "" : v("mPlant"), clientRequestId: rid }); }
+    else if (mode === "staff") [...mSel].forEach(id => jobs.push({ ...t.base, staffId: id, clientRequestId: rid + "-" + id }));
+    else jobs.push({ ...t.base, staffId: String(S.me.staff_id), clientRequestId: rid });
+  });
+  btn.disabled = true; err(""); let ok = 0, lastErr = "";
+  for (let i = 0; i < jobs.length; i++) {
+    if (jobs.length > 1) btn.textContent = "កំពុងរក្សាទុក… · Saving " + (i + 1) + "/" + jobs.length;
+    try { await api("saveTask", jobs[i]); ok++; } catch (e) { lastErr = errText(e); }
+  }
+  btn.textContent = "រក្សាទុក · Save";
+  if (ok < jobs.length) {   // retry is safe: each job keeps its own clientRequestId, so the backend skips ones already created
+    btn.disabled = false; return err("បានរក្សាទុក " + ok + "/" + jobs.length + " — " + lastErr + " · ចុចរក្សាទុកម្តងទៀតសម្រាប់ដែលនៅសល់ · Press Save again for the rest.");
+  }
+  closePanel(); const r = p2(), dates = tasks.map(t => t.date).sort();
+  if (dates[0] < r.from || dates[dates.length - 1] > r.to) { r.from = monthStart(dates[0]); r.to = monthEnd(dates[dates.length - 1]); if (daysBetween(r.from, r.to) > 70) { r.from = monthStart(dates[0]); r.to = monthEnd(dates[0]); } }
+  if (mode !== "me") p2().myTab = "sent";
+  loadP2("mytask");
+  if (tasks.length > 1 || mode !== "me") alert(tasks.length > 1 ? "បានបង្កើតការងារ " + tasks.length + " រួចរាល់ · " + tasks.length + " tasks created" : mode === "office" ? "បានបង្កើតការងារសម្រាប់ការិយាល័យ/ទីតាំងរួចរាល់ · Task created for the selected office/location" : "បានបង្កើតការងារសម្រាប់ " + mSel.size + " នាក់ · Task created for " + mSel.size + " staff");
+}
+/* ---- Phase 6: edit / cancel / restore / delete an already-assigned task (Admin) ---- */
+function refreshAfterTaskChange(){ closePanel(); if (S.view === "calendar") renderCalendarForce(); else route(); }
+function openEditTask(ti, date){
+  const t = D.tasks[ti]; if (!t) return; tBid = 0;
+  const who = [...new Set(OCC.filter(o => o.ti === ti && o.s).map(o => staffName(o.s)))];
+  const rep = t.repeat && t.repeat !== "none";
+  $("#panel").innerHTML = `<header><h2>កែការងារ · Edit Task</h2><button class="iconbtn" id="closeP" aria-label="Close">✕</button></header>
+  <div class="body"><div class="myf" data-eid="${esc(t.id)}">
+    <div class="note" style="background:var(--surface2);color:var(--muted);margin:0">${esc(L("ផ្ញើទៅ", "Assigned to"))}: <b>${esc(SCOPE[t.scope] || t.scope)}</b>${who.length ? " · " + esc(who.slice(0, 3).join(", ")) + (who.length > 3 ? " +" + (who.length - 3) : "") : ""}<br>${esc(L("អ្នកទទួលមិនអាចប្តូរទីនេះបានទេ — បោះបង់ការងារនេះ រួចបង្កើតថ្មី។", "The recipients cannot be changed here — cancel this task and create a new one."))}</div>
+    ${rep ? `<div class="note" style="margin:0">${esc(L("ការងារនេះធ្វើម្តងទៀត៖ ការកែប៉ះពាល់ទាំងស៊េរី ហើយការបញ្ចប់ដែលបានកត់ត្រារួចនៅជាប់ថ្ងៃចាស់។", "This task repeats: the change applies to the whole series, and completions already recorded stay on their old dates."))}</div>` : ""}
+    <div id="tList">${taskBlockHTML(t.date || date, false)}</div>
+    <div id="mErr" style="color:#e5484d;font-size:.85rem"></div>
+    <button class="btn primary" id="myEditSave">${esc(L("រក្សាទុកការកែ", "Save changes"))}</button></div></div>`;
+  const pn = $("#panel"); pn.classList.add("open"); pn.setAttribute("aria-hidden", "false"); $("#closeP").addEventListener("click", closePanel);
+  const b = pn.querySelector(".tblk"), g = c => b.querySelector(c);
+  b.querySelector(".tnum").textContent = taskTitle(t);
+  g(".t-kh").value = taskTitle(t); g(".t-start").value = t.start || ""; g(".t-end").value = t.end || ""; g(".t-loc").value = t.loc || ""; g(".t-desc").value = t.desc || "";
+  g(".t-rep").value = t.repeat || "none";
+  const nf = g(".t-notify"), nv = String(t.notify == null ? 15 : t.notify);
+  if (![...nf.options].some(o => o.value === nv)) nf.insertAdjacentHTML("afterbegin", opt(nv, nv + " នាទីមុន · " + nv + " mins before", nv));
+  nf.value = nv;
+  g(".t-online").checked = !!t.online; g(".t-link").value = t.onlineLink || "";
+  syncDuration(b); g(".t-kh").focus();
+}
+async function saveEditTask(btn){
+  const el = document.querySelector("#tList .tblk"), g = c => el.querySelector(c), err = m => { $("#mErr").textContent = m; };
+  const id = document.querySelector(".myf").dataset.eid, kh = g(".t-kh").value.trim(), date = g(".t-date").value, start = g(".t-start").value, link = g(".t-link").value.trim(), online = g(".t-online").checked;
+  if (!kh) return err("សូមបញ្ចូលចំណងជើង · Title is required");
+  if (!date || !start) return err("សូមបញ្ចូលកាលបរិច្ឆេទ និងម៉ោងចាប់ផ្តើម · Date and start time are required");
+  if (online && link && !safeUrl(link)) return err("Link ត្រូវចាប់ផ្តើមដោយ https:// · Link must start with https://");
+  btn.disabled = true; err("");
+  try { await api("adminUpdateTask", { id, kh, date, start, end: g(".t-end").value, loc: g(".t-loc").value.trim(), desc: g(".t-desc").value.trim(), repeat: g(".t-rep").value, notify: Number(g(".t-notify").value), online, onlineLink: online ? link : "" }); refreshAfterTaskChange(); }
+  catch (e) { btn.disabled = false; err(errText(e)); }
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-tact],#myEditSave"); if (!b) return;
+  if (b.id === "myEditSave") return saveEditTask(b);
+  const act = b.dataset.tact, id = b.dataset.tid, rep = b.dataset.rep === "1";
+  if (act === "edit") return openEditTask(+b.dataset.ti, b.dataset.date);
+  const msg = act === "cancel" ? L("បោះបង់ការងារនេះ? បុគ្គលិកនឹងលែងឃើញវា ហើយលែងទទួលសាររំលឹក ប៉ុន្តែប្រវត្តិនៅដដែល។", "Cancel this task? Staff will stop seeing it and stop getting reminders, but its history is kept.") + (rep ? "\n" + L("ប៉ះពាល់ទាំងស៊េរីដែលធ្វើម្តងទៀត។", "This affects the whole repeating series.") : "")
+    : act === "restore" ? L("ស្តារការងារនេះវិញ?", "Restore this task?")
+    : L("លុបការងារនេះជាអចិន្ត្រៃយ៍? មិនអាចត្រឡប់វិញបានទេ។", "Delete this task permanently? This cannot be undone.") + (rep ? "\n" + L("ប៉ះពាល់ទាំងស៊េរីដែលធ្វើម្តងទៀត។", "This affects the whole repeating series.") : "");
+  if (!confirm(msg)) return;
+  b.disabled = true;
+  try {
+    if (act === "delete") await api("adminDeleteTask", { id }); else await api("adminCancelTask", { id, cancelled: act === "cancel" });
+    refreshAfterTaskChange();
+  } catch (x) { b.disabled = false; alert(errText(x)); }
+});
+const daysBetween = (a, b) => Math.round((fromISO(b) - fromISO(a)) / 864e5);
+document.addEventListener("click", async e => {
+  const a = e.target.closest("#myAdd,#mySave,[data-mydone],[data-mydel]"); if (!a) return;
+  if (a.id === "myAdd") return openAddTask();
+  if (a.id === "mySave") return saveMyTask(a);
+  try {
+    a.disabled = true;
+    if (a.dataset.mydone) { const [id, date, d] = a.dataset.mydone.split("|"); await api("toggleDone", { id, date, done: d === "1" }); }
+    else { if (!confirm("លុបកិច្ចការនេះ (រួមទាំងរាល់ពេលដែលធ្វើម្តងទៀត)? / Delete this task, including all repeats?")) { a.disabled = false; return; } await api("deleteTask", { id: a.dataset.mydel }); }
+    loadP2("mytask");
+  } catch (x) { a.disabled = false; alert(errText(x)); }
+});
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("#navHub,#navLogout"); if (!b) return;
+  if (b.id === "navLogout") {
+    if (!confirm("ចាកចេញពីប្រព័ន្ធ? / Log out?")) return;
+    ["psmd_digital_session_v1", "psmd_digital_me_v1", "psmd_digital_checked_v1"].forEach(k => { try { localStorage.removeItem(k); } catch (x) {} });
+  }
+  location.href = "./";
+});
+
+/* ===== Phase 4: Admin Settings & Audit Log ===== */
+/* --- language: Khmer + English / Khmer only / English only --- */
+const LANG_KEY = "psmd_admin_lang";
+let LANG = "both";
+try { const v = localStorage.getItem(LANG_KEY); if (v === "kh" || v === "en" || v === "both") LANG = v; } catch (e) {}
+const L = (kh, en) => LANG === "kh" ? kh : LANG === "en" ? en : kh + " · " + en;
+const KHMER_RE = /[ក-៿]/;
+const ORIG = new WeakMap();
+/* Generic trimming of "ខ្មែរ · English" / "ខ្មែរ / English" UI labels (headings, table heads, buttons, options, badges). Staff names, task titles and other data cells are never touched. */
+const L_SEL = "h1,h2,h3,h4,th,label,button,option,legend,.l,.navgrp,.soon,.badge,.pill,.tabs button,.dlg .opt span";
+const L_BOX = ".note,.ph,.gate";
+function pickLang(t){
+  const m = t.match(/^(\s*)(.*?)\s(?:·|\/)\s(.*?)(\s*)$/s);
+  if (!m || !KHMER_RE.test(m[2]) || KHMER_RE.test(m[3]) || !/[A-Za-z]/.test(m[3])) return t;
+  return m[1] + (LANG === "kh" ? m[2] : m[3]) + m[4];
+}
+function applyLang(){
+  document.documentElement.lang = LANG === "en" ? "en" : "km";
+  const nodes = [];
+  document.querySelectorAll(L_SEL).forEach(el => el.childNodes.forEach(n => { if (n.nodeType === 3) nodes.push(n); }));
+  nodes.forEach(n => { if (!ORIG.has(n)) ORIG.set(n, n.nodeValue); const o = ORIG.get(n); const v = LANG === "both" ? o : pickLang(o); if (n.nodeValue !== v) n.nodeValue = v; });
+  document.querySelectorAll(L_BOX).forEach(box => {          // paragraphs written "Khmer<br>English"
+    const kids = [...box.childNodes], hasKh = kids.some(n => n.nodeType === 3 && KHMER_RE.test(n.nodeValue));
+    kids.forEach(n => {
+      if (n.nodeType === 3 && n.nodeValue.trim()) { if (!ORIG.has(n)) ORIG.set(n, n.nodeValue); const o = ORIG.get(n), isKh = KHMER_RE.test(o);
+        const hide = LANG !== "both" && hasKh && ((LANG === "kh" && !isKh && /[A-Za-z]/.test(o)) || (LANG === "en" && isKh));
+        n.nodeValue = hide ? "" : o; }
+      else if (n.nodeType === 1 && n.tagName === "BR") n.style.display = (LANG !== "both" && hasKh) ? "none" : "";
+    });
+  });
+}
+let langRaf = 0;
+new MutationObserver(() => { if (LANG === "both" && !document.querySelector("[data-lang-dirty]")) { /* nothing to trim, but keep originals fresh */ } cancelAnimationFrame(langRaf); langRaf = requestAnimationFrame(applyLang); }).observe(document.body, { childList: true, subtree: true });
+function setLang(v){
+  LANG = v; try { localStorage.setItem(LANG_KEY, v); } catch (e) {}
+  buildNav(); const n = NAV.find(x => x.id === S.view); if (n) $("#title").textContent = L(n.kh, n.en); applyLang(); ntLangRefresh();
+}
+
+/* --- shared helpers --- */
+const ST4 = { tab: "users", users: null, usersAt: 0, uf: { q: "", role: "", plant: "", pw: "" }, audit: null, af: null };
+const fmtTs = ms => { if (!ms) return ""; const d = new Date(ms); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()); };
+function errText4(e){
+  const m = { cannot_change_own_role: L("មិនអាចប្តូរតួនាទីខ្លួនឯងបានទេ", "You cannot change your own role"), invalid_role: L("តួនាទីមិនត្រឹមត្រូវ", "Unknown role"),
+    last_admin: L("ត្រូវនៅសល់ Admin យ៉ាងតិចម្នាក់", "At least one admin must remain"), cannot_reset_self: L("មិនអាច Reset គណនីខ្លួនឯងនៅទីនេះបានទេ — ប្រើ Profile ក្នុងកម្មវិធីបុគ្គលិក", "You cannot reset your own password here — use Profile in the staff app"),
+    invalid_pin_format: L("ពាក្យសម្ងាត់ត្រូវមាន ៦–៣២ តួអក្សរ", "Password must be 6–32 characters"), staff_not_found: L("រកមិនឃើញបុគ្គលិក", "Staff member not found"),
+    missing_staff_id: L("ខ្វះលេខបុគ្គលិក", "Missing staff id"), role_column_missing: L("Staff_List គ្មានជួរ role", "Staff_List has no role column") };
+  return m[e && e.code] || errText(e);
+}
+function dlg(inner){
+  const o = document.createElement("div"); o.className = "shm"; o.id = "dlgM";
+  o.innerHTML = '<div class="dlg" role="dialog" aria-modal="true">' + inner + "</div>";
+  o.addEventListener("click", e => { if (e.target === o || e.target.closest("[data-dclose]")) o.remove(); });
+  document.body.appendChild(o);
+  const f = o.querySelector("input,select,button"); if (f) f.focus();
+  return o;
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") { const o = $("#dlgM"); if (o) o.remove(); } });
+const userById = id => (ST4.users ? ST4.users.users.find(u => u.id === id) : null);
+const roleIsAdmin = r => ST4.users ? ST4.users.adminRoles.indexOf(r) !== -1 : false;
+
+/* --- entry --- */
+const SET_TABS = [["users", "អ្នកប្រើ", "Users"], ["roles", "តួនាទី និងសិទ្ធិ", "Roles & Permissions"], ["audit", "កំណត់ត្រាសវនកម្ម", "Audit Log"], ["prefs", "ចំណូលចិត្ត", "Preferences"]];
+function setShell(body){
+  $("#view").innerHTML = `<div class="tabs" role="tablist">${SET_TABS.map(t => `<button role="tab" data-stab="${t[0]}" aria-selected="${ST4.tab === t[0]}">${esc(L(t[1], t[2]))}</button>`).join("")}</div><div id="setBody">${body}</div>`;
+}
+async function renderSettings(force){
+  const my = ++S.tok;
+  if (ST4.tab === "prefs") return paintPrefs();
+  setShell('<div class="note"><span class="spin"></span>' + esc(L("កំពុងទាញទិន្នន័យ…", "Loading…")) + "</div>");
+  try {
+    if (ST4.tab !== "audit" && (force || !ST4.users || Date.now() - ST4.usersAt > 30000)) { const d = await api("adminGetUsers", {}); if (my !== S.tok) return; ST4.users = d; ST4.usersAt = Date.now(); }
+    if (ST4.tab === "audit") return await loadAudit(my);
+    if (ST4.tab === "roles") paintRoles(); else paintUsers();
+  } catch (e) {
+    if (my !== S.tok) return;
+    setShell(`<div class="gate" style="margin:30px auto"><p>${esc(errText4(e))}</p><p><button class="btn primary" id="setRetry">${esc(L("ព្យាយាមម្តងទៀត", "Retry"))}</button></p></div>`);
+  }
+}
+
+/* --- Users --- */
+function paintUsers(){
+  const d = ST4.users, f = ST4.uf, q = norm(f.q).trim();
+  const plants = [...new Set(d.users.map(u => u.plant))].sort();
+  const rows = d.users.filter(u => (!f.role || u.role === f.role) && (!f.plant || u.plant === (f.plant === "_" ? "" : f.plant)) && (!f.pw || (f.pw === "none" ? !u.hasPin : u.hasPin)) && (!q || norm([u.kh, u.en, u.id, u.role, u.team].join(" ")).includes(q)))
+    .sort((a, b) => staffName(a).localeCompare(staffName(b)));
+  const admins = d.users.filter(u => roleIsAdmin(u.role)).length, nopw = d.users.filter(u => !u.hasPin).length, tg = d.users.filter(u => u.hasTg).length;
+  const kp = (l, n, c) => `<div class="kpi" style="--c:${c || "var(--st-p)"}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`;
+  setShell(`<div class="kpis">${kp(L("បុគ្គលិក", "Staff"), d.users.length)}${kp(L("Admin", "Admins"), admins, "var(--brand)")}${kp(L("មានពាក្យសម្ងាត់ Browser", "With browser password"), d.users.length - nopw, "var(--st-c)")}${kp(L("គ្មានពាក្យសម្ងាត់", "No password yet"), nopw, "var(--st-i)")}${kp(L("ភ្ជាប់ Telegram", "Telegram linked"), tg)}</div>
+  <div class="filters">
+    ${fld(L("ស្វែងរក", "Search"), `<input id="uQ" type="search" value="${esc(f.q)}" placeholder="${esc(L("ឈ្មោះ / លេខ / តួនាទី", "name / id / role"))}">`)}
+    ${fld(L("តួនាទី", "Role"), `<select id="uRole">${opt("", L("ទាំងអស់", "All"), f.role)}${d.roles.map(r => opt(r.role, r.role + (r.admin ? " ★" : ""), f.role)).join("")}</select>`)}
+    ${fld(L("រោងចក្រ", "Factory"), `<select id="uPlant">${opt("", L("ទាំងអស់", "All"), f.plant)}${plants.map(p => opt(p || "_", plantLabel(p), f.plant)).join("")}</select>`)}
+    ${fld(L("ពាក្យសម្ងាត់", "Password"), `<select id="uPw">${opt("", L("ទាំងអស់", "All"), f.pw)}${opt("none", L("មិនទាន់មាន", "Not set"), f.pw)}${opt("set", L("មានរួច", "Set"), f.pw)}</select>`)}
+  </div>
+  <div class="bar"><span class="grow"></span><button class="btn danger" id="uAll">${esc(L("ចេញពីប្រព័ន្ធទាំងអស់គ្នា", "Sign everyone out"))}</button></div>
+  <div class="panelbox"><h3>${esc(L("គ្រប់គ្រងអ្នកប្រើ", "User management"))} (${rows.length})</h3><div style="overflow:auto"><table class="t"><thead><tr>
+    <th>${esc(L("ឈ្មោះ", "Name"))}</th><th>ID</th><th>${esc(L("តួនាទី", "Role"))}</th><th>${esc(L("រោងចក្រ", "Factory"))}</th><th>${esc(L("ក្រុម", "Team"))}</th><th>${esc(L("ស្ថានភាព", "Status"))}</th><th>${esc(L("សកម្មភាព", "Actions"))}</th></tr></thead><tbody>
+  ${rows.map(u => { const me = u.id === d.me; return `<tr><td><b>${esc(staffName(u))}</b>${u.kh && u.en ? `<br><small style="color:var(--muted)">${esc(u.en)}</small>` : ""}${me ? ` <span class="pill adm">${esc(L("ខ្ញុំ", "you"))}</span>` : ""}</td><td class="mono">${esc(u.id)}</td>
+    <td>${roleIsAdmin(u.role) ? `<span class="pill adm">${esc(u.role)}</span>` : esc(u.role) || "—"}</td><td>${esc(plantLabel(u.plant))}</td><td>${esc(u.team) || "—"}</td>
+    <td><span class="pill ${u.hasPin ? "good" : "warn"}">🔑 ${esc(u.hasPin ? L("មាន", "set") : L("គ្មាន", "none"))}</span> <span class="pill ${u.hasTg ? "good" : ""}">✈ ${esc(u.hasTg ? "Telegram" : "—")}</span>${u.signedOutAt ? `<br><small style="color:var(--muted)">${esc(L("ចេញពីប្រព័ន្ធ", "signed out"))} ${esc(fmtTs(u.signedOutAt))}</small>` : ""}</td>
+    <td><div class="acts"><button class="btn sm" data-urole="${esc(u.id)}"${me ? " disabled" : ""}>${esc(L("តួនាទី", "Role"))}</button><button class="btn sm" data-upw="${esc(u.id)}"${me ? " disabled" : ""}>${esc(L("Reset ពាក្យសម្ងាត់", "Reset password"))}</button><button class="btn sm danger" data-uout="${esc(u.id)}">${esc(L("បង្ខំចេញ", "Sign out"))}</button></div></td></tr>`; }).join("")}
+  </tbody></table></div></div>
+  <p class="note" style="background:var(--surface2);color:var(--muted)">${esc(L("«បង្ខំចេញ» បិទ Session ក្នុង Browser (Hub / Portal)។ គណនី Telegram Mini App មិនរងផលប៉ះពាល់ទេ ព្រោះ Telegram ផ្ទៀងផ្ទាត់ខ្លួនឯង។ ទិន្នន័យសម្ងាត់ (ពាក្យសម្ងាត់ លេខ Telegram) មិនដែលផ្ញើមក Portal ទេ។", "“Sign out” ends browser sessions (Hub / Portal). Telegram Mini App sessions are not affected — Telegram authenticates them itself. Secrets (password hashes, Telegram ids) are never sent to this page."))}</p>`);
+}
+function userDlgHead(u, title){ return `<h3>${esc(title)}</h3><div><b>${esc(staffName(u))}</b> <span class="mono" style="color:var(--muted)">${esc(u.id)}</span><br><small style="color:var(--muted)">${esc(u.role)} · ${esc(plantLabel(u.plant))}${u.team ? " · " + esc(u.team) : ""}</small></div>`; }
+function roleDlg(id){
+  const u = userById(id), d = ST4.users; if (!u) return;
+  const o = dlg(`${userDlgHead(u, L("ប្តូរតួនាទី", "Change role"))}
+    <label class="field">${esc(L("តួនាទីថ្មី", "New role"))}<select id="rdRole">${d.roles.map(r => opt(r.role, r.role + (r.admin ? " ★ " + L("Admin", "admin") : ""), u.role)).join("")}</select></label>
+    <div id="rdWarn" class="note" hidden></div><div class="err" id="rdErr" role="alert"></div>
+    <div class="row"><button class="btn" data-dclose>${esc(L("បោះបង់", "Cancel"))}</button><button class="btn primary" id="rdOk">${esc(L("រក្សាទុក", "Save"))}</button></div>`);
+  const sel = o.querySelector("#rdRole"), warn = o.querySelector("#rdWarn");
+  const upd = () => { const to = sel.value, a = roleIsAdmin(to), was = roleIsAdmin(u.role); warn.hidden = !(a !== was);
+    warn.textContent = a && !was ? L("អ្នកនេះនឹងទទួលបានសិទ្ធិ Admin ពេញលេញ — ឃើញបុគ្គលិក រោងចក្រ និងការកំណត់ទាំងអស់។", "This person will get full Admin access — all staff, factories and these settings.") : L("អ្នកនេះនឹងបាត់បង់សិទ្ធិ Admin។", "This person will lose Admin access."); };
+  sel.addEventListener("change", upd);
+  o.querySelector("#rdOk").addEventListener("click", async e => {
+    const b = e.currentTarget, to = sel.value; if (to === u.role) return o.remove();
+    b.disabled = true; o.querySelector("#rdErr").textContent = "";
+    try { await api("adminSetRole", { staffId: id, role: to }); o.remove(); ST4.users = null; renderSettings(true); }
+    catch (er) { b.disabled = false; o.querySelector("#rdErr").textContent = errText4(er); }
+  });
+}
+const PW_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+function genPw(){ const a = new Uint32Array(10); crypto.getRandomValues(a); return [...a].map(x => PW_CHARS[x % PW_CHARS.length]).join(""); }
+async function copyText(t){ try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } }
+function pwDlg(id){
+  const u = userById(id); if (!u) return;
+  const o = dlg(`${userDlgHead(u, L("Reset ពាក្យសម្ងាត់", "Reset password"))}
+    <label class="opt"><input type="radio" name="pwm" value="set" checked><span><b>${esc(L("កំណត់ពាក្យសម្ងាត់បណ្តោះអាសន្ន", "Set a temporary password"))}</b><br><small style="color:var(--muted)">${esc(L("ប្រគល់ឲ្យគាត់ដោយផ្ទាល់ ហើយឲ្យគាត់ប្តូរក្នុង Profile។", "Give it to them privately and ask them to change it in Profile."))}</small></span></label>
+    <div class="pw" id="pwRow"><input type="text" id="pwVal" autocomplete="off" spellcheck="false" maxlength="32" aria-label="Password"><button class="btn" type="button" id="pwGen">${esc(L("បង្កើត", "Generate"))}</button></div>
+    <label class="opt"><input type="radio" name="pwm" value="clear"><span><b>${esc(L("លុបពាក្យសម្ងាត់", "Clear the password"))}</b><br><small style="color:var(--muted)">${esc(L("គាត់ត្រូវបង្កើតថ្មីតាមលេខកូដ OTP ក្នុង Telegram។", "They must create a new one through the Telegram one-time code."))}</small></span></label>
+    <div class="note">${esc(L("គ្រប់ Session Browser ចាស់របស់អ្នកនេះនឹងត្រូវបិទភ្លាមៗ។", "All of this person's existing browser sessions will be ended immediately."))}</div>
+    <div class="err" id="pwErr" role="alert"></div>
+    <div class="row"><button class="btn" data-dclose>${esc(L("បោះបង់", "Cancel"))}</button><button class="btn primary" id="pwOk">${esc(L("អនុវត្ត", "Apply"))}</button></div>`);
+  const val = o.querySelector("#pwVal"); val.value = genPw();
+  o.querySelector("#pwGen").addEventListener("click", () => { val.value = genPw(); });
+  o.addEventListener("change", e => { if (e.target.name === "pwm") o.querySelector("#pwRow").style.display = e.target.value === "set" ? "" : "none"; });
+  o.querySelector("#pwOk").addEventListener("click", async e => {
+    const b = e.currentTarget, clear = o.querySelector('input[name="pwm"]:checked').value === "clear", pin = val.value;
+    if (!clear && (pin.length < 6 || pin.length > 32)) { o.querySelector("#pwErr").textContent = errText4({ code: "invalid_pin_format" }); return; }
+    b.disabled = true; o.querySelector("#pwErr").textContent = "";
+    try {
+      await api("adminResetPin", clear ? { staffId: id, clear: true } : { staffId: id, pin }); ST4.users = null;
+      const box = o.querySelector(".dlg");
+      box.innerHTML = `<h3>✅ ${esc(L("រួចរាល់", "Done"))}</h3><div><b>${esc(staffName(u))}</b></div>` + (clear ? `<p>${esc(L("បានលុបពាក្យសម្ងាត់។", "Password cleared."))}</p>` :
+        `<p>${esc(L("ពាក្យសម្ងាត់បណ្តោះអាសន្ន (បង្ហាញតែម្តងគត់)៖", "Temporary password (shown only once):"))}</p><div class="secret">${esc(pin)}</div><button class="btn" id="pwCopy">${esc(L("ចម្លង", "Copy"))}</button>`) +
+        `<div class="row"><button class="btn primary" data-dclose>${esc(L("បិទ", "Close"))}</button></div>`;
+      const c = box.querySelector("#pwCopy"); if (c) c.addEventListener("click", async () => { c.textContent = (await copyText(pin)) ? "✓" : L("ចម្លងដោយដៃ", "Select & copy manually"); });
+      o.addEventListener("click", e2 => { if (e2.target.closest("[data-dclose]")) renderSettings(true); });
+    } catch (er) { b.disabled = false; o.querySelector("#pwErr").textContent = errText4(er); }
+  });
+}
+async function signOut(id){
+  const u = userById(id); if (!u) return;
+  if (!confirm(L("បង្ខំ ", "Force sign-out of ") + staffName(u) + L(" ចេញពី Browser ទាំងអស់?", "'s browser sessions?") + (id === ST4.users.me ? "\n" + L("នេះជាគណនីរបស់អ្នក — អ្នកនឹងត្រូវចូលម្តងទៀត។", "This is YOUR account — you will have to sign in again.") : ""))) return;
+  try { await api("adminForceLogout", { staffId: id }); ST4.users = null; if (id === ST4.users?.me) return; renderSettings(true); }
+  catch (e) { alert(errText4(e)); }
+}
+async function signOutAll(){
+  if (!confirm(L("បង្ខំឲ្យបុគ្គលិកទាំងអស់ចេញពី Browser (Hub និង Portal)? គ្រប់គ្នាត្រូវចូលម្តងទៀត។ Session របស់អ្នកនៅដដែល។", "Sign EVERYONE out of the browser apps (Hub and Portal)? Everybody has to sign in again. Your own session is kept."))) return;
+  try { await api("adminForceLogout", { all: true }); ST4.users = null; renderSettings(true); } catch (e) { alert(errText4(e)); }
+}
+
+/* --- Roles & Permissions (read-only view of the rules the system really enforces today) --- */
+function paintRoles(){
+  const d = ST4.users, yn = v => v ? `<span class="yn y">✔</span>` : `<span class="yn n">—</span>`;
+  const heads = d.users.filter(u => String(u.role).indexOf("Head Of ") === 0).length;
+  const rows = d.roles.filter(r => r.role.indexOf("Head Of ") !== 0).map(r => ({ name: r.role, n: r.n })).concat(heads ? [{ name: "Head Of …", n: heads }] : []);
+  const tier = n => n === "Super Admin" || n === "Supervisor" ? "adm" : n === "Manager" ? "mgr" : n === "Team Leader" ? "tl" : n.indexOf("Head Of") === 0 ? "head" : "staff";
+  const scope = { adm: L("គ្រប់រោងចក្រ និងបុគ្គលិកទាំងអស់", "All factories and staff"), head: L("ការិយាល័យខ្លួន", "Own office"), mgr: L("រោងចក្រខ្លួន", "Own factory"), tl: L("ក្រុមខ្លួន (ក្នុងរោងចក្រ)", "Own team (within factory)"), staff: L("ខ្លួនឯង", "Self only") };
+  const order = { adm: 0, head: 1, mgr: 2, tl: 3, staff: 4 };
+  rows.sort((a, b) => order[tier(a.name)] - order[tier(b.name)] || a.name.localeCompare(b.name));
+  setShell(`<div class="panelbox"><h3>${esc(L("តួនាទី និងសិទ្ធិ", "Roles & permissions"))}</h3><div style="overflow:auto"><table class="t"><thead><tr>
+    <th>${esc(L("តួនាទី", "Role"))}</th><th>${esc(L("ចំនួន", "People"))}</th><th>${esc(L("Admin Portal", "Admin Portal"))}</th><th>${esc(L("ឃើញរបាយការណ៍", "Report scope"))}</th><th>${esc(L("ផ្តល់ការងារ (UI)", "Assign tasks (app UI)"))}</th><th>${esc(L("ផ្តល់ការងារក្រុម/ការិយាល័យ (Server)", "Broadcast tasks (server)"))}</th><th>${esc(L("កំណត់ពាក្យសម្ងាត់បណ្តោះអាសន្ន", "Set temp password (staff app)"))}</th><th>${esc(L("បញ្ចប់ការងារដោយគ្មានទីតាំង", "Complete without location"))}</th></tr></thead><tbody>
+  ${rows.map(r => { const t = tier(r.name), sup = r.name === "Supervisor"; return `<tr><td><b>${esc(r.name)}</b>${r.name === "Super Admin" ? ` <span class="pill">${esc(L("Portal ប៉ុណ្ណោះ", "portal only"))}</span>` : ""}</td><td>${r.n}</td><td>${yn(t === "adm")}</td><td>${esc(scope[t])}</td>
+    <td>${yn(sup || t === "mgr" || t === "head")}</td><td>${yn(sup || t === "mgr")}</td><td>${yn(sup)}</td><td>${yn(sup)}</td></tr>`; }).join("")}
+  </tbody></table></div></div>
+  <div class="note" style="background:var(--surface2);color:var(--muted)">
+    <p style="margin:0 0 6px"><b>${esc(L("ចំណាំ", "Notes"))}</b></p>
+    <p style="margin:0 0 6px">• ${esc(L("តារាងនេះបង្ហាញច្បាប់ដែលកម្មវិធីបុគ្គលិក និង Backend ប្រើពិតប្រាកដ — មិនមែនការកំណត់ដែលកែបានទេ។ ប្តូរតួនាទីបុគ្គលិកម្នាក់ៗនៅផ្ទាំង «អ្នកប្រើ»។", "This table shows the rules the staff app and backend actually apply — it is not an editable policy. Change an individual's role on the Users tab."))}</p>
+    <p style="margin:0 0 6px">• ${esc(L("Admin Portal = Super Admin + Supervisor។ «Super Admin» មិនទាន់មានក្នុង Staff_List ទេ។ ក្នុងកម្មវិធីបុគ្គលិក Super Admin ជា Role ធម្មតា (មិនមានសិទ្ធិ Supervisor ទេ)។", "Admin Portal = Super Admin + Supervisor. “Super Admin” does not exist in Staff_List yet. In the staff app it is an ordinary role (it does NOT get Supervisor powers there)."))}</p>
+    <p style="margin:0">• ${esc(L("ភាពមិនស្របគ្នាចាស់៖ «Head Of …» ឃើញប៊ូតុងផ្តល់ការងារក្នុងកម្មវិធី ប៉ុន្តែ Backend អនុញ្ញាតតែ Supervisor/Manager។", "Existing mismatch: “Head Of …” sees the assign-task buttons in the staff app, but the backend only accepts Supervisor / Manager."))}</p></div>`);
+}
+
+/* --- Audit log --- */
+function auditDefaults(){ if (!ST4.af) { const t = localISO(); ST4.af = { from: addDays(t, -6), to: t, actor: "", action: "", q: "" }; } return ST4.af; }
+const ACT_LABEL = { saveTask: ["បង្កើត/កែការងារ", "Task saved"], deleteTask: ["លុបការងារ", "Task deleted"], toggleDone: ["ដាក់/ដកស្ថានភាពបានធ្វើ", "Task done toggled"], setDayOff: ["ថ្ងៃឈប់", "Day off"], setBrowserPin: ["ប្តូរពាក្យសម្ងាត់ខ្លួនឯង", "Own password changed"],
+  setStaffPin: ["Supervisor កំណត់ពាក្យសម្ងាត់", "Supervisor set password"], updateMyName: ["ប្តូរឈ្មោះ", "Name updated"], login: ["ចូលប្រព័ន្ធ", "Login"], login_failed: ["ចូលមិនបាន", "Login failed"],
+  adminSetRole: ["Admin ប្តូរតួនាទី", "Admin changed role"], adminResetPin: ["Admin Reset ពាក្យសម្ងាត់", "Admin reset password"], adminForceLogout: ["Admin បង្ខំចេញ", "Admin forced sign-out"], adminForceLogoutAll: ["Admin បង្ខំចេញទាំងអស់", "Admin signed everyone out"],
+  adminUpdateTask: ["Admin កែការងារ", "Admin edited task"], adminCancelTask: ["Admin បោះបង់/ស្តារការងារ", "Admin cancelled/restored task"], adminDeleteTask: ["Admin លុបការងារ", "Admin deleted task"] };
+const actLabel = a => ACT_LABEL[a] ? L(ACT_LABEL[a][0], ACT_LABEL[a][1]) : a;
+async function loadAudit(my){
+  const f = auditDefaults();
+  const d = await api("adminGetAudit", { from: f.from, to: f.to, actor: f.actor, action: f.action, q: f.q });
+  if (my !== S.tok) return; ST4.audit = d; paintAudit();
+}
+function paintAudit(){
+  const d = ST4.audit, f = auditDefaults(); ST4.actions = ST4.actions && !d.actions.length ? ST4.actions : [...new Set([...(ST4.actions || []), ...d.actions])].sort();
+  const bad = r => /^error/.test(r) || r === "login_failed";
+  setShell(`<div class="bar">${fld(L("ចាប់ពី", "From"), `<input type="date" id="aFrom" value="${esc(f.from)}">`)}${fld(L("ដល់", "To"), `<input type="date" id="aTo" value="${esc(f.to)}">`)}
+    ${fld(L("សកម្មភាព", "Action"), `<select id="aAct">${opt("", L("ទាំងអស់", "All"), f.action)}${ST4.actions.map(a => opt(a, actLabel(a), f.action)).join("")}</select>`)}
+    ${fld(L("អ្នកធ្វើ (លេខ)", "Actor (id)"), `<input id="aActor" value="${esc(f.actor)}" placeholder="PPWSA-…" style="width:130px">`)}
+    ${fld(L("ស្វែងរក", "Search"), `<input id="aQ" type="search" value="${esc(f.q)}">`)}
+    <button class="btn primary" id="aGo" style="align-self:end">${esc(L("អនុវត្ត", "Apply"))}</button><span class="grow"></span><button class="btn" id="aCsv" style="align-self:end"${d.rows.length ? "" : " disabled"}>${esc(L("ទាញយក CSV", "Download CSV"))}</button></div>
+  ${d.exists ? "" : `<div class="note">${esc(L("Audit_Log នឹងត្រូវបង្កើតដោយស្វ័យប្រវត្តិ នៅពេលមានសកម្មភាពដំបូងត្រូវបានកត់ត្រា។", "The Audit_Log sheet is created automatically when the first event is recorded."))}</div>`}
+  ${d.truncated ? `<div class="note">${esc(L("បានពិនិត្យតែ " + d.scanned + " ជួរចុងក្រោយ ក្នុងចំណោម " + d.total + "។", "Only the newest " + d.scanned + " of " + d.total + " rows were searched."))}</div>` : ""}
+  ${d.capped ? `<div class="note">${esc(L("បង្ហាញ ៥០០ ជួរថ្មីបំផុត — ចង្អៀតតម្រង។", "Showing the newest 500 rows — narrow the filters."))}</div>` : ""}
+  <div class="panelbox"><h3>${esc(L("កំណត់ត្រាសវនកម្ម", "Audit log"))} (${d.rows.length})</h3><div style="overflow:auto"><table class="t"><thead><tr><th>${esc(L("ពេលវេលា", "Time"))}</th><th>${esc(L("អ្នកធ្វើ", "Actor"))}</th><th>${esc(L("សកម្មភាព", "Action"))}</th><th>${esc(L("គោលដៅ", "Target"))}</th><th>${esc(L("ព័ត៌មានលម្អិត", "Detail"))}</th><th>${esc(L("លទ្ធផល", "Result"))}</th></tr></thead><tbody>
+  ${d.rows.length ? d.rows.map(r => `<tr><td class="mono">${esc(r[0])}</td><td><b>${esc(r[2]) || "—"}</b><br><small style="color:var(--muted)">${esc(r[1])} ${esc(r[3])}</small></td><td>${esc(actLabel(r[4]))}</td><td>${esc(r[5])}${r[6] ? " · " + esc(r[6]) : ""}</td><td style="max-width:38ch;overflow-wrap:anywhere"><small>${esc(r[7])}</small></td><td><span class="pill ${bad(r[8]) || r[4] === "login_failed" ? "bad" : "good"}">${esc(r[8])}</span></td></tr>`).join("") : `<tr><td colspan="6" class="empty">${esc(L("គ្មានកំណត់ត្រាក្នុងលក្ខខណ្ឌនេះ", "No entries match"))}</td></tr>`}
+  </tbody></table></div></div>`);
+}
+function auditCsv(){
+  const d = ST4.audit; if (!d || !d.rows.length) return;
+  const cell = v => { v = String(v == null ? "" : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+  const head = ["ts", "actor_id", "actor_name", "actor_role", "action", "target_type", "target_id", "detail", "result"];
+  const csv = "﻿" + [head, ...d.rows].map(r => r.map(cell).join(",")).join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "audit-log-" + auditDefaults().from + "_" + auditDefaults().to + ".csv";
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* --- Preferences --- */
+function paintPrefs(){
+  const th = document.documentElement.dataset.theme === "dark" ? "dark" : "light", u = ST4.users;
+  setShell(`<div class="panelbox" style="max-width:620px"><h3>${esc(L("ភាសា", "Language"))}</h3>
+    ${[["both", "ខ្មែរ + English", ""], ["kh", "ខ្មែរ", ""], ["en", "English", ""]].map(o => `<label class="lang-opt"><input type="radio" name="lang" value="${o[0]}"${LANG === o[0] ? " checked" : ""}><span>${esc(o[1])}</span></label>`).join("")}
+    <p class="note" style="background:var(--surface2);color:var(--muted);margin:8px 0 0">${esc(L("ជ្រើសភាសាសម្រាប់ម៉ឺនុយ ក្បាលតារាង និងប៊ូតុង។ ទិន្នន័យ (ឈ្មោះ ចំណងជើងការងារ) បង្ហាញដូចដែលវាស្ថិតក្នុង Sheet។ ការកំណត់នេះចងចាំតែក្នុង Browser នេះ។", "Applies to the menu, table headers and buttons. Data (names, task titles) is shown as stored in the Sheet. This is remembered in this browser only."))}</p></div>
+  <div class="panelbox" style="max-width:620px"><h3>${esc(L("រូបរាង", "Appearance"))}</h3>
+    <div class="acts"><button class="btn${th === "light" ? " primary" : ""}" data-theme-set="light">${esc(L("ភ្លឺ", "Light"))}</button><button class="btn${th === "dark" ? " primary" : ""}" data-theme-set="dark">${esc(L("ងងឹត", "Dark"))}</button></div></div>
+  <div class="panelbox" style="max-width:620px"><h3>${esc(L("សុវត្ថិភាព", "Security"))}</h3>
+    <dl class="kv"><dt>${esc(L("រយៈពេល Session", "Session length"))}</dt><dd>${u ? u.sessionDays : 30} ${esc(L("ថ្ងៃ", "days"))}</dd>
+    <dt>${esc(L("កត់ត្រាសកម្មភាពបុគ្គលិក", "Log staff activity"))}</dt><dd>${u ? esc(u.auditOn ? L("បើក", "on") : L("បិទ", "off")) : "—"}</dd>
+    <dt>${esc(L("ទីតាំងកំណត់ត្រា", "Where it is stored"))}</dt><dd>Sheet “Audit_Log”</dd></dl>
+    <p class="note" style="background:var(--surface2);color:var(--muted);margin:0">${esc(L("ដើម្បីបិទការកត់ត្រាសកម្មភាពបុគ្គលិក ប្តូរ AUDIT_STAFF_ACTIONS_ = false ក្នុង admin-api.gs។ សកម្មភាពរបស់ Admin តែងតែត្រូវបានកត់ត្រា។", "To stop logging ordinary staff activity set AUDIT_STAFF_ACTIONS_ = false in admin-api.gs. Admin actions are always logged."))}</p></div>`);
+}
+
+/* --- events --- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-stab],[data-urole],[data-upw],[data-uout],#uAll,#setRetry,#aGo,#aCsv,[data-theme-set]"); if (!t || S.view !== "settings") return;
+  if (t.dataset.stab) { ST4.tab = t.dataset.stab; renderSettings(); }
+  else if (t.dataset.urole) roleDlg(t.dataset.urole);
+  else if (t.dataset.upw) pwDlg(t.dataset.upw);
+  else if (t.dataset.uout) signOut(t.dataset.uout);
+  else if (t.id === "uAll") signOutAll();
+  else if (t.id === "setRetry") renderSettings(true);
+  else if (t.id === "aCsv") auditCsv();
+  else if (t.dataset.themeSet) { document.documentElement.dataset.theme = t.dataset.themeSet; try { localStorage.setItem(THEME_KEY, t.dataset.themeSet); } catch (x) {} paintPrefs(); }
+  else if (t.id === "aGo") {
+    const f = auditDefaults(), a = $("#aFrom").value, b = $("#aTo").value;
+    if (!a || !b || b < a) { alert(L("ជួរកាលបរិច្ឆេទមិនត្រឹមត្រូវ", "Invalid date range")); return; }
+    Object.assign(f, { from: a, to: b, action: $("#aAct").value, actor: $("#aActor").value.trim(), q: $("#aQ").value.trim() }); renderSettings();
+  }
+});
+document.addEventListener("change", e => {
+  if (S.view !== "settings") return;
+  if (e.target.name === "lang") { setLang(e.target.value); paintPrefs(); return; }
+  const k = { uRole: "role", uPlant: "plant", uPw: "pw" }[e.target.id]; if (k) { ST4.uf[k] = e.target.value; paintUsers(); }
+});
+let uT = 0;
+document.addEventListener("input", e => {
+  if (S.view !== "settings" || e.target.id !== "uQ") return; ST4.uf.q = e.target.value; clearTimeout(uT);
+  uT = setTimeout(() => { const pos = e.target.selectionStart; paintUsers(); const q = $("#uQ"); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (x) {} } }, 250);
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id && /^a(From|To|Actor|Q)$/.test(e.target.id)) { const g = $("#aGo"); if (g) g.click(); } });
+
+/* ===== Phase 5: Notifications ===== */
+/* Data comes from the backend actions adminGetNotifications / adminMarkNotifications (notifications-api.gs). Read state is stored per person in the Sheet. */
+const NT = { items: [], unread: 0, asOf: 0, loaded: false, loading: null, err: null, at: 0, sig: "", flt: "all", type: "", open: false, lr: new Set() };
+/* ordinary staff (scope "self") poll less often: there are many of them and each poll costs Apps Script quota */
+const ntPollMs = () => ((S.sc && S.sc.level === "self") ? 300000 : 180000) + Math.floor(Math.random() * 30000);
+const NT_CLS = { task_created: "s-p", task_upcoming: "s-i", task_overdue: "s-o", task_done: "s-c", system: "s-x" };
+const NT_TYPES = { task_created: ["ការងារថ្មី", "New tasks"], task_upcoming: ["ជិតដល់ម៉ោង", "Starting soon"], task_overdue: ["ហួសកំណត់", "Overdue"], task_done: ["បានបញ្ចប់", "Completed"], system: ["ប្រព័ន្ធ", "System"] };
+const NT_EN_M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const LK = (kh, en) => LANG === "en" ? en : kh;      // compact one-language fragment (the titles use the usual bilingual L)
+const ntCount = n => n > 99 ? "99+" : String(n);
+const ntNavBadge = () => NT.unread ? `<span class="cnt">${ntCount(NT.unread)}</span>` : "";
+function ntAbs(ms){ const d = new Date(ms); return d.getDate() + " " + (LANG === "en" ? NT_EN_M[d.getMonth()] : MONTHS[d.getMonth()]) + " " + d.getFullYear() + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+function ntRel(ms){
+  const diff = Math.max(0, Date.now() - ms);
+  if (diff < 60000) return LK("អម្បាញ់មិញ", "just now");
+  if (diff < 3600000) { const m = Math.floor(diff / 60000); return LK(m + " នាទីមុន", m + " min ago"); }
+  if (diff < 86400000) { const h = Math.floor(diff / 3600000); return LK(h + " ម៉ោងមុន", h + " h ago"); }
+  const d = Math.floor(diff / 86400000); return LK(d + " ថ្ងៃមុន", d + " d ago");
+}
+const ntDayKey = ms => { const d = new Date(ms); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+function ntDayLabel(key){
+  if (key === localISO()) return L("ថ្ងៃនេះ", "Today");
+  const y = new Date(); y.setDate(y.getDate() - 1); if (key === ntDayKey(y.getTime())) return L("ម្សិលមិញ", "Yesterday");
+  return fmtDay(key);
+}
+function ntErr(e){
+  if (e && e.code === "unknown_action") return L("Backend មិនទាន់មាន notifications-api.gs ឬមិនទាន់ Deploy កំណែថ្មី។", "The backend has no notification action yet — add notifications-api.gs and redeploy.");
+  return errText(e);
+}
+/* what each notification says */
+function ntText(it){
+  const ttl = it.title || it.titleEn || L("(គ្មានចំណងជើង)", "(untitled)");
+  const day = it.date ? it.date : "";
+  const ppl = n => n + LK(" នាក់", " staff");
+  switch (it.type) {
+    case "task_created": {
+      const who = it.scope === "direct" ? it.who : (SCOPE[it.scope] || "");
+      return { t: L("ការងារថ្មី", "New task"), b: ttl, m: [it.by ? LK("ដោយ ", "by ") + it.by : "", who ? LK("សម្រាប់ ", "for ") + who : "", day ? day + (it.start ? " " + it.start : "") : ""].filter(Boolean).join(" · ") };
+    }
+    case "task_upcoming":
+      return { t: L("ជិតដល់ម៉ោងចាប់ផ្តើម", "Starting soon"), b: ttl, m: LK("ចាប់ផ្តើម ", "Starts ") + (it.start || "") + (it.total > 1 ? " · " + ppl(it.total) : "") };
+    case "task_overdue":
+      return { t: L("ការងារហួសកំណត់", "Task overdue"), b: ttl, m: it.n + "/" + it.total + LK(" នាក់មិនទាន់បញ្ចប់", " not done") + " · " + day };
+    case "task_done":
+      return { t: L("ការងារបានបញ្ចប់ទាំងអស់", "Task completed"), b: ttl, m: (it.total > 1 ? ppl(it.total) + " · " : "") + day };
+    default:
+      if (it.action === "login_failed") return { t: L("ការចូលប្រព័ន្ធមិនបាន", "Failed sign-ins"), b: it.n + LK(" ដង ក្នុងថ្ងៃ ", " attempt(s) on ") + (it.date || ""), m: L("មើលក្នុងកំណត់ត្រាសវនកម្ម", "See the audit log") };
+      return { t: actLabel(it.action), b: [it.actor, it.target].filter(Boolean).join(" → "), m: it.detail || "" };
+  }
+}
+function ntLink(it){
+  if (it.tid && it.date) return { v: "calendar", tid: it.tid, date: it.date };
+  if (it.type === "system") return { v: "settings", from: ntDayKey(it.ts) };
+  return null;
+}
+function ntItemHTML(it, compact){
+  const x = ntText(it), lk = ntLink(it), cls = NT_CLS[it.type] || "s-x";
+  const body = `<span class="nt">${esc(x.t)}</span><span class="nb">${esc(x.b)}</span>${x.m ? `<span class="nm">${esc(x.m)}</span>` : ""}<span class="nm mono"><time datetime="${new Date(it.ts).toISOString()}">${esc(ntAbs(it.ts))} · ${esc(ntRel(it.ts))}</time></span>`;
+  return `<div class="nitem ${cls}${it.read ? "" : " unread"}"><i class="nudot" aria-hidden="true"></i>`
+    + (lk ? `<button class="nmain" data-nopen="${esc(it.id)}" title="${esc(L("បើកទំព័រពាក់ព័ន្ធ", "Open related page"))}">${body}</button>` : `<div class="nmain">${body}</div>`)
+    + (it.read ? "" : `<button class="btn sm nx" data-nread="${esc(it.id)}" aria-label="${esc(L("សម្គាល់ថាបានអាន", "Mark as read"))}" title="${esc(L("សម្គាល់ថាបានអាន", "Mark as read"))}">${compact ? "✓" : "✓ " + esc(L("បានអាន", "Read"))}</button>`) + `</div>`;
+}
+/* bell + nav badge */
+function updateBell(){
+  const n = NT.unread, b = $("#bell"), c = $("#bellCnt"); if (!b) return;
+  c.hidden = !n; c.textContent = ntCount(n);
+  b.setAttribute("aria-label", L("ការជូនដំណឹង", "Notifications") + (n ? " (" + n + ")" : ""));
+  const nb = document.querySelector('#nav button[data-nav="notify"]');
+  if (nb) { let s = nb.querySelector(".cnt"); if (n) { if (!s) { s = document.createElement("span"); s.className = "cnt"; nb.appendChild(s); } s.textContent = ntCount(n); } else if (s) s.remove(); }
+  document.title = (n ? "(" + n + ") " : "") + "PRD-Calendar Admin";
+}
+function ntRecount(){ NT.unread = NT.items.filter(i => !i.read).length; }
+function ntRepaint(listChanged){
+  updateBell();
+  if (NT.open && listChanged) paintPop();
+  if (S.view === "notify" && listChanged) paintNotify();
+}
+function ntLangRefresh(){ updateBell(); if (NT.open) paintPop(); if (S.view === "notify") paintNotify(); }
+/* load + poll */
+function ntLoad(force){
+  if (NT.loading) return NT.loading;
+  if (!force && NT.loaded && Date.now() - NT.at < 30000) return Promise.resolve();
+  NT.loading = api("adminGetNotifications", {}).then(d => {
+    NT.items = (d.items || []).map(i => { if (NT.lr.has(i.id)) i.read = true; return i; });
+    NT.asOf = d.asOf || 0; NT.loaded = true; NT.err = null; NT.at = Date.now(); ntRecount();
+  }).catch(e => { NT.err = e; }).then(() => {
+    NT.loading = null;
+    const sig = NT.items.map(i => i.id + (i.read ? 1 : 0)).join(",") + "|" + (NT.err ? NT.err.code || "err" : "");
+    const changed = sig !== NT.sig; NT.sig = sig; ntRepaint(changed);
+  });
+  return NT.loading;
+}
+function ntStart(){
+  ntLoad(true);
+  setInterval(() => { if (!document.hidden) ntLoad(true); }, ntPollMs());
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - NT.at > 60000) ntLoad(true); });
+}
+/* mark read (optimistic; rolled back if the server refuses) */
+async function ntMark(ids, all){
+  const targets = NT.items.filter(i => !i.read && (all || ids.indexOf(i.id) !== -1));
+  if (!targets.length) return;
+  targets.forEach(i => { i.read = true; NT.lr.add(i.id); }); ntRecount(); NT.sig = ""; ntRepaint(true);
+  try { await api("adminMarkNotifications", all ? { all: true, asOf: NT.asOf, ids: NT.items.map(i => i.id) } : { ids: targets.map(i => i.id) }); }
+  catch (e) {
+    targets.forEach(i => { i.read = false; NT.lr.delete(i.id); }); ntRecount(); NT.sig = ""; ntRepaint(true);
+    alert(L("មិនអាចរក្សាទុកស្ថានភាពបានអាន៖ ", "Could not save the read status: ") + ntErr(e));
+  }
+}
+/* click a notification -> open the related page */
+function ntGo(id){
+  const it = NT.items.find(i => i.id === id); if (!it) return;
+  ntMark([id]); ntClosePop();
+  const lk = ntLink(it); if (!lk) return;
+  if (lk.v === "calendar") { S.pendingOpen = { tid: lk.tid, date: lk.date }; S.anchor = lk.date; }
+  else { ST4.tab = "audit"; ST4.af = { from: lk.from, to: localISO(), actor: "", action: "", q: "" }; }
+  if ((location.hash.replace(/^#\/?/, "") || "dashboard").split("?")[0] === lk.v) route(); else location.hash = "#/" + lk.v;
+}
+function ntAfterCalendar(){
+  const po = S.pendingOpen; if (!po) return; S.pendingOpen = null;
+  const ti = D ? D.tasks.findIndex(t => t.id === po.tid) : -1;
+  if (ti >= 0 && OCC.some(o => o.ti === ti && o.date === po.date)) openDetail(ti + "|" + po.date);
+  else $("#view").insertAdjacentHTML("afterbegin", `<div class="note">${esc(L("រកមិនឃើញការងារនេះក្នុងថ្ងៃនោះ (អាចត្រូវបានលុប)។", "This task was not found on that date (it may have been deleted)."))}</div>`);
+}
+/* bell dropdown */
+function ntClosePop(){ NT.open = false; const p = $("#npop"), b = $("#bell"); if (p) p.hidden = true; if (b) b.setAttribute("aria-expanded", "false"); }
+function ntTogglePop(){
+  if (NT.open) return ntClosePop();
+  NT.open = true; $("#npop").hidden = false; $("#bell").setAttribute("aria-expanded", "true"); paintPop(); ntLoad(false);
+}
+function paintPop(){
+  const p = $("#npop"); if (!p) return;
+  let list;
+  if (!NT.loaded) list = NT.err ? `<div class="empty">${esc(ntErr(NT.err))}</div>` : `<div class="empty"><span class="spin"></span>${esc(L("កំពុងទាញទិន្នន័យ…", "Loading…"))}</div>`;
+  else if (!NT.items.length) list = `<div class="empty">${esc(L("មិនមានការជូនដំណឹងទេ។", "No notifications."))}</div>`;
+  else list = NT.items.slice(0, 8).map(i => ntItemHTML(i, true)).join("");
+  p.innerHTML = `<div class="nphead"><b>${esc(L("ការជូនដំណឹង", "Notifications"))}${NT.unread ? ` <span class="pill bad">${NT.unread}</span>` : ""}</b><button class="btn sm" data-nall${NT.unread ? "" : " disabled"}>${esc(L("អានទាំងអស់", "Mark all read"))}</button></div>
+    <div class="nplist">${list}</div><div class="npfoot"><button class="btn sm" data-nviewall>${esc(L("មើលទាំងអស់", "View all"))}</button></div>`;
+}
+/* full page (sidebar → Notifications) */
+function renderNotify(){
+  if (NT.loaded) paintNotify(); else { $("#view").innerHTML = `<div class="note"><span class="spin"></span>${esc(L("កំពុងទាញទិន្នន័យ…", "Loading…"))}</div>`; }
+  NT.sig = ""; ntLoad(true);
+}
+function paintNotify(){
+  const view = $("#view"); if (S.view !== "notify") return;
+  if (!NT.loaded) {
+    if (NT.err) view.innerHTML = `<div class="gate" style="margin:30px auto"><p>${esc(ntErr(NT.err))}</p><p><button class="btn primary" id="ntRetry">${esc(L("ព្យាយាមម្តងទៀត", "Retry"))}</button></p></div>`;
+    return;
+  }
+  const f = NT.flt, ty = NT.type;
+  const list = NT.items.filter(i => (f === "all" || !i.read) && (!ty || i.type === ty));
+  let body = "";
+  if (!list.length) body = `<div class="empty">${esc(f === "unread" ? L("គ្មានការជូនដំណឹងដែលមិនទាន់អានទេ។ 🎉", "No unread notifications. 🎉") : L("មិនមានការជូនដំណឹងទេ។", "No notifications."))}</div>`;
+  else {
+    let last = "";
+    body = list.map(i => { const k = ntDayKey(i.ts); const h = k !== last ? `<div class="ngrp">${esc(ntDayLabel(k))}</div>` : ""; last = k; return h + ntItemHTML(i, false); }).join("");
+    body = `<div class="nlist">${body}</div>`;
+  }
+  view.innerHTML = `${NT.err ? `<div class="note">${esc(ntErr(NT.err))}</div>` : ""}
+    <div class="tabs" role="group" aria-label="${esc(L("ត្រង", "Filter"))}">${[["all", "ទាំងអស់", "All", NT.items.length], ["unread", "មិនទាន់អាន", "Unread", NT.unread]].map(t => `<button data-nflt="${t[0]}" aria-selected="${f === t[0]}">${esc(L(t[1], t[2]))} (${t[3]})</button>`).join("")}</div>
+    <div class="bar"><label class="field">${esc(L("ប្រភេទ", "Type"))}<select id="ntType">${opt("", L("ទាំងអស់", "All"), ty)}${Object.keys(NT_TYPES).map(k => opt(k, L(NT_TYPES[k][0], NT_TYPES[k][1]), ty)).join("")}</select></label>
+      <span class="grow"></span><button class="btn primary" id="ntAllBtn"${NT.unread ? "" : " disabled"}>${esc(L("សម្គាល់ថាបានអានទាំងអស់", "Mark all as read"))}</button></div>
+    ${body}
+    <p class="note" style="background:var(--surface2);color:var(--muted);margin-top:12px">${esc(L("បង្ហាញការងារថ្មី ការងារជិតដល់ម៉ោង ហួសកំណត់ បានបញ្ចប់ និងព្រឹត្តិការណ៍ប្រព័ន្ធក្នុង ១៤ ថ្ងៃចុងក្រោយ។ ស្ថានភាពបានអានរក្សាទុកក្នុង Sheet «Notification_Reads» ហើយនៅដដែលលើគ្រប់ឧបករណ៍។", "Shows new, upcoming, overdue and completed tasks and system events from the last 14 days. Read status is saved in the “Notification_Reads” sheet and follows you across devices."))}</p>`;
+}
+/* events */
+document.addEventListener("click", e => {
+  const t = e.target.closest("#bell,[data-nopen],[data-nread],[data-nall],[data-nviewall],[data-nflt],#ntRetry,#ntAllBtn");
+  if (!t) { if (NT.open && !e.target.closest(".bellwrap")) ntClosePop(); return; }
+  if (t.id === "bell") return ntTogglePop();
+  if (t.dataset.nopen) return ntGo(t.dataset.nopen);
+  if (t.dataset.nread) return ntMark([t.dataset.nread]);
+  if (t.dataset.nall !== undefined || t.id === "ntAllBtn") return ntMark([], true);
+  if (t.dataset.nviewall !== undefined) { ntClosePop(); if (S.view === "notify") route(); else location.hash = "#/notify"; return; }
+  if (t.dataset.nflt) { NT.flt = t.dataset.nflt; return paintNotify(); }
+  if (t.id === "ntRetry") { NT.sig = ""; ntLoad(true); renderNotify(); }
+});
+document.addEventListener("change", e => { if (e.target.id === "ntType") { NT.type = e.target.value; paintNotify(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && NT.open) { ntClosePop(); const b = $("#bell"); if (b) b.focus(); } });
+
+boot();
+</script>
+</body>
+</html>
