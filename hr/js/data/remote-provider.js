@@ -44,7 +44,7 @@
   class RemoteProvider {
     constructor(o) {
       this.kind = "remote"; this.serverAudit = true; this.url = o.apiUrl; this.ttl = o.ttl || 60000;
-      this.cache = new Map(); this.loaded = {}; this.pend = {}; this.aq = []; this.fl = null; this.identity = null; this.hub = null;
+      this.cache = new Map(); this.loaded = {}; this.hard = {}; this.pend = {}; this.bgp = {}; this.aq = []; this.fl = null; this.identity = null; this.hub = null;
       this.onAuthLost = null;
     }
     /* --- transport --- */
@@ -65,27 +65,46 @@
       const w = await this.call("hrWhoAmI", {});
       this.identity = w.user; this.hub = w.hub; this.roles = w.roles;
       await Promise.all(["employees", "system_settings", "roles"].map((s) => this._load(s)));
+      this._warm();
       return this;
     }
     /* --- cache --- */
     _def(n) { const d = NS.schemaByName[n]; if (!d) throw new Error("UNKNOWN_STORE: " + n); return d; }
     _fresh(n) { const L = this.loaded[n]; return !!L && Date.now() - L < this.ttl; }
+    /* Stale-while-revalidate៖ មានទិន្នន័យក្នុង Cache → បង្ហាញភ្លាមៗ (មិនរង់ចាំ Server) ហើយធ្វើឲ្យថ្មីនៅខាងក្រោយ។
+       គ្រាន់តែលើកដំបូង ឬក្រោយសរសេរច្រើន (invalidate) ទើបរង់ចាំ Server។ */
     async _load(n, force) {
-      if (!force && this._fresh(n)) return;
+      if (!force) {
+        if (this._fresh(n)) return;
+        if (this.loaded[n] && !this.hard[n]) { this._bg(n); return; }
+      }
+      return this._fetch(n);
+    }
+    _fetch(n) {
       if (this.pend[n]) return this.pend[n];
       const kp = this._def(n).keyPath;
       return (this.pend[n] = this.call("hrList", { store: n }, 90000).then((r) => {
-        this.cache.set(n, new Map(r.items.map((x) => [x[kp], x]))); this.loaded[n] = Date.now();
+        const sig = r.items.length + ":" + JSON.stringify(r.items).length; this.changed = this.sig && this.sig[n] !== undefined && this.sig[n] !== sig; (this.sig = this.sig || {})[n] = sig;
+        this.cache.set(n, new Map(r.items.map((x) => [x[kp], x]))); this.loaded[n] = Date.now(); delete this.hard[n]; if (this.changed) this.lastChanged = n;
       }).finally(() => { delete this.pend[n]; }));
     }
+    _bg(n) { if (this.pend[n]) return; const before = this.sig && this.sig[n]; this._fetch(n).then(() => { if (before !== undefined && this.sig[n] !== before) { try { window.dispatchEvent(new CustomEvent("prdhr:data", { detail: n })); } catch (e) {} } }, () => {}); }
+    /* ទាញ Store ដែលប្រើញឹកញាប់ទុកជាមុននៅខាងក្រោយ (3 ស្របគ្នា) ដើម្បីឲ្យការប្តូរទំព័របង្ហាញភ្លាមៗ */
+    _warm() {
+      const id = this.identity || {}, base = ["departments", "offices", "positions", "employment_history", "education_records", "qualifications", "leave_balances", "leave_requests",
+        "performance_records", "performance_criteria", "awards", "medals", "training_courses", "training_participants", "notifications", "approval_workflows", "documents", "attendance_records", "users", "permissions"];
+      const queue = base.filter((n) => NS.schemaByName[n]); let i = 0;
+      const worker = async () => { while (i < queue.length) { const n = queue[i++]; try { await this._load(n); } catch (e) { if (e && e.code === "session_invalid") return; } } };
+      setTimeout(() => { worker(); worker(); worker(); }, 250);
+    }
     _store(n) { if (!this.cache.has(n)) this.cache.set(n, new Map()); return this.cache.get(n); }
-    invalidate(n) { if (n) delete this.loaded[n]; else this.loaded = {}; }
+    invalidate(n) { if (n) this.hard[n] = true; else Object.keys(this.loaded).forEach((k) => { this.hard[k] = true; }); }
     async refresh(n) { return this._load(n, true); }
     /* --- contract --- */
     async get(n, k) {
       const d = this._def(n), m = this.cache.get(n);
       if (m && m.has(k)) return clone(m.get(k));
-      if (m && this._fresh(n)) return null;
+      if (m && this.loaded[n] && !this.hard[n]) return null;   // Cache ធ្លាប់ផ្ទុកពេញ Store → ជាប្រភពអាជ្ញាធរ (ធ្វើឲ្យថ្មីនៅខាងក្រោយ) · កុំហៅ Server ម្តងម្នាក់ៗ
       const r = await this.call("hrGet", { store: n, key: k });
       if (r.item) this._store(n).set(r.item[d.keyPath], r.item);
       return r.item ? clone(r.item) : null;
