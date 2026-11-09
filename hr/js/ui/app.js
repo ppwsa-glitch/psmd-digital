@@ -22,17 +22,33 @@
     }
     $("#nav").innerHTML = `<div class="nav-group">ទិដ្ឋភាព</div><button data-k="home">📊 ផ្ទាំងគ្រប់គ្រង</button><div class="nav-group">មនុស្ស</div><button data-k="emp">👥 បញ្ជីបុគ្គលិក</button><button data-k="org">🏢 រចនាសម្ព័ន្ធ</button><button data-k="career">📈 ប្រវត្តិអាជីព</button><div class="nav-group">ប្រតិបត្តិការ HR</div><button data-k="att">🗓 វត្តមាន</button><button data-k="leave">🌴 ច្បាប់</button><button data-k="approvals" id="apbtn">✅ ការអនុម័ត</button><button data-k="retire">🎓 ចូលនិវត្តន៍</button><div class="nav-group">ការអនុវត្ត & អភិវឌ្ឍ</div><button data-k="perf">⭐ វាយតម្លៃ</button><button data-k="awards">🏅 រង្វាន់ & មេដាយ</button><button data-k="training">🎓 បណ្តុះបណ្តាល</button><div class="nav-group">ប្រព័ន្ធ</div><button data-k="users">👤 អ្នកប្រើ & សិទ្ធិ</button><button data-k="audit">🧾 Audit Log</button><div class="nav-group">វិភាគ & របាយការណ៍</div><button data-k="reports">📑 របាយការណ៍ HR</button><div class="nav-group">ឯកសារ & ជូនដំណឹង</div><button data-k="docs">📄 ឯកសារ</button><button data-k="notif" id="bellbtn">🔔 ការជូនដំណឹង</button><div class="nav-group">ឧបករណ៍</div><a class="btn alt" style="display:block;margin:6px 0;text-align:center" href="phase2-harness.html">📥 Import / Data</a><a class="btn alt" style="display:block;margin:6px 0;text-align:center" href="legacy/PRD-HR-Glassy-Dashboard-V7-Premium.html">🗂 V7 (ដើម)</a>`;
     $("#nav").onclick = (e) => { if (e.target.dataset.k) location.hash = "#" + e.target.dataset.k; };
-    window.onhashchange = route; await scopeUser();
+    window.onhashchange = () => route(); await scopeUser();
   }
   async function scopeUser() { if (N.remoteUser) return route(); // demo scoping: dept head = section of first employee, employee = a specific employee
     const all = await A.emp.list(USERS.hr_admin, { pageSize: 1000 }); const me = all.items.find((e) => e.section) || all.items[0] || {}; if (!USERS.employee._fixed) USERS.employee.employee_id = me.employee_id || ""; if (!USERS.dept_head._fixed) USERS.dept_head.section = me.section || ""; /* demo: the employee persona belongs to the dept-head persona's section */ route();
   }
-  async function route() {
-    const h = location.hash.slice(1), m = /^e\/(.+)$/.exec(h); document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", !m && (b.dataset.k === (h || "home"))));
-    if (!(await A.p.count("employees"))) return empty();
-    try { m ? await profile(decodeURIComponent(m[1])) : N.ui.views[h || "home"] ? await N.ui.views[h || "home"]() : await directory(); } catch (e) { $("#v").innerHTML = `<div class="glass pan er">${esc(e.message)}</div>`; }
-    N.ui.refreshBell();
+  let routeTok = 0, busyTm = 0;
+  async function route(silent) {
+    const tok = ++routeTok, v = $("#v"), h = location.hash.slice(1), m = /^e\/(.+)$/.exec(h);
+    document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("on", !m && (b.dataset.k === (h || "home"))));
+    if (!silent) { clearTimeout(busyTm); busyTm = setTimeout(() => document.body.classList.add("is-busy"), 140); }   // បង្ហាញរបារ Loading តែពេលយឺតជាង 140ms
+    try {
+      if (!(await A.p.count("employees"))) return empty();
+      try { m ? await profile(decodeURIComponent(m[1])) : N.ui.views[h || "home"] ? await N.ui.views[h || "home"]() : await directory(); } catch (e) { v.innerHTML = `<div class="glass pan er">${esc(e.message)}</div>`; }
+      N.ui.refreshBell();
+    } finally {
+      if (tok === routeTok) {
+        clearTimeout(busyTm); document.body.classList.remove("is-busy");
+        if (!silent) { v.classList.remove("in"); void v.offsetWidth; v.classList.add("in"); }
+      } else if (!silent) { setTimeout(() => route(true), 0); }   // ការ Navigate ចាស់ចប់ក្រោយថ្មី → គូរទំព័របច្ចុប្បន្នឡើងវិញ (ពី Cache) កុំឲ្យទំព័រខុស
+    }
   }
+  /* ទិន្នន័យថ្មីមកពីខាងក្រោយ (អ្នកផ្សេងកែ) → គូរឡើងវិញដោយស្ងាត់ ប្រសិនបើអ្នកប្រើមិនកំពុងវាយ/បើកទម្រង់ */
+  window.addEventListener("prdhr:data", () => {
+    const a = document.activeElement, typing = a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName);
+    if (typing || document.querySelector("dialog[open], .modal, .ovl")) return;
+    route(true);
+  });
   function empty() {
     $("#ttl").textContent = "បញ្ជីបុគ្គលិក";
     if (N.remoteUser) { $("#v").innerHTML = `<div class="glass pan"><h3>មិនទាន់មានទិន្នន័យក្នុងម៉ាស៊ីនបម្រើ</h3><p>${can("import") ? 'សូមទៅ <a href="phase2-harness.html">Import / Data</a> ដើម្បីនាំចូលឯកសារ Excel បញ្ជីបុគ្គលិក (ទិន្នន័យនឹងរក្សាទុកក្នុង Google Sheet របស់ម៉ាស៊ីនបម្រើ)។' : "សូមទាក់ទង HR Administrator ដើម្បីនាំចូលទិន្នន័យ។"}</p></div>`; return; }
