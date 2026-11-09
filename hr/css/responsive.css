@@ -85,3 +85,15 @@ main{min-width:0}
 }
 
 @media(prefers-reduced-motion:reduce){body .side,.scrim{transition:none!important}}
+
+/* ===== ចលនា & ល្បឿនដែលមើលឃើញ (គ្រប់ទំហំ) ===== */
+button,.nav button,select,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.nav button:active{transform:scale(.98)}
+#v{min-height:40vh}
+#v.in{animation:vin .22s ease both}
+@keyframes vin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+body.is-busy #v{opacity:.55;transition:opacity .18s ease}
+body.is-busy::before{content:"";position:fixed;left:0;top:0;height:3px;width:100%;z-index:200;pointer-events:none;
+ background:linear-gradient(90deg,transparent,#7c5cf2 35%,#b49dff 65%,transparent) no-repeat;background-size:45% 100%;animation:prog 1s ease-in-out infinite}
+@keyframes prog{from{background-position:-60% 0}to{background-position:160% 0}}
+@media(prefers-reduced-motion:reduce){#v.in{animation:none}body.is-busy::before{animation:none;background-size:100% 100%}}
