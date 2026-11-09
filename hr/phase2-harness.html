@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="km"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PRD-HR V8 · Phase 2 Harness</title>
+<style>
+:root{--bg:#f4f1ff;--card:rgba(255,255,255,.72);--ink:#241b4b;--mut:#6b6396;--ac:#6d5bd0;--ok:#1b9a5a;--er:#d6455d;--wa:#c98a00}
+@media (prefers-color-scheme:dark){:root{--bg:#171329;--card:rgba(40,34,72,.72);--ink:#efeaff;--mut:#a9a0d6}}
+*{box-sizing:border-box}body{margin:0;padding:16px;background:linear-gradient(135deg,var(--bg),#e4dcff22);color:var(--ink);font:14px/1.5 "Noto Sans Khmer",system-ui,sans-serif}
+h1{font-size:18px;margin:0 0 4px}.sub{color:var(--mut);margin-bottom:12px}
+.card{background:var(--card);backdrop-filter:blur(10px);border:1px solid #ffffff55;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 6px 24px #6d5bd01f}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,select{border:0;border-radius:10px;padding:8px 12px;background:var(--ac);color:#fff;font:inherit;cursor:pointer}
+button.alt{background:#8a82b8}button.danger{background:var(--er)}button:disabled{opacity:.5;cursor:not-allowed}
+table{border-collapse:collapse;width:100%}td,th{padding:4px 8px;border-bottom:1px solid #8a82b844;text-align:left;font-size:13px}.wrap{overflow-x:auto}
+.er{color:var(--er)}.wa{color:var(--wa)}.ok{color:var(--ok)}#log{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:12px;max-height:180px;overflow:auto}
+.chip{display:inline-block;padding:2px 8px;border-radius:99px;background:#6d5bd01f;margin-right:4px}
+</style></head><body>
+<h1>💧 PRD-HR V8 · Phase 2 Harness</h1>
+<div class="sub">តេស្ត Data Layer · Import Engine · Audit · RBAC — <b>ទិន្នន័យ Demo ប៉ុណ្ណោះ</b>. V7 ដើមស្ថិតក្នុង <code>legacy/</code> មិនបានកែ។</div>
+
+<div class="card"><div class="row">
+  <span class="chip" id="prov">…</span>
+  <select id="role"><option value="hr_admin">អ្នកគ្រប់គ្រង HR</option><option value="dept_head">ប្រធានផ្នែក</option><option value="employee">និយោជិត</option></select>
+  <button id="seedV7" class="alt">Seed V7 (10)</button><button id="demo">Import Demo 262 (bundled)</button>
+  <label class="row"><input type="file" id="file" accept=".xlsx,.json"> <span class="sub" style="margin:0">.xlsx (SheetJS) ឬ workbook .json</span></label>
+  <button id="reset" class="danger">Reset Demo DB</button>
+</div></div>
+
+<div class="card"><b>Import</b>
+  <div class="row" style="margin:8px 0">
+    <select id="mode"><option value="full">Full import</option><option value="update-only">Update-only existing</option></select>
+    <label><input type="checkbox" id="ovw"> បញ្ជាក់ Overwrite កំណត់ត្រាដែលមានរួច</label>
+    <button id="commit" disabled>Commit</button><button id="csv" class="alt" disabled>Error list (CSV)</button>
+  </div><div id="pv" class="wrap">មិនទាន់មាន Preview</div></div>
+
+<div class="card"><b>Stores</b><div id="counts" class="wrap"></div></div>
+<div class="card"><b>Employees (Service layer · role-aware)</b>
+  <div class="row" style="margin:8px 0"><input id="q" placeholder="ស្វែងរក ឈ្មោះ / ID" style="padding:8px;border-radius:10px;border:1px solid #8a82b8;flex:1;min-width:160px"><button id="find">Search</button></div>
+  <div id="emps" class="wrap"></div></div>
+<div class="card"><b>Log</b><div id="log"></div></div>
+
+<script src="js/core/core.js"></script><script src="js/data/schema.js"></script><script src="js/data/providers.js"></script><script src="js/config.js"></script><script src="js/data/remote-provider.js"></script>
+<script src="js/services/core-services.js"></script><script src="js/services/import-service.js"></script><script src="js/services/seed-service.js"></script><script src="js/legacy-adapter.js"></script>
+<script>
+const $ = (s) => document.querySelector(s), N = PRDHR, H = (window.__h = {});
+const USERS = { hr_admin: { id: "u-hr", role: "hr_admin" }, dept_head: { id: "u-head", role: "dept_head", section: "រោងចក្រ" }, employee: { id: "u-emp", role: "employee", employee_id: "PPWSA-0604" } };
+const user = () => N.remoteUser || USERS[$("#role").value], log = (m) => ($("#log").textContent = new Date().toLocaleTimeString() + "  " + m + "\n" + $("#log").textContent);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+let pv = null;
+async function init() {
+  try { H.p = await N.createProvider(); } catch (e) { if (N.gate && (N.GATE_CODES.includes(e.code) || e.code === "network")) return N.gate(e.code, e); throw e; }
+  H.audit = new N.AuditService(H.p); H.imp = new N.ImportService(H.p, H.audit); H.emp = new N.EmployeeService(H.p, H.audit); H.seed = new N.SeedService(H.p, H.audit);
+  if (H.p.kind === "remote") { const i = H.p.identity; N.remoteUser = { id: i.id, role: i.role, employee_id: i.employee_id, section: i.section, display: i.display_name }; N.applyRoles(H.p.roles);
+    ["#role", "#seedV7", "#demo", "#reset"].forEach((q) => { const el = $(q); if (el) el.style.display = "none"; }); $("#prov").textContent = "Server · " + (i.display_name || i.id) + " · " + i.role; }
+  else $("#prov").textContent = "Provider: " + H.p.kind; await refresh(); log("ready · provider=" + H.p.kind);
+}
+async function refresh() {
+  const rows = []; for (const s of N.schema) { let c; try { c = await H.p.count(s.name); } catch (e) { c = "—"; } rows.push(`<tr><td>${s.name}</td><td>${c}</td></tr>`); }
+  $("#counts").innerHTML = `<table><tr><th>Store</th><th>Records</th></tr>${rows.join("")}</table>`; await find();
+}
+async function find() {
+  try { const r = await H.emp.list(user(), { search: $("#q").value, pageSize: 8 });
+    $("#emps").innerHTML = `<div class="sub">${r.total} នាក់</div><table><tr><th>ID</th><th>ឈ្មោះ</th><th>ផ្នែក</th><th>ទូរស័ព្ទ</th><th>អាយុ</th><th>និវត្តន៍ (គណនា)</th></tr>${r.items.map((e) => `<tr><td>${esc(e.employee_id)}</td><td>${esc(e.name_km)}</td><td>${esc(e.section || e.unit_text)}</td><td>${esc(e.phone)}</td><td>${e.calc.age ?? "No Data"}</td><td>${e.calc.retirement_date ?? "No Data"}</td></tr>`).join("")}</table>`;
+  } catch (e) { $("#emps").innerHTML = `<span class="er">${esc(e.message)}</span>`; }
+}
+async function doPreview(wb) {
+  pv = await H.imp.preview(wb); const s = pv.summary, bad = pv.issues.filter((i) => i.severity === "error");
+  $("#pv").innerHTML = `<div>${Object.entries(s).map(([k, v]) => `<span class="chip">${k}: <b>${v}</b></span>`).join("")}</div><div class="sub">${pv.sheets.map((x) => esc(x.sheet) + " → " + x.kind).join(" · ")}</div>
+   <table><tr><th>Sheet</th><th>Row</th><th>ID</th><th>Code</th><th>Message</th></tr>${pv.issues.slice(0, 15).map((i) => `<tr><td>${esc(i.sheet).slice(0, 12)}</td><td>${i.row}</td><td>${esc(i.employee_id)}</td><td class="${i.severity === "error" ? "er" : "wa"}">${i.code}</td><td>${esc(i.msg)}</td></tr>`).join("")}</table><div class="sub">បង្ហាញ 15 ដំបូង · សរុប ${pv.issues.length} (Errors ${bad.length})</div>`;
+  $("#commit").disabled = false; $("#csv").disabled = false; log("preview: " + JSON.stringify(s));
+}
+$("#demo").onclick = async () => { try { const wb = await (await fetch("seed/demo-workbook.json")).json(); await doPreview(wb); } catch (e) { log("bundled demo needs http(s) hosting (fetch is blocked on file://): " + e.message + " — use the file picker instead"); } };
+$("#file").onchange = async (ev) => {
+  const f = ev.target.files[0]; if (!f) return;
+  try { let wb; if (/\.json$/i.test(f.name)) wb = JSON.parse(await f.text());
+    else { if (!window.XLSX) await new Promise((res, rej) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; s.onload = res; s.onerror = () => rej(new Error("SheetJS មិនអាចទាញយក (ត្រូវការ Internet)")); document.head.appendChild(s); }); wb = await N.ImportService.fromSheetJS(window.XLSX, await f.arrayBuffer(), f.name); }
+    await doPreview(wb); } catch (e) { log("import error: " + e.message); }
+};
+$("#commit").onclick = async () => { try { const r = await H.imp.commit(user(), pv, { mode: $("#mode").value, confirmOverwrite: $("#ovw").checked }); log("commit: " + JSON.stringify(r.result)); await refresh(); } catch (e) { log("commit blocked: " + e.message); } };
+$("#csv").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([H.imp.errorsToCSV(pv)], { type: "text/csv;charset=utf-8" })); a.download = "import-errors.csv"; a.click(); };
+$("#seedV7").onclick = async () => { try { const P = await (await fetch("seed/v7-employees.json")).json(); log("seedV7: " + JSON.stringify(await H.seed.seedV7(user(), P))); await refresh(); } catch (e) { log("seedV7: " + e.message); } };
+$("#find").onclick = find; $("#role").onchange = find; $("#q").onkeydown = (e) => e.key === "Enter" && find();
+$("#reset").onclick = async () => { if (!confirm("លុបទិន្នន័យ Demo ទាំងអស់ (រួមទាំង Audit Log នៃ Demo)?")) return; H.p.close && H.p.close(); await new Promise((res) => { const r = indexedDB.deleteDatabase(N.DB_NAME); r.onsuccess = r.onerror = r.onblocked = res; }); await init(); log("demo database reset"); };
+init().catch((e) => log("init failed: " + e.message));
+</script></body></html>

@@ -1,8 +1,8 @@
 // ប្តូរលេខ version នេះរាល់ពេលកែ index.html ដើម្បីឱ្យ cache ថ្មីជំនួសចាស់
-const V = 'ppwsa-hub-v12';
-const SHELL = ['./', 'index.html', 'admin.html', 'psmd-admin.html', 'setpoint.html', 'wtp.html', 'chemical.html', 'manifest.json',
+const V = 'ppwsa-hub-v13';
+const SHELL = ['./', 'index.html', 'admin.html', 'psmd-admin.html', 'setpoint.html', 'wtp.html', 'chemical.html', 'hr/index.html', 'manifest.json',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
-  'icons/app-calendar.png', 'icons/app-setpoint.png', 'icons/app-task-tracker.png', 'icons/app-maintenance.png', 'icons/app-chemical.png',
+  'icons/app-calendar.png', 'icons/app-setpoint.png', 'icons/app-task-tracker.png', 'icons/app-maintenance.png', 'icons/app-chemical.png', 'icons/app-hr.png',
   'icons/logo-ppwsa.png', 'icons/logo-ppwsa-dark.png',
   'icons/login-1.jpg', 'icons/login-2.jpg', 'icons/login-3.jpg', 'icons/login-4.jpg', 'icons/logo-login.png'];
 

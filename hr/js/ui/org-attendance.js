@@ -1,0 +1,50 @@
+/* PRD-HR V8 — Organization chart + workforce distribution, and Attendance (Phase 3b). Registers views on PRDHR.ui.views. */
+(function () {
+  const N = PRDHR, $ = (s) => document.querySelector(s), U = () => N.ui, esc = (s) => U().esc(s), CATS = { unspecified: "មិនទាន់កំណត់", present: "វត្តមាន", absent: "អវត្តមាន", leave: "ច្បាប់", mission: "បេសកកម្ម", other: "ផ្សេងៗ" };
+  const sym = (c) => (c === "ü" ? "✓" : c); // "ü" in Wingdings is a check mark; the raw code is kept in the data
+  const WD = ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"];
+  const bar = (n, max) => `<span style="display:inline-block;height:8px;border-radius:6px;background:linear-gradient(90deg,var(--ac),var(--ac2));width:${Math.max(2, Math.round((n / (max || 1)) * 100))}px"></span>`;
+
+  /* ---------------- organization ---------------- */
+  let orgQ = "";
+  U().views.org = async function () {
+    const { A, user } = U(); $("#ttl").textContent = "រចនាសម្ព័ន្ធអង្គភាព"; $("#crumb").textContent = "មនុស្ស › រចនាសម្ព័ន្ធ";
+    const all = (await A.emp.list(user(), { pageSize: 100000 })).items, q = N.text.key(orgQ), match = (e) => !q || [e.name_km, e.name_en, e.employee_id, e.position, e.section, e.unit_text].some((x) => N.text.key(x).includes(q));
+    const tree = {}; for (const e of all.filter(match)) { const o = e.unit_text || "មិនបានបញ្ជាក់", s = e.section || "—"; ((tree[o] = tree[o] || {})[s] = tree[o][s] || []).push(e); }
+    const gc = (l) => `${l.length} នាក់ (ប្រុស ${l.filter((e) => e.gender === "ប្រុស").length} / ស្រី ${l.filter((e) => e.gender === "ស្រី").length})`, flat = (o) => Object.values(o).flat();
+    const byPos = {}; all.forEach((e) => { const p = e.position || "មិនបានបញ្ជាក់"; byPos[p] = (byPos[p] || 0) + 1; }); const posMax = Math.max(...Object.values(byPos), 1);
+    $("#v").innerHTML = `<div class="tools"><input id="oq" placeholder="ស្វែងរក អង្គភាព/ផ្នែក/តួនាទី/ឈ្មោះ" value="${esc(orgQ)}"><button class="btn alt" id="ea">ពង្រីកទាំងអស់</button><button class="btn alt" id="ca">បង្រួមទាំងអស់</button></div>
+     <div class="two"><div class="glass pan"><b>💧 PPWSA › នាយកដ្ឋានគ្រប់គ្រងប្រព័ន្ធផលិតកម្ម</b> <span class="chip">${gc(all)}</span><div class="k" style="margin:4px 0 8px">ទិន្នន័យ Excel គ្របដណ្តប់តែនាយកដ្ឋាននេះប៉ុណ្ណោះ</div>
+     ${Object.keys(tree).length ? Object.entries(tree).sort().map(([o, secs]) => `<details ${q ? "open" : ""}><summary><b>${esc(o)}</b> <span class="chip">${gc(flat(secs))}</span></summary>${Object.entries(secs).sort().map(([s, l]) => `<details style="margin-left:14px" ${q ? "open" : ""}><summary>${esc(s)} <span class="k">${l.length} នាក់</span></summary><div style="margin-left:14px">${l.map((e) => `<div><a href="#e/${encodeURIComponent(e.employee_id)}"><span class="av" style="width:22px;height:22px;font-size:.65rem">${esc((e.name_km || "?")[0])}</span>${esc(e.name_km)}</a> <span class="k">${esc(e.position || "—")} · ${esc(e.employee_id)}</span></div>`).join("")}</div></details>`).join("")}</details>`).join("") : '<div class="k">រកមិនឃើញលទ្ធផល</div>'}</div>
+     <div class="glass pan"><b>ចំនួនបុគ្គលិកតាមតួនាទី</b><div class="tw"><table><tbody>${Object.entries(byPos).sort((a, b) => b[1] - a[1]).map(([p, n]) => `<tr><td>${esc(p)}</td><td>${n}</td><td>${bar(n, posMax)}</td></tr>`).join("")}</tbody></table></div></div></div>`;
+    $("#oq").onchange = () => { orgQ = $("#oq").value; U().views.org(); };
+    $("#ea").onclick = () => document.querySelectorAll("#v details").forEach((d) => (d.open = true)); $("#ca").onclick = () => document.querySelectorAll("#v details").forEach((d) => (d.open = false));
+  };
+
+  /* ---------------- attendance ---------------- */
+  let attMonth = "", attDay = "", attEmp = "";
+  U().views.att = async function () {
+    const { A, user, can } = U(), u = user(); $("#ttl").textContent = "វត្តមាន"; $("#crumb").textContent = "ប្រតិបត្តិការ HR › វត្តមាន";
+    const emps = (await A.emp.list(u, { pageSize: 100000 })).items, byId = Object.fromEntries(emps.map((e) => [e.employee_id, e])), recs = await A.emp.relatedAll(u, "attendance_records");
+    if (!recs.length) { $("#v").innerHTML = '<div class="glass pan"><b>No Data</b><div class="k">មិនទាន់មានទិន្នន័យវត្តមាន — Import Excel (Sheet វត្តមាន) ក្នុង Import / Data។ ក្រឡាទទេមិនរាប់ជាអវត្តមាន។</div></div>'; return; }
+    const cfg = N.defaultConfig(), codes = Object.assign({}, cfg.attendanceCodes, await A.set.get("attendanceCodes", {})), catOf = (c) => (codes[c] || { category: "unspecified" }).category;
+    const months = [...new Set(recs.map((r) => r.date.slice(0, 7)))].sort(); if (!months.includes(attMonth)) attMonth = months[months.length - 1];
+    const mr = recs.filter((r) => r.date.startsWith(attMonth)), [Y, M] = attMonth.split("-").map(Number), dim = new Date(Date.UTC(Y, M, 0)).getUTCDate(), first = attMonth + "-01", last = attMonth + "-" + String(dim).padStart(2, "0");
+    const wdays = N.calc.workingDays(first, last, cfg.publicHolidays), withMarks = new Set(mr.map((r) => r.employee_id)), tally = {}; mr.forEach((r) => { const c = catOf(r.code_raw); tally[c] = (tally[c] || 0) + 1; });
+    const decided = (tally.present || 0) + (tally.absent || 0) + (tally.leave || 0) + (tally.mission || 0), rate = decided && (tally.present || 0) + (tally.absent || 0) ? Math.round(((tally.present || 0) / ((tally.present || 0) + (tally.absent || 0))) * 1000) / 10 : null;
+    if (!months.includes(attDay.slice(0, 7))) attDay = mr.map((r) => r.date).sort()[0]; const dayRecs = mr.filter((r) => r.date === attDay);
+    const offices = {}; mr.forEach((r) => { const o = (byId[r.employee_id] || {}).unit_text || "—"; (offices[o] = offices[o] || { emp: new Set(), t: {} }).emp.add(r.employee_id); const c = catOf(r.code_raw); offices[o].t[c] = (offices[o].t[c] || 0) + 1; });
+    const ids = [...withMarks].sort(); if (!withMarks.has(attEmp)) attEmp = ids[0]; const mine = Object.fromEntries(mr.filter((r) => r.employee_id === attEmp).map((r) => [+r.date.slice(8), r.code_raw]));
+    const lead = new Date(Date.UTC(Y, M - 1, 1)).getUTCDay(), cells = Array(lead).fill(null).concat(Array.from({ length: dim }, (_, i) => i + 1));
+    const origins = [...new Set(mr.map((r) => r.origin))].join(", ");
+    $("#v").innerHTML = `<div class="tools"><select id="am">${months.map((m) => `<option ${m === attMonth ? "selected" : ""}>${m}</option>`).join("")}</select><span class="chip">ប្រភព: ${esc(origins)}</span></div>
+     <div class="grid"><div class="glass pan"><div class="k">បុគ្គលិកមានកំណត់ត្រា</div><b style="font-size:1.4rem">${withMarks.size}</b><div class="k">ក្នុងចំណោម ${emps.length}</div></div><div class="glass pan"><div class="k">ក្រឡាមានសញ្ញា</div><b style="font-size:1.4rem">${mr.length}</b><div class="k">ថ្ងៃធ្វើការ/ខែ: ${wdays}</div></div>
+      <div class="glass pan"><div class="k">អត្រាវត្តមានប្រចាំខែ</div><b style="font-size:1.4rem">${rate == null ? "No Data" : rate + "%"}</b><div class="k">${rate == null ? "ត្រូវកំណត់អត្ថន័យកូដ (វត្តមាន/អវត្តមាន) ជាមុន" : "គណនាលើក្រឡាមានសញ្ញាប៉ុណ្ណោះ (ក្រឡាទទេមិនរាប់)"}</div></div></div>
+     <div class="two"><div class="glass pan"><b>បញ្ជីប្រចាំថ្ងៃ</b> <select id="ad">${[...new Set(mr.map((r) => r.date))].sort().map((d) => `<option ${d === attDay ? "selected" : ""}>${d}</option>`).join("")}</select><div class="tw"><table><thead><tr><th>និយោជិត</th><th>កូដ</th><th>ប្រភេទ</th></tr></thead><tbody>${dayRecs.map((r) => `<tr><td>${esc((byId[r.employee_id] || {}).name_km)} <span class="k">${esc(r.employee_id)}</span></td><td title="${esc(r.code_raw)}">${esc(sym(r.code_raw))}</td><td><span class="chip ${catOf(r.code_raw) === "unspecified" ? "wa" : ""}">${CATS[catOf(r.code_raw)]}</span></td></tr>`).join("") || '<tr><td colspan=3 class="k">No Data</td></tr>'}</tbody></table></div><div class="k">និយោជិត ${emps.length - new Set(dayRecs.map((r) => r.employee_id)).size} នាក់គ្មានកំណត់ត្រាថ្ងៃនេះ (មិនមែនអវត្តមាន)</div></div>
+     <div class="glass pan"><b>ប្រតិទិនបុគ្គល</b> <select id="ae">${ids.map((i) => `<option value="${esc(i)}" ${i === attEmp ? "selected" : ""}>${esc((byId[i] || {}).name_km)} · ${esc(i)}</option>`).join("")}</select><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;text-align:center">${WD.map((d) => `<div class="k">${d}</div>`).join("")}${cells.map((d, i) => d == null ? "<div></div>" : `<div style="padding:6px 0;border-radius:8px;background:${(lead + d - 1) % 7 === 0 || (lead + d - 1) % 7 === 6 ? "rgba(120,160,220,.12)" : "var(--gl)"}"><div class="k">${d}</div><b>${mine[d] ? esc(sym(mine[d])) : "·"}</b></div>`).join("")}</div></div></div>
+     <div class="glass pan" style="margin-top:12px"><b>សរុបតាមអង្គភាព</b><div class="tw"><table><thead><tr><th>អង្គភាព</th><th>បុគ្គលិក</th>${Object.keys(CATS).map((c) => `<th>${CATS[c]}</th>`).join("")}</tr></thead><tbody>${Object.entries(offices).sort().map(([o, v]) => `<tr><td>${esc(o)}</td><td>${v.emp.size}</td>${Object.keys(CATS).map((c) => `<td>${v.t[c] || 0}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>
+     ${can("manageSettings") ? `<div class="glass pan" style="margin-top:12px"><b>ការកំណត់កូដវត្តមាន</b> <span class="k">HR កំណត់អត្ថន័យ — ការផ្លាស់ប្តូរត្រូវបានកត់ក្នុង Audit</span><div class="tw"><table><tbody>${[...new Set(recs.map((r) => r.code_raw))].map((c) => `<tr><td><b>${esc(sym(c))}</b> <span class="k">${c === "ü" ? "(ü ក្នុង Wingdings = ✓)" : ""}</span></td><td><select class="cc" data-c="${esc(c)}">${Object.entries(CATS).map(([k, l]) => `<option value="${k}" ${catOf(c) === k ? "selected" : ""}>${l}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table></div><button class="btn" id="sc">រក្សាទុក</button></div>` : ""}`;
+    $("#am").onchange = () => { attMonth = $("#am").value; U().views.att(); }; $("#ad").onchange = () => { attDay = $("#ad").value; U().views.att(); }; $("#ae").onchange = () => { attEmp = $("#ae").value; U().views.att(); };
+    if ($("#sc")) $("#sc").onclick = async () => { const v = {}; document.querySelectorAll(".cc").forEach((s) => (v[s.dataset.c] = { category: s.value, label: s.dataset.c + " (" + CATS[s.value] + ")" })); await A.set.set(u, "attendanceCodes", v); U().views.att(); };
+  };
+})();
