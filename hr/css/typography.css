@@ -1,0 +1,10 @@
+/* PRD-HR · Typography ខ្មែរ តាមគំរូ Website PPWSA (Siemreap សម្រាប់អត្ថបទ · Moul សម្រាប់ចំណងជើងទំព័រ)
+   Font ផ្ទុកពី ../fonts/fonts.css (Self-host) — ដើម្បីប្តូរ Font ត្រូវកែតែ --f-ui / --f-title ក្នុង fonts.css */
+body{font-family:var(--f-ui,"Noto Sans Khmer",system-ui,sans-serif);line-height:1.75;font-synthesis:weight;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+body .top h1{font-family:var(--f-title,inherit);font-weight:400;font-size:1.12rem;line-height:2;letter-spacing:0}
+body .brand b{font-family:var(--f-title,inherit);font-weight:400;font-size:.95rem}
+body h2,body h3{line-height:1.7}
+body .nav button{line-height:1.5}
+th{line-height:1.5}
+@media(max-width:760px){body .top h1{font-size:.92rem;line-height:1.9}}
