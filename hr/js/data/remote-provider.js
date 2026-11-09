@@ -138,6 +138,7 @@
     }
     async verifyAudit() { await this.flushAudit(); return (await this.call("hrVerifyAudit", {})).result; }
     async getFile(id) { return (await this.call("hrGetFile", { id }, 150000)).file; }
+    async readSource() { return (await this.call("hrReadSource", {}, 120000)).file; }   // Staff_List ពី Google Sheet ប្រភព (Server អានតម្លៃ Raw)
   }
 
   NS.RemoteProvider = RemoteProvider;
