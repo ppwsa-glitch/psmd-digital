@@ -1,0 +1,87 @@
+/* PRD-HR · Responsive layout — Sidebar សម្រាប់ទាំងកុំព្យូទ័រ និងទូរស័ព្ទ (ផ្ទុកក្រោយ glass.css)
+   ≥1101px : Sidebar ថេរនៅខាងឆ្វេង (ទំហំធំ)
+   761–1100: Sidebar តូចជាង (Tablet / Laptop តូច)
+   ≤760px  : Sidebar ជា Drawer រុញចេញពីឆ្វេង បើកដោយប៊ូតុង ☰ */
+.hamb,.scrim,.side-x{display:none}
+body{overflow-x:hidden}
+img,svg,canvas{max-width:100%}
+main{min-width:0}
+
+@media(min-width:1600px){body .app{max-width:1560px}}
+
+@media(min-width:761px) and (max-width:1100px){
+ body .app{grid-template-columns:208px minmax(0,1fr);gap:16px;padding:16px}
+ body .side{padding:16px 10px;border-radius:18px}
+ body .nav button{font-size:.8rem;padding:9px 9px}
+ body .dash-panels{grid-template-columns:1fr}
+}
+
+@media(max-width:760px){
+ body .app{grid-template-columns:minmax(0,1fr);padding:0 12px 28px;gap:0}
+
+ /* របារខាងលើ (ជាប់) = ប៊ូតុង ☰ + ចំណងជើង + អ្នកប្រើ */
+ body .top{position:sticky;top:0;z-index:30;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:center;
+  margin:0 -12px 14px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;background:rgba(248,250,252,.94);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd)}
+ body .top h1{font-size:1.1rem;margin:0;line-height:1.35;overflow-wrap:anywhere}
+ body .top .sub{font-size:.74rem}
+ body .user{grid-column:1/-1;flex-wrap:wrap;gap:6px 8px;padding:6px 10px;border-radius:12px}
+ body .user #actas{max-width:100%;overflow-wrap:anywhere;font-weight:600}
+ body .user select{max-width:100%;min-width:0}
+ body .user .btn{margin-left:auto;padding:7px 14px}
+ .hamb{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--bd);border-radius:12px;background:#fff;color:#302650;
+  font-size:1.35rem;line-height:1;cursor:pointer;padding:0}
+ .hamb:active{transform:scale(.96)}
+
+ /* Sidebar = Drawer */
+ body .side{position:fixed;top:0;bottom:0;left:0;right:auto;width:min(84vw,304px);height:100vh;height:100dvh;min-height:0;z-index:60;
+  border-radius:0 22px 22px 0;margin:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(18px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(155deg,rgba(48,37,91,.99),rgba(65,48,125,.98) 55%,rgba(82,65,145,.97));
+  transform:translateX(-105%);visibility:hidden;transition:transform .26s ease,visibility 0s linear .26s;box-shadow:none}
+ body.nav-open .side{transform:none;visibility:visible;transition:transform .26s ease,visibility 0s;box-shadow:0 0 60px rgba(20,12,60,.5)}
+ body .brand{display:flex;padding-right:44px}
+ body .demo{display:block}
+ body .nav-group{display:block}
+ body .nav{display:flex;flex-direction:column;gap:4px;overflow:visible}
+ body .nav button{flex:none;min-width:0;width:100%;flex-direction:row;text-align:left;font-size:.95rem;padding:12px 13px;min-height:46px;gap:10px}
+ body .nav button span:first-child{width:25px;font-size:1.1rem}
+ .side-x{display:grid;place-items:center;position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:10px;width:38px;height:38px;border:0;border-radius:10px;
+  background:rgba(255,255,255,.14);color:#fff;font-size:1.05rem;cursor:pointer;padding:0}
+ .scrim{display:block;position:fixed;inset:0;z-index:50;background:rgba(20,12,45,.5);opacity:0;visibility:hidden;transition:opacity .26s ease,visibility 0s linear .26s;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+ body.nav-open .scrim{opacity:1;visibility:visible;transition:opacity .26s ease,visibility 0s}
+ body.nav-open{overflow:hidden}
+
+ /* មាតិកា */
+ input,select,textarea{font-size:16px}               /* ការពារ iOS Zoom ពេលចុចប្រអប់ */
+ body .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+ body .tools select,body .tools input,body .tools .btn,body .tools button{width:100%;min-width:0;max-width:100%}
+ body .tools .btn,body .tools button{min-height:42px}
+ body .dash-head{margin-bottom:12px}
+ body .dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ body .stat{padding:13px}
+ body .stat .v{font-size:1.4rem}
+ body .stat .k{font-size:.74rem}
+ body .dash-panels,body .two{grid-template-columns:minmax(0,1fr)}
+ body .dash-panel,body .pan{padding:14px}
+ body .tw{-webkit-overflow-scrolling:touch}
+ body th,body td{padding:9px 10px}
+ body .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+ body .tabs button{flex:0 0 auto;min-height:38px}
+ body .fm{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+ body dl.f,body dl{grid-template-columns:minmax(0,1fr);gap:2px 0}
+ body dl.f dt,body dl dt{margin-top:6px}
+ body dialog{width:calc(100vw - 24px);max-width:none;max-height:88vh;max-height:88dvh;overflow:auto;padding:16px}
+ body .bar{grid-template-columns:minmax(80px,36%) 1fr 28px}
+ body .hd{gap:8px}
+}
+
+@media(max-width:420px){
+ body .tools{grid-template-columns:minmax(0,1fr)}
+ body .fm{grid-template-columns:minmax(0,1fr)}
+ body .dash-kpis{gap:8px}
+ body .stat .v{font-size:1.3rem}
+}
+
+@media(prefers-reduced-motion:reduce){body .side,.scrim{transition:none!important}}
