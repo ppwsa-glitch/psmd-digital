@@ -21,6 +21,7 @@ table{border-collapse:collapse;width:100%}td,th{padding:4px 8px;border-bottom:1p
   <select id="role"><option value="hr_admin">អ្នកគ្រប់គ្រង HR</option><option value="dept_head">ប្រធានផ្នែក</option><option value="employee">និយោជិត</option></select>
   <button id="seedV7" class="alt">Seed V7 (10)</button><button id="demo">Import Demo 262 (bundled)</button>
   <label class="row"><input type="file" id="file" accept=".xlsx,.json"> <span class="sub" style="margin:0">.xlsx (SheetJS) ឬ workbook .json</span></label>
+  <button id="gs" style="display:none">☁ ទាញពី Google Sheet (Staff_List)</button>
   <button id="reset" class="danger">Reset Demo DB</button>
 </div></div>
 
@@ -47,6 +48,7 @@ const esc = (s) => String(s == null ? "" : s).replace(/[&<>]/g, (c) => ({ "&": "
 let pv = null;
 async function init() {
   try { H.p = await N.createProvider(); } catch (e) { if (N.gate && (N.GATE_CODES.includes(e.code) || e.code === "network")) return N.gate(e.code, e); throw e; }
+  if (H.p.kind === "remote") $("#gs").style.display = "";
   H.audit = new N.AuditService(H.p); H.imp = new N.ImportService(H.p, H.audit); H.emp = new N.EmployeeService(H.p, H.audit); H.seed = new N.SeedService(H.p, H.audit);
   if (H.p.kind === "remote") { const i = H.p.identity; N.remoteUser = { id: i.id, role: i.role, employee_id: i.employee_id, section: i.section, display: i.display_name }; N.applyRoles(H.p.roles);
     ["#role", "#seedV7", "#demo", "#reset"].forEach((q) => { const el = $(q); if (el) el.style.display = "none"; }); $("#prov").textContent = "Server · " + (i.display_name || i.id) + " · " + i.role; }
@@ -73,6 +75,14 @@ $("#file").onchange = async (ev) => {
   try { let wb; if (/\.json$/i.test(f.name)) wb = JSON.parse(await f.text());
     else { if (!window.XLSX) await new Promise((res, rej) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; s.onload = res; s.onerror = () => rej(new Error("SheetJS មិនអាចទាញយក (ត្រូវការ Internet)")); document.head.appendChild(s); }); wb = await N.ImportService.fromSheetJS(window.XLSX, await f.arrayBuffer(), f.name); }
     await doPreview(wb); } catch (e) { log("import error: " + e.message); }
+};
+$("#gs").onclick = async () => {
+  const b = $("#gs"); b.disabled = true; log("កំពុងទាញពី Google Sheet…");
+  try { const f = await H.p.readSource(), raw = JSON.stringify(f.sheets), dig = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+    const wb = { fileName: f.fileName, fileSize: raw.length, fileHash: [...new Uint8Array(dig)].map((x) => x.toString(16).padStart(2, "0")).join(""), sheets: f.sheets };
+    await doPreview(wb); log("ទាញបាន " + f.sheets.length + " Tab: " + f.sheets.map((x) => x.name + "(" + x.rows.length + ")").join(", ")); }
+  catch (e) { log("ទាញពី Google Sheet បរាជ័យ: " + e.message + (/server_not_configured/.test(e.message) ? " — ត្រូវដាក់ Script Property SOURCE_SPREADSHEET_ID" : "")); }
+  finally { b.disabled = false; }
 };
 $("#commit").onclick = async () => { try { const r = await H.imp.commit(user(), pv, { mode: $("#mode").value, confirmOverwrite: $("#ovw").checked }); log("commit: " + JSON.stringify(r.result)); await refresh(); } catch (e) { log("commit blocked: " + e.message); } };
 $("#csv").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([H.imp.errorsToCSV(pv)], { type: "text/csv;charset=utf-8" })); a.download = "import-errors.csv"; a.click(); };
