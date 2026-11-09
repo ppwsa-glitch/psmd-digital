@@ -97,3 +97,4 @@ body.is-busy::before{content:"";position:fixed;left:0;top:0;height:3px;width:100
  background:linear-gradient(90deg,transparent,#7c5cf2 35%,#b49dff 65%,transparent) no-repeat;background-size:45% 100%;animation:prog 1s ease-in-out infinite}
 @keyframes prog{from{background-position:-60% 0}to{background-position:160% 0}}
 @media(prefers-reduced-motion:reduce){#v.in{animation:none}body.is-busy::before{animation:none;background-size:100% 100%}}
+
