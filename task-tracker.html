@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="km" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PRD-Task-Tracker</title>
+<meta name="theme-color" content="#F4F7FA" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0A1A22" media="(prefers-color-scheme: dark)">
+<script>try{var m=localStorage.getItem("psmd_theme")||"auto";document.documentElement.dataset.theme=(m==="auto"?matchMedia("(prefers-color-scheme: dark)").matches:m==="dark")?"dark":"light"}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--teal:#087E8B;--ink:#183247;--muted:#647789;--bg:#F4F7FA;--surface:#fff;--line:#DCE5EC;--ok:#16866A;--warn:#8A5A00;--bad:#C53A3A;--chip:#EDF2F6;--act:#E1F1F3;--on:#fff}
+:root[data-theme="dark"]{--teal:#4FC3CF;--bg:#0A1A22;--surface:#10303D;--ink:#E6F1F5;--muted:#9DB8C4;--line:#1D4556;--ok:#7FD8C0;--warn:#F4C95A;--bad:#FF8A7A;--chip:#143846;--act:#17465A;--on:#06202B}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,"Kantumruy Pro","Noto Sans Khmer",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14.5px;line-height:1.55;padding:env(safe-area-inset-top,0px) 0 calc(88px + env(safe-area-inset-bottom,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px}
+header h1{font-size:16px;margin:0;flex:1;min-width:0}
+header h1 small{display:block;font-weight:400;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:10px;width:38px;height:38px;cursor:pointer;display:grid;place-items:center;text-decoration:none;color:var(--ink)}
+main{max-width:860px;margin:0 auto;padding:12px 14px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.tab,.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;cursor:pointer;white-space:nowrap;font-size:13px}
+.tab[aria-pressed=true],.chip[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:var(--on);font-weight:600}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;align-items:center}
+.search{flex:1;min-width:140px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 11px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
+.stat b{display:block;font-size:19px}.stat small{color:var(--muted);font-size:11.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-bottom:9px;cursor:pointer}
+.card.late{border-left:4px solid var(--bad)}.card.done{opacity:.72}
+.card h3{margin:0 0 4px;font-size:14.5px;font-weight:600;word-break:break-word}
+.meta{display:flex;flex-wrap:wrap;gap:4px 10px;color:var(--muted);font-size:12.5px}
+.bar{height:7px;border-radius:9px;background:var(--chip);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--teal)}.done .bar i{background:var(--ok)}
+.tag{display:inline-block;border-radius:7px;padding:0 7px;font-size:12px;background:var(--chip)}
+.tag.todo{color:var(--muted)}.tag.doing{background:var(--act);color:var(--teal)}.tag.done{color:var(--ok)}.tag.High{color:var(--bad)}.tag.late{color:var(--bad);font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:34px 10px}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));border:0;background:var(--teal);color:var(--on);border-radius:999px;padding:13px 20px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.on{display:flex}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet h2{margin:0 0 8px;font-size:16px;word-break:break-word}
+label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 3px}
+.in{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px}
+textarea.in{min-height:70px;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 15px;cursor:pointer;font-weight:600}
+.btn.p{background:var(--teal);border-color:var(--teal);color:var(--on)}.btn.d{color:var(--bad)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.seg{display:flex;gap:6px}.seg button{flex:1}
+.who{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.pick{max-height:180px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-top:5px}
+.pick label{display:flex;gap:8px;align-items:center;margin:0;padding:6px 9px;color:var(--ink);font-size:13px;border-bottom:1px solid var(--line)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;z-index:40;display:none;max-width:90%}
+.toast.bad{background:var(--bad);color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <a class="ib" href="index.html" title="ត្រឡប់ទៅ Hub">‹</a>
+  <h1>PRD-Task-Tracker<small id="who">កំពុងផ្ទុក…</small></h1>
+  <button class="ib" id="rf" title="ផ្ទុកឡើងវិញ">↻</button>
+  <button class="ib" id="th" title="ពន្លឺ/ងងឹត">◐</button>
+</header>
+<main>
+  <div class="tabs" id="tabs"></div>
+  <div class="stats" id="stats"></div>
+  <div class="row">
+    <input class="search" id="q" type="search" placeholder="ស្វែងរក…">
+    <button class="chip" data-f="all" aria-pressed="true">ទាំងអស់</button>
+    <button class="chip" data-f="todo" aria-pressed="false">មិនទាន់ធ្វើ</button>
+    <button class="chip" data-f="doing" aria-pressed="false">កំពុងធ្វើ</button>
+    <button class="chip" data-f="late" aria-pressed="false">យឺត</button>
+    <button class="chip" data-f="done" aria-pressed="false">រួចរាល់</button>
+    <button class="chip" id="mine" aria-pressed="false">ខ្ញុំ</button>
+  </div>
+  <div id="list"></div>
+</main>
+<button class="fab" id="add" hidden>＋ ការងារថ្មី</button>
+<div class="sheet-bg" id="bg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzU9Shv_f8c5pAAa6woqYOoBV6kLmb9H0Id6wOWlnlr6T9YUgoo0gn43YdYyypDtq6A/exec";
+const HUB_KEYS=["psmd_digital_session_v1","psmd_digital_checked_v1","psmd_digital_me_v1"];
+const KIND={dir:"ថ្នាក់ដឹកនាំ",day:"ប្រចាំថ្ងៃ",mon:"ប្រចាំខែ",plan:"ផែនការ ២០២៧"};
+const ST={todo:"មិនទាន់ធ្វើ",doing:"កំពុងធ្វើ",done:"រួចរាល់"};
+const $=s=>document.querySelector(s),esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const TG=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)?Telegram.WebApp:null;
+if(TG){try{TG.ready();TG.expand()}catch(e){}}
+function readSession(){const m=/psmd_session=([^&]+)/.exec(location.hash);
+  if(m){try{sessionStorage.setItem("tt_session",decodeURIComponent(m[1]))}catch(e){}history.replaceState(null,"",location.pathname+location.search)}
+  try{return sessionStorage.getItem("tt_session")||localStorage.getItem("psmd_digital_session_v1")||""}catch(e){return""}}
+const SESSION=readSession();
+let S={items:[],staff:[],me:{},canEdit:false,kinds:[],today:""},kind="dir",flt="all",mineOnly=false,tmr;
+function toast(t,bad){const e=$("#toast");e.textContent=t;e.className="toast"+(bad?" bad":"");e.style.display="block";clearTimeout(tmr);tmr=setTimeout(()=>e.style.display="none",2600)}
+function logout(){try{HUB_KEYS.forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem("tt_session")}catch(e){}location.replace("index.html")}
+const ERR={permission_denied:"គ្មានសិទ្ធិធ្វើសកម្មភាពនេះ",not_found:"រកមិនឃើញការងារ",title_required:"សូមបញ្ចូលចំណងជើង",bad_date:"កាលបរិច្ឆេទមិនត្រឹមត្រូវ",bad_status:"ស្ថានភាពមិនត្រឹមត្រូវ",must_change_pin:"សូមកំណត់ពាក្យសម្ងាត់ថ្មីក្នុងកម្មវិធី Calendar ជាមុនសិន",not_registered:"គណនីមិនទាន់មានក្នុង Staff_List",unknown_action:"Backend មិនទាន់ដាក់ tracker-api.gs / deploy version ថ្មី"};
+// Transport: GET + JSONP (same as the Calendar; <script> tags are not subject to CORS).
+// Very large requests (URL > ~7000 chars) fall back to a text/plain POST (no preflight).
+function jsonp(url,ms){
+  return new Promise((ok,bad)=>{
+    const cb="__tt"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),sc=document.createElement("script");let done=0;
+    const end=()=>{done=1;clearTimeout(tm);delete window[cb];sc.remove()},tm=setTimeout(()=>{if(!done){end();bad(Object.assign(new Error("timeout"),{name:"AbortError"}))}},ms);
+    window[cb]=d=>{if(!done){end();ok(d)}};
+    sc.onerror=()=>{if(!done){end();bad(new Error("network"))}};
+    sc.src=url+(url.indexOf("?")===-1?"?":"&")+"callback="+cb;document.head.appendChild(sc)})}
+async function api(action,payload){
+  const body=JSON.stringify({action,initData:TG?TG.initData:"",browserSession:TG?"":SESSION,payload:payload||{}});
+  const url=API_URL+"?data="+encodeURIComponent(body);let res;
+  try{
+    if(url.length<7000)res=await jsonp(url,60000);
+    else{const c=new AbortController(),t=setTimeout(()=>c.abort(),60000);
+      try{const r=await fetch(API_URL,{method:"POST",redirect:"follow",signal:c.signal,headers:{"Content-Type":"text/plain;charset=utf-8"},body});res=await r.json()}finally{clearTimeout(t)}}
+  }catch(e){throw new Error(e.name==="AbortError"?"ចំណាយពេលយូរពេក សូមសាកម្តងទៀត":"មិនអាចភ្ជាប់ទៅម៉ាស៊ីនបម្រើបានទេ")}
+  if(!res.ok){
+    if(!TG&&/^(auth_failed|session_|missing_session|bad_session|malformed_session)/.test(res.error||"")){toast("សម័យចូលប្រើផុតកំណត់",1);setTimeout(logout,1200)}
+    throw new Error(ERR[res.error]||(res.error+(res.detail?" — "+res.detail:"")))}
+  return res}
+const fd=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
+const late=i=>i.s!=="done"&&i.d&&i.d<S.today;
+const nm=id=>(S.staff.find(x=>x.id===id)||{}).name||id;
+function load(quiet){
+  return api("ttInit").then(r=>{S=r;$("#who").textContent=(r.me.name||"")+" · "+(r.canEdit?"Admin":"Staff");$("#add").hidden=!r.canEdit;
+    if(!S.kinds.includes(kind))kind=S.kinds[0]||"dir";draw();if(!quiet)deepLink()}).catch(e=>{toast(e.message,1);$("#list").innerHTML='<div class="empty">'+esc(e.message)+'</div>'})}
+let linked=false;function deepLink(){if(linked)return;linked=true;const id=new URLSearchParams(location.search).get("task");if(id&&S.items.some(i=>i.id===id))openItem(id)}
+function draw(){
+  $("#tabs").innerHTML=S.kinds.map(k=>`<button class="tab" data-k="${k}" aria-pressed="${k===kind}">${KIND[k]} (${S.items.filter(i=>i.k===k).length})</button>`).join("");
+  const all=S.items.filter(i=>i.k===kind),c=f=>all.filter(f).length;
+  $("#stats").innerHTML=[["សរុប",all.length],["កំពុងធ្វើ",c(i=>i.s==="doing")],["យឺត",c(late)],["រួចរាល់",c(i=>i.s==="done")]].map(a=>`<div class="stat"><b>${a[1]}</b><small>${a[0]}</small></div>`).join("");
+  const q=$("#q").value.trim().toLowerCase();
+  const rows=all.filter(i=>(flt==="all"||(flt==="late"?late(i):i.s===flt))&&(!mineOnly||i.mine)&&(!q||(i.t+" "+i.w+" "+i.asn.map(a=>a.name).join(" ")).toLowerCase().includes(q)))
+    .sort((a,b)=>(a.s==="done")-(b.s==="done")||(a.d||"9999").localeCompare(b.d||"9999"));
+  $("#list").innerHTML=rows.length?rows.map(card).join(""):'<div class="empty">មិនមានការងារ</div>'}
+function card(i){return `<div class="card ${i.s==="done"?"done":""} ${late(i)?"late":""}" data-id="${esc(i.id)}">
+ <h3>${esc(i.t)}</h3>
+ <div class="meta"><span class="tag ${i.s}">${ST[i.s]||i.s}</span>${late(i)?'<span class="tag late">យឺត</span>':""}<span class="tag ${esc(i.r)}">⚑ ${esc(i.r)}</span>${i.d?`<span>📅 ${fd(i.d)}</span>`:""}<span>👤 ${esc(i.asn.length?i.asn.map(a=>a.name).join(", "):i.w||"—")}</span>${i.mine?"<span>★ ជាការងាររបស់ខ្ញុំ</span>":""}</div>
+ <div class="bar"><i style="width:${i.p}%"></i></div></div>`}
+function open_(h){$("#sheet").innerHTML=h;$("#bg").classList.add("on")}
+function close_(){$("#bg").classList.remove("on")}
+function openItem(id){
+  const i=S.items.find(x=>x.id===id);if(!i)return;
+  const canUp=S.canEdit||i.mine,mine=S.me.id;
+  const ids=i.as.length?(S.canEdit?i.as:i.as.filter(x=>x===mine)):[];
+  const cur=(i.by&&i.by[ids.includes(mine)?mine:ids[0]])||{s:i.s,p:i.p,n:""};
+  open_(`<h2>${esc(i.t)}</h2>
+  <div class="meta"><span class="tag ${i.s}">${ST[i.s]}</span><span>${i.p}%</span>${i.d?`<span>📅 ${fd(i.d)}</span>`:""}<span class="tag ${esc(i.r)}">⚑ ${esc(i.r)}</span>${i.sr?`<span>ប្រភព៖ ${esc(i.sr)}</span>`:""}</div>
+  ${i.w?`<p>អ្នកទទួលខុសត្រូវ៖ ${esc(i.w)}</p>`:""}${i.n?`<p>${esc(i.n)}</p>`:""}
+  ${i.as.length?i.asn.map(a=>{const b=(i.by||{})[a.id]||{};return `<div class="who"><span>${esc(a.name)}</span><span>${ST[b.s||"todo"]} · ${b.p||0}%${b.n?" · "+esc(b.n):""}</span></div>`}).join(""):""}
+  ${canUp?`<h2 style="margin-top:16px">ធ្វើបច្ចុប្បន្នភាព</h2>
+  ${ids.length>1||(ids.length&&S.canEdit&&!ids.includes(mine))?`<label>សម្រាប់បុគ្គលិក</label><select class="in" id="pf">${ids.map(x=>`<option value="${esc(x)}" ${x===(ids.includes(mine)?mine:ids[0])?"selected":""}>${esc(nm(x))}</option>`).join("")}</select>`:""}
+  <label>ស្ថានភាព</label><div class="seg" id="ps">${Object.keys(ST).map(k=>`<button class="btn ${k===cur.s?"p":""}" data-s="${k}">${ST[k]}</button>`).join("")}</div>
+  <label>វឌ្ឍនភាព <b id="pv">${cur.p||0}%</b></label><input type="range" id="pp" min="0" max="100" step="5" value="${cur.p||0}" style="width:100%">
+  <label>កំណត់ចំណាំ</label><textarea class="in" id="pn" maxlength="300">${esc(cur.n||"")}</textarea>
+  <div class="btns"><button class="btn p" id="psv">រក្សាទុក</button>`:`<div class="btns">`}
+  ${S.canEdit?`<button class="btn" id="ped">កែប្រែ</button><button class="btn d" id="pdl">លុប</button>`:""}<button class="btn" id="pcl">បិទ</button></div>`);
+  let st=cur.s;
+  if(canUp){
+    $("#ps").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;st=b.dataset.s;[...$("#ps").children].forEach(x=>x.classList.toggle("p",x===b));if(st==="done")$("#pp").value=100;else if(st==="todo")$("#pp").value=0;$("#pv").textContent=$("#pp").value+"%"};
+    $("#pp").oninput=e=>{$("#pv").textContent=e.target.value+"%";if(+e.target.value>0&&st==="todo"){st="doing";[...$("#ps").children].forEach(x=>x.classList.toggle("p",x.dataset.s==="doing"))}};
+    const pf=$("#pf");if(pf)pf.onchange=()=>{const b=(i.by||{})[pf.value]||{};st=b.s||"todo";$("#pp").value=b.p||0;$("#pv").textContent=(b.p||0)+"%";$("#pn").value=b.n||"";[...$("#ps").children].forEach(x=>x.classList.toggle("p",x.dataset.s===st))};
+    $("#psv").onclick=()=>{const p={id:i.id,s:st,p:+$("#pp").value,n:$("#pn").value};if(S.canEdit&&i.as.length)p.staffId=pf?pf.value:(i.as.includes(mine)?mine:i.as[0]);
+      $("#psv").disabled=true;api("ttProgress",p).then(r=>{upsert(r.item);close_();toast("បានរក្សាទុក ✓")}).catch(e=>{$("#psv").disabled=false;toast(e.message,1)})}}
+  $("#pcl").onclick=close_;
+  if(S.canEdit){$("#ped").onclick=()=>edit(i);$("#pdl").onclick=()=>{if(confirm("លុបការងារនេះ?"))api("ttDelete",{id:i.id}).then(()=>{S.items=S.items.filter(x=>x.id!==i.id);close_();draw();toast("បានលុប")}).catch(e=>toast(e.message,1))}}}
+function upsert(it){const k=S.items.findIndex(x=>x.id===it.id);if(k<0)S.items.unshift(it);else S.items[k]=it;draw()}
+function edit(i){
+  i=i||{k:kind,t:"",w:"",sr:"",r:"Medium",d:"",st:"",n:"",as:[],s:"todo",p:0,mo:""};const sel=new Set(i.as);
+  const list=()=>{const q=($("#aq").value||"").toLowerCase();$("#al").innerHTML=S.staff.filter(x=>sel.has(x.id)||!q||(x.name+" "+x.role+" "+x.pos).toLowerCase().includes(q)).map(x=>`<label><input type="checkbox" value="${esc(x.id)}" ${sel.has(x.id)?"checked":""}>${esc(x.name)} <small style="color:var(--muted)">${esc(x.role||x.pos)}${x.bot?"":" · គ្មាន Telegram"}</small></label>`).join("");$("#ac").textContent=sel.size};
+  open_(`<h2>${i.id?"កែប្រែការងារ":"ការងារថ្មី"}</h2>
+  <label>ប្រភេទ</label><select class="in" id="ek">${S.kinds.map(k=>`<option value="${k}" ${k===i.k?"selected":""}>${KIND[k]}</option>`).join("")}</select>
+  <label>ការងារ *</label><textarea class="in" id="et" maxlength="500">${esc(i.t)}</textarea>
+  <div class="g2"><div><label>អាទិភាព</label><select class="in" id="er">${["High","Medium","Low"].map(x=>`<option ${x===i.r?"selected":""}>${x}</option>`).join("")}</select></div><div><label>ប្រភព</label><input class="in" id="es" value="${esc(i.sr)}" maxlength="120"></div>
+  <div><label>ចាប់ផ្តើម</label><input class="in" type="date" id="eb" value="${esc(i.st)}"></div><div><label>ថ្ងៃកំណត់</label><input class="in" type="date" id="ed" value="${esc(i.d)}"></div></div>
+  <label>អ្នកទទួលខុសត្រូវ (អត្ថបទ)</label><input class="in" id="ew" value="${esc(i.w)}" maxlength="120">
+  <label>ចាត់តាំងបុគ្គលិក (<span id="ac">0</span>) — Bot នឹងផ្ញើសារជូន</label><input class="in" id="aq" type="search" placeholder="ស្វែងរកឈ្មោះ…"><div class="pick" id="al"></div>
+  <label>កំណត់ចំណាំ</label><textarea class="in" id="en" maxlength="1000">${esc(i.n)}</textarea>
+  <div class="btns"><button class="btn p" id="esv">រក្សាទុក</button><button class="btn" id="ecl">បោះបង់</button></div>`);
+  list();$("#aq").oninput=list;$("#al").onchange=e=>{e.target.checked?sel.add(e.target.value):sel.delete(e.target.value);$("#ac").textContent=sel.size};
+  $("#ecl").onclick=()=>i.id?openItem(i.id):close_();
+  $("#esv").onclick=()=>{const k=$("#ek").value,d=$("#ed").value,it={id:i.id,k,t:$("#et").value,w:$("#ew").value,sr:$("#es").value,r:$("#er").value,d,st:$("#eb").value,n:$("#en").value,as:[...sel],s:i.s,p:i.p,
+      mo:i.mo||((k==="mon"||k==="plan")&&d?d.slice(0,7):"")};
+    if(!it.t.trim())return toast("សូមបញ្ចូលចំណងជើង",1);
+    $("#esv").disabled=true;api("ttSave",{item:it}).then(r=>{upsert(r.item);kind=r.item.k;draw();close_();
+      toast(r.unreachable&&r.unreachable.length?"បានរក្សាទុក · Bot មិនអាចផ្ញើដល់៖ "+r.unreachable.join(", "):"បានរក្សាទុក ✓"+(r.notified?" · ផ្ញើសារ "+r.notified+" នាក់":""),!!(r.unreachable&&r.unreachable.length))}).catch(e=>{$("#esv").disabled=false;toast(e.message,1)})}}
+$("#tabs").onclick=e=>{const b=e.target.closest("[data-k]");if(b){kind=b.dataset.k;draw()}};
+document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flt=b.dataset.f;document.querySelectorAll("[data-f]").forEach(x=>x.setAttribute("aria-pressed",x===b));draw()});
+$("#mine").onclick=e=>{mineOnly=!mineOnly;e.currentTarget.setAttribute("aria-pressed",mineOnly);draw()};
+$("#q").oninput=draw;
+$("#list").onclick=e=>{const c=e.target.closest("[data-id]");if(c)openItem(c.dataset.id)};
+$("#add").onclick=()=>edit();
+$("#bg").onclick=e=>{if(e.target.id==="bg")close_()};
+$("#rf").onclick=()=>load(true).then(()=>toast("បានផ្ទុកឡើងវិញ"));
+$("#th").onclick=()=>{const d=document.documentElement,n=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=n;try{localStorage.setItem("psmd_theme",n)}catch(e){}};
+if(!TG&&!SESSION)location.replace("index.html");else load();
+</script>
+</body>
+</html>
