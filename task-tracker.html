@@ -211,7 +211,7 @@ function Plan2026View({ data, loading, error, onRetry }) {
 }
 function App() {
     const [data, setData] = useState({ items: [], staff: [], me: {}, canEdit: false, kinds: [], today: "" });
-    const [kind, setKind] = useState("dir"), [filter, setFilter] = useState("all"), [query, setQuery] = useState(""), [mine, setMine] = useState(false), [modal, setModal] = useState(null), [toast, setToast] = useState(null), [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [dark, setDark] = useState(document.documentElement.dataset.theme === "dark"), [showPlan2026, setShowPlan2026] = useState(false), [plan2026, setPlan2026] = useState([]), [plan2026Loading, setPlan2026Loading] = useState(false), [plan2026Error, setPlan2026Error] = useState("");
+    const [kind, setKind] = useState("dir"), [filter, setFilter] = useState("all"), [query, setQuery] = useState(""), [mine, setMine] = useState(false), [modal, setModal] = useState(null), [toast, setToast] = useState(null), [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [dark, setDark] = useState(document.documentElement.dataset.theme === "dark"), [showPlan2026, setShowPlan2026] = useState(false), [plan2026, setPlan2026] = useState([]), [plan2026Loading, setPlan2026Loading] = useState(false), [plan2026Error, setPlan2026Error] = useState(""), [sideOpen, setSideOpen] = useState(false), [activeNav, setActiveNav] = useState("dashboard");
     const notify = (msg, bad = false) => { setToast({ msg, bad }); setTimeout(() => setToast(null), 3000); };
     const deepDone = useRef(false);
     function openFromLink(r) { if (deepDone.current)
