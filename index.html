@@ -526,7 +526,7 @@ footer{width:100%; max-width:640px; margin:0 auto; padding:0 20px 28px; flex:non
   #hub .userbar{display:contents}
   #hub #who{display:block; margin:6px 0 4px; font-size:1.05rem; font-weight:600; color:var(--ink); animation:g-fade .7s .1s ease both}
   #hub .lead{animation:g-fade .7s .15s ease both}
-  #hub #logoutBtn{position:absolute; z-index:2; top:38px; right:max(24px, calc((100% - 1100px)/2 + 24px))}
+  #hub .ub-actions{position:absolute; z-index:2; top:38px; right:max(24px, calc((100% - 1100px)/2 + 24px))}
 }
 #hub #who{font-weight:600; color:var(--ink)}
 
@@ -646,6 +646,54 @@ footer{width:100%; max-width:640px; margin:0 auto; padding:0 20px 28px; flex:non
   #hub *,#hub *::before,#hub *::after{animation:none !important; transition:none !important}
   #hub ul li{transform:none !important}
 }
+
+/* ===== Bell + Notification Center ===== */
+#hub .ub-actions{display:flex; align-items:center; gap:10px}
+#hub .userbar button.bell{position:relative; width:44px; padding:0; justify-content:center; gap:0}
+#hub .userbar button.bell svg{width:22px; height:22px; color:var(--river)}
+:root[data-theme="dark"] #hub .userbar button.bell svg{color:var(--t1)}
+.bell-badge{
+  position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; border-radius:999px;
+  display:grid; place-items:center; font-size:11px; font-weight:700; line-height:1; color:#fff; background:#E5484D;
+  border:2px solid var(--bg); box-sizing:border-box;
+}
+.bell-backdrop{position:fixed; inset:0; z-index:40; background:rgba(8,30,44,.28)}
+.bell-panel{
+  position:fixed; z-index:41; display:flex; flex-direction:column; overflow:hidden;
+  top:calc(env(safe-area-inset-top,0px) + 70px); left:12px; right:12px; max-height:calc(100vh - 90px); max-height:calc(100dvh - 90px);
+  background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:20px;
+  box-shadow:0 24px 60px -12px rgba(6,40,60,.45);
+}
+.bell-head{display:flex; align-items:center; gap:8px; padding:14px 14px 8px 18px}
+.bell-head h2{margin:0; flex:1; font-size:1.05rem; font-weight:700}
+.bell-head button{font:inherit; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--river); border-radius:999px; padding:5px 12px; font-size:.82rem; font-weight:600; min-height:34px}
+:root[data-theme="dark"] .bell-head button{color:var(--t1)}
+.bell-head button:disabled{opacity:.45; cursor:default}
+.bell-head #bellClose{width:34px; padding:0; color:var(--muted)}
+.bell-tabs{display:flex; gap:6px; padding:0 14px 10px 18px}
+.bell-tabs button{font:inherit; cursor:pointer; border:0; background:transparent; color:var(--muted); border-radius:999px; padding:5px 12px; font-size:.82rem; font-weight:600}
+.bell-tabs button.active{background:var(--river); color:#fff}
+.bell-list{overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1px solid var(--line); min-height:90px}
+.bell-item{
+  display:flex; gap:12px; align-items:flex-start; width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer;
+  background:transparent; border:0; border-bottom:1px solid var(--line); padding:12px 16px 12px 18px;
+}
+.bell-item:last-child{border-bottom:0}
+.bell-item.unread{background:rgba(10,92,122,.08)}
+:root[data-theme="dark"] .bell-item.unread{background:rgba(124,203,230,.10)}
+.bell-item:focus-visible,.bell-head button:focus-visible,.bell-tabs button:focus-visible{outline:3px solid var(--signal); outline-offset:-3px}
+.bell-ic{flex:none; width:40px; height:40px; object-fit:contain; display:grid; place-items:center; font-size:22px}
+.bell-tx{flex:1; min-width:0}
+.bell-tt{display:block; font-weight:700; font-size:.92rem; line-height:1.5; overflow-wrap:anywhere}
+.bell-bd{display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; font-size:.84rem; color:var(--muted); line-height:1.55; overflow-wrap:anywhere}
+.bell-tm{display:block; margin-top:3px; font-size:.75rem; color:var(--muted)}
+.bell-dot{flex:none; width:10px; height:10px; margin-top:8px; border-radius:50%; background:#E5484D}
+.bell-empty{padding:34px 18px; text-align:center; color:var(--muted); font-size:.9rem}
+.bell-empty button{margin-top:10px; font:inherit; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--river); border-radius:999px; padding:6px 16px; font-weight:600}
+@media (min-width:760px){
+  .bell-panel{left:auto; right:max(24px, calc((100vw - 1100px)/2 + 24px)); top:96px; width:400px; max-height:min(560px, calc(100vh - 120px)); max-height:min(560px, calc(100dvh - 120px))}
+  .bell-backdrop{background:transparent}
+}
 </style>
 </head>
 <body>
@@ -657,13 +705,19 @@ footer{width:100%; max-width:640px; margin:0 auto; padding:0 20px 28px; flex:non
 </header>
 
 <main>
-  <div class="userbar"><span id="who"></span><button type="button" id="logoutBtn"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.7-9 7v1h18v-1c0-4.3-4-7-9-7Z"/></svg></span><span>ចាកចេញ</span><svg class="chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button></div>
+  <div class="userbar"><span id="who"></span><div class="ub-actions"><button type="button" class="bell" id="bellBtn" aria-label="ការជូនដំណឹង" aria-haspopup="dialog" aria-expanded="false" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="bell-badge" id="bellBadge" hidden></span></button><button type="button" id="logoutBtn"><span class="av" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.7-9 7v1h18v-1c0-4.3-4-7-9-7Z"/></svg></span><span>ចាកចេញ</span><svg class="chev" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button></div></div>
   <p class="lead">ជ្រើសរើសកម្មវិធីដើម្បីចាប់ផ្តើមការងារ</p>
   <ul id="list"></ul>
   <button class="install" id="installBtn" type="button">ដាក់កម្មវិធីនេះលើអេក្រង់ទូរស័ព្ទ</button>
   <p class="hint" id="iosHint">លើ iPhone៖ ចុចប៊ូតុង Share រួចជ្រើស «Add to Home Screen»</p>
 </main>
 <footer>PPWSA · ផ្នែកគ្រប់គ្រងប្រព័ន្ធផលិត</footer>
+<div id="bellBackdrop" class="bell-backdrop" hidden></div>
+<section id="bellPanel" class="bell-panel" role="dialog" aria-label="ការជូនដំណឹង" hidden>
+  <div class="bell-head"><h2>ការជូនដំណឹង</h2><button type="button" id="bellMarkAll">អានទាំងអស់</button><button type="button" id="bellClose" aria-label="បិទ">✕</button></div>
+  <div class="bell-tabs"><button type="button" data-f="all" class="active">ទាំងអស់</button><button type="button" data-f="unread">មិនទាន់អាន</button></div>
+  <div class="bell-list" id="bellList"></div>
+</section>
 </div>
 
 <script>
@@ -1276,6 +1330,128 @@ if (/iphone|ipad/i.test(navigator.userAgent) && !standalone) {
 }
 
 
+/* ===== Bell + Notification Center (hub-api.gs: hubUnreadCount / hubGetNotifications / hubMarkRead) ===== */
+const BELL_ICONS = { calendar:"icons/app-calendar.png", setpoint:"icons/app-setpoint.png", tasktracker:"icons/app-task-tracker.png", wtp:"icons/app-maintenance.png", chemical:"icons/app-chemical.png", hr:"icons/app-hr.png" };
+const BELL_POLL_MS = 60000;
+let bellTimer = null, bellItems = [], bellUnread = 0, bellFilter = "all", bellIsOpen = false, bellDisabled = false, bellSeq = 0, bellWired = false;
+const bellById = id => document.getElementById(id);
+function bellSetCount(n){
+  bellUnread = Math.max(0, Number(n) || 0);
+  const b = bellById("bellBadge"), btn = bellById("bellBtn");
+  b.textContent = bellUnread > 99 ? "99+" : String(bellUnread);
+  b.hidden = bellUnread === 0;
+  btn.setAttribute("aria-label", bellUnread ? "ការជូនដំណឹង — មិនទាន់អាន " + bellUnread : "ការជូនដំណឹង");
+  bellById("bellMarkAll").disabled = bellUnread === 0;
+}
+function bellTime(s){
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || ""));
+  if(!m) return "";
+  const d = new Date(), t = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  return (m[1]+"-"+m[2]+"-"+m[3] === t ? "ថ្ងៃនេះ" : m[3] + "/" + m[2]) + " " + m[4] + ":" + m[5];
+}
+function bellRender(msg, retry){
+  const box = bellById("bellList");
+  box.textContent = "";
+  if(msg){
+    const e = document.createElement("div"); e.className = "bell-empty"; e.textContent = msg;
+    if(retry){ const r = document.createElement("button"); r.type = "button"; r.textContent = "ព្យាយាមម្តងទៀត"; r.addEventListener("click", bellLoad); e.appendChild(document.createElement("br")); e.appendChild(r); }
+    box.appendChild(e); return;
+  }
+  const items = bellItems.filter(n => bellFilter === "all" || !n.read);
+  if(!items.length){ const e = document.createElement("div"); e.className = "bell-empty"; e.textContent = bellFilter === "unread" ? "គ្មានការជូនដំណឹងដែលមិនទាន់អាន" : "មិនទាន់មានការជូនដំណឹង"; box.appendChild(e); return; }
+  items.forEach(n => {
+    const it = document.createElement("button"); it.type = "button"; it.className = "bell-item" + (n.read ? "" : " unread");
+    let ic;
+    if(BELL_ICONS[n.app]){ ic = document.createElement("img"); ic.src = BELL_ICONS[n.app]; ic.alt = ""; } else { ic = document.createElement("span"); ic.textContent = "🔔"; }
+    ic.className = "bell-ic";
+    const tx = document.createElement("span"); tx.className = "bell-tx";
+    const tt = document.createElement("span"); tt.className = "bell-tt"; tt.textContent = n.t || "";
+    tx.appendChild(tt);
+    if(n.b){ const bd = document.createElement("span"); bd.className = "bell-bd"; bd.textContent = n.b; tx.appendChild(bd); }
+    const tm = document.createElement("span"); tm.className = "bell-tm"; tm.textContent = bellTime(n.at); tx.appendChild(tm);
+    it.appendChild(ic); it.appendChild(tx);
+    if(!n.read){ const d = document.createElement("span"); d.className = "bell-dot"; d.setAttribute("aria-hidden", "true"); it.appendChild(d); }
+    it.addEventListener("click", () => bellActivate(n));
+    box.appendChild(it);
+  });
+}
+async function bellLoad(){
+  const seq = ++bellSeq;
+  bellRender("កំពុងផ្ទុក…");
+  try{
+    const r = await apiCall("hubGetNotifications", { limit: 50 });
+    if(seq !== bellSeq) return;
+    bellItems = r.items || []; bellSetCount(r.unread); bellRender();
+  }catch(e){
+    if(seq !== bellSeq) return;
+    if(e.code === "unknown_action"){ bellDisabled = true; bellById("bellBtn").hidden = true; bellClose(); bellStop(); return; }
+    bellRender("មិនអាចផ្ទុកការជូនដំណឹងបានទេ", true);
+  }
+}
+function bellGo(link){
+  link = String(link || "");
+  if(/^https:\/\//i.test(link)){ location.href = link; return; }
+  const s = getBrowserSession();
+  location.href = s ? link + (link.indexOf("#") > -1 ? "&" : "#") + "psmd_session=" + encodeURIComponent(s) : link;
+}
+async function bellActivate(n){
+  if(!n.read){
+    n.read = true; bellSetCount(bellUnread - 1); bellRender();
+    await Promise.race([apiCall("hubMarkRead", { ids: [n.id] }).catch(() => {}), new Promise(r => setTimeout(r, 1500))]);
+  }
+  if(n.l) bellGo(n.l);
+}
+async function bellMarkAll(){
+  if(!bellUnread) return;
+  bellItems.forEach(n => { n.read = true; }); bellRender();
+  try{ const r = await apiCall("hubMarkRead", { all: true }); bellSetCount(r.unread); }
+  catch(e){ bellLoad(); }
+}
+function bellOpenPanel(){
+  if(bellIsOpen) return;
+  bellIsOpen = true;
+  bellById("bellPanel").hidden = false; bellById("bellBackdrop").hidden = false;
+  bellById("bellBtn").setAttribute("aria-expanded", "true");
+  bellLoad();
+}
+function bellClose(){
+  if(!bellIsOpen) return;
+  bellIsOpen = false; bellSeq++;
+  bellById("bellPanel").hidden = true; bellById("bellBackdrop").hidden = true;
+  bellById("bellBtn").setAttribute("aria-expanded", "false");
+}
+async function bellPoll(){
+  if(bellDisabled || hubEl.hidden || document.hidden || !getBrowserSession()) return;
+  try{ const r = await apiCall("hubUnreadCount"); bellSetCount(r.unread); }
+  catch(e){ if(e.code === "unknown_action"){ bellDisabled = true; bellById("bellBtn").hidden = true; bellStop(); } }
+}
+function bellStart(){
+  if(!bellWired){
+    bellWired = true;
+    bellById("bellBtn").addEventListener("click", () => bellIsOpen ? bellClose() : bellOpenPanel());
+    bellById("bellClose").addEventListener("click", bellClose);
+    bellById("bellBackdrop").addEventListener("click", bellClose);
+    bellById("bellMarkAll").addEventListener("click", bellMarkAll);
+    document.querySelectorAll(".bell-tabs button").forEach(b => b.addEventListener("click", () => {
+      bellFilter = b.dataset.f;
+      document.querySelectorAll(".bell-tabs button").forEach(x => x.classList.toggle("active", x === b));
+      bellRender();
+    }));
+    document.addEventListener("keydown", e => { if(e.key === "Escape") bellClose(); });
+    document.addEventListener("visibilitychange", () => { if(!document.hidden) bellPoll(); });
+  }
+  if(bellDisabled) return;
+  bellById("bellBtn").hidden = false;
+  clearInterval(bellTimer);
+  bellPoll();
+  bellTimer = setInterval(bellPoll, BELL_POLL_MS);
+}
+function bellStop(){
+  clearInterval(bellTimer); bellTimer = null;
+  bellClose();
+  bellItems = []; bellSetCount(0);
+}
+
 /* ===== ประตู Login ↔ Hub ===== */
 const contentEl = document.getElementById("content"), hubEl = document.getElementById("hub");
 function showHub(){
@@ -1288,11 +1464,12 @@ function showHub(){
   }catch(e){}
   document.getElementById("who").textContent = label;
   buildApps();
+  bellStart();
 }
-function showLogin(){ hubEl.hidden = true; renderBrowserLoginScreen(); }
+function showLogin(){ bellStop(); hubEl.hidden = true; renderBrowserLoginScreen(); }
 /* ===== ពាក្យសម្ងាត់បណ្តោះអាសន្ន → ត្រូវកំណត់ពាក្យសម្ងាត់ផ្ទាល់ខ្លួនមុនប្រើ App ===== */
 function showForcedPin(errorMsg){
-  hubEl.hidden = true; setChromeVisible(false);
+  bellStop(); hubEl.hidden = true; setChromeVisible(false);
   const isDark = effectiveTheme()==="dark";
   contentEl.innerHTML = `
     <div class="login-page-bg${isDark ? " dark" : ""}">
