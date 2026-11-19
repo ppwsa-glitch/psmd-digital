@@ -2014,7 +2014,7 @@ document.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.c
 document.addEventListener("change",e=>{if(e.target.dataset&&e.target.dataset.ckp!==undefined){CK.plant=e.target.value;CK.st="";CK.flt="all";CK.draft={};paint()}});
 $("#rf").addEventListener("click",()=>{CK.d=null;CK.err=""});
 M.splice(5,0,["6","ការត្រួតពិនិត្យ","Routine Check","✓","ត្រួតពិនិត្យស្ថានភាពឧបករណ៍ អគារ និងបរិវេណ ប្រចាំសប្តាហ៍/ខែ"]);
-V["9"]=()=>{if(!CK.d&&!CK.loading&&!CK.err)chkLoad();else if(CK.d&&Date.now()-CK.t>60000)chkLoad(true);return`<div id="ckroot">${chkHTML()}</div>`};
+V["6"]=()=>{if(!CK.d&&!CK.loading&&!CK.err)chkLoad();else if(CK.d&&Date.now()-CK.t>60000)chkLoad(true);return`<div id="ckroot">${chkHTML()}</div>`};
 })();
 
 /* ===== Glass sidebar: line icons, collapse rail, tooltips ===== */
