@@ -1683,7 +1683,7 @@ function cellStatus(p,t){if(!linesOf(p,t).length&&!FORM(p,t))return"na";const f=
 const tbl=(h,r)=>`<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${r.join("")}</tbody></table></div>`;
 const pendingMine=()=>S.forms.filter(f=>(f.status==="Submitted"&&canRv())||(f.status==="Reviewed"&&canAp())).length;
 /* ---------- menu ---------- */
-const M=[["1","ផ្ទាំងសង្ខេប","Dashboard & Matrix","▦","ស្ថានភាពផែនការថែទាំ រោងចក្រ × ប្រភេទការងារ"],["2","ផែនការ និងទម្រង់","Plans & Forms","✎","បំពេញ រក្សាទុក និងបញ្ជូនផែនការរបស់រោងចក្រ"],["3","ការអនុម័ត","Approval Queue","✔","ពិនិត្យ → អនុម័ត / បដិសេធ"],["4","ប្រតិទិនប្រចាំឆ្នាំ","Yearly Calendar","▤","ផែនការ ១២ ខែ ជាទម្រង់ Gantt"],["5","តាមដានការអនុវត្ត","Work Tracking","◔","កត់ត្រាស្ថានភាព និងថ្ងៃបញ្ចប់ការងារជាក់ស្តែង"],["6","របាយការណ៍ និង PDF","Reports & PDF","⎙","បោះពុម្ព/PDF តាមទម្រង់ផ្លូវការ និងទាញ CSV"],["7","គ្រប់គ្រងប្រព័ន្ធ","Administration","⚙","អ្នកប្រើ, រោងចក្រ, ប្រភេទ និងបញ្ជីការងារ"],["8","កំណត់ត្រា","Audit Log","☰","ប្រវត្តិសកម្មភាព"]];
+const M=[["1","ផ្ទាំងសង្ខេប","Dashboard & Matrix","▦","ស្ថានភាពផែនការថែទាំ រោងចក្រ × ប្រភេទការងារ"],["2","ផែនការ និងទម្រង់","Plans & Forms","✎","បំពេញ រក្សាទុក និងបញ្ជូនផែនការរបស់រោងចក្រ"],["3","ការអនុម័ត","Approval Queue","✔","ពិនិត្យ → អនុម័ត / បដិសេធ"],["4","ប្រតិទិនប្រចាំឆ្នាំ","Yearly Calendar","▤","ផែនការ ១២ ខែ ជាទម្រង់ Gantt"],["5","តាមដានការអនុវត្ត","Work Tracking","◔","កត់ត្រាស្ថានភាព និងថ្ងៃបញ្ចប់ការងារជាក់ស្តែង"],["7","របាយការណ៍ និង PDF","Reports & PDF","⎙","បោះពុម្ព/PDF តាមទម្រង់ផ្លូវការ និងទាញ CSV"],["8","គ្រប់គ្រងប្រព័ន្ធ","Administration","⚙","អ្នកប្រើ, រោងចក្រ, ប្រភេទ និងបញ្ជីការងារ"],["9","កំណត់ត្រា","Audit Log","☰","ប្រវត្តិសកម្មភាព"]];
 const menus=()=>S.me.admin?M.map(m=>m[0]):M.filter(m=>(m[0]<"7"||m[0]==="9")&&!(S.me.viewOnly&&m[0]==="3")).map(m=>m[0]);
 function nav(){$("#nav").innerHTML=M.filter(m=>!S||menus().includes(m[0])).map(m=>`<a href="#${m[0]}" class="${m[0]===cur?"on":""}"><i>${m[3]}</i><span class="n"><b>${m[0]}. ${m[1]}</b><small>${m[2]}</small></span>${m[0]==="3"&&S&&pendingMine()?`<span class="bd">${pendingMine()}</span>`:""}</a>`).join("")}
 /* ---------- views ---------- */
@@ -2013,7 +2013,7 @@ document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.tar
 document.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.ckr){const x=CK.draft[t.dataset.ckr];if(x)x.remark=t.value}else if(t.id==="ckdate")CK.date=t.value});
 document.addEventListener("change",e=>{if(e.target.dataset&&e.target.dataset.ckp!==undefined){CK.plant=e.target.value;CK.st="";CK.flt="all";CK.draft={};paint()}});
 $("#rf").addEventListener("click",()=>{CK.d=null;CK.err=""});
-M.splice(5,0,["9","ការត្រួតពិនិត្យ","Routine Check","✓","ត្រួតពិនិត្យស្ថានភាពឧបករណ៍ អគារ និងបរិវេណ ប្រចាំសប្តាហ៍/ខែ"]);
+M.splice(5,0,["6","ការត្រួតពិនិត្យ","Routine Check","✓","ត្រួតពិនិត្យស្ថានភាពឧបករណ៍ អគារ និងបរិវេណ ប្រចាំសប្តាហ៍/ខែ"]);
 V["9"]=()=>{if(!CK.d&&!CK.loading&&!CK.err)chkLoad();else if(CK.d&&Date.now()-CK.t>60000)chkLoad(true);return`<div id="ckroot">${chkHTML()}</div>`};
 })();
 
