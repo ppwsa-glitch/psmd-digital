@@ -7,8 +7,8 @@
 <title>PRD Task Tracker — Glass Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="vendor/react.production.min.js"></script><script src="vendor/react-dom.production.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#f6f4fc;--ink:#24213b;--muted:#85819d;--line:rgba(121,105,180,.14);--glass:rgba(255,255,255,.72);--glass2:rgba(255,255,255,.52);--purple:#7655d9;--purple2:#9b83f2;--lav:#eee9ff;--green:#22a982;--amber:#e7a43b;--red:#e56b78;--shadow:0 18px 55px rgba(79,57,143,.09);--edge:rgba(255,255,255,.7)}
 :root[data-theme=dark]{--bg:#151326;--ink:#f1edff;--muted:#aaa3c6;--line:rgba(196,180,255,.13);--glass:rgba(37,32,62,.78);--glass2:rgba(37,32,62,.55);--purple:#a58bff;--purple2:#c0adff;--lav:#30294b;--green:#4bd0a7;--amber:#f2bd64;--red:#ff8997;--shadow:0 18px 55px rgba(0,0,0,.22);--edge:rgba(196,180,255,.14)}:root[data-theme=dark] .badge.todo{background:#2e2a45;color:#b9b3d1}:root[data-theme=dark] .badge.doing,:root[data-theme=dark] .badge.done{background:#17382f;color:#5fdcb4}:root[data-theme=dark] .badge.late,:root[data-theme=dark] .badge.High{background:#43232b;color:#ff9aa6}
@@ -56,87 +56,529 @@
 
 </style></head>
 <body><div id="root"></div>
-<script type="text/babel">
-const {useState,useEffect,useMemo,useRef}=React;
-const API_URL="https://script.google.com/macros/s/AKfycbzU9Shv_f8c5pAAa6woqYOoBV6kLmb9H0Id6wOWlnlr6T9YUgoo0gn43YdYyypDtq6A/exec";
-const HUB_KEYS=["psmd_digital_session_v1","psmd_digital_checked_v1","psmd_digital_me_v1"];
-const KIND={dir:"ថ្នាក់ដឹកនាំ",day:"ប្រចាំថ្ងៃ",mon:"ប្រចាំខែ",plan:"ផែនការ ២០២៧"};
-const ST={todo:"មិនទាន់ធ្វើ",doing:"កំពុងធ្វើ",done:"រួចរាល់"};
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const TG=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)?Telegram.WebApp:null;
-if(TG){try{TG.ready();TG.expand()}catch(e){}}
-function readSession(){const m=/psmd_session=([^&]+)/.exec(location.hash);if(m){try{sessionStorage.setItem("tt_session",decodeURIComponent(m[1]))}catch(e){}history.replaceState(null,"",location.pathname+location.search)}try{return sessionStorage.getItem("tt_session")||localStorage.getItem("psmd_digital_session_v1")||""}catch(e){return ""}}
-const SESSION=readSession();
-function jsonp(url,ms=60000){return new Promise((resolve,reject)=>{const cb="__tt"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),sc=document.createElement("script");let ended=false;const finish=()=>{ended=true;clearTimeout(timer);delete window[cb];sc.remove()},timer=setTimeout(()=>{if(!ended){finish();reject(new Error("ចំណាយពេលយូរពេក សូមសាកម្តងទៀត"))}},ms);window[cb]=d=>{if(!ended){finish();resolve(d)}};sc.onerror=()=>{if(!ended){finish();reject(new Error("មិនអាចភ្ជាប់ទៅម៉ាស៊ីនបម្រើបានទេ"))}};sc.src=url+(url.includes("?")?"&":"?")+"callback="+cb;document.head.appendChild(sc)})}
-async function api(action,payload={}){const body=JSON.stringify({action,initData:TG?TG.initData:"",browserSession:TG?"":SESSION,payload});const url=API_URL+"?data="+encodeURIComponent(body);let res;try{if(url.length<7000)res=await jsonp(url);else{const r=await fetch(API_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain;charset=utf-8"},body});res=await r.json()}}catch(e){throw new Error(e.message||"Network error")}if(!res.ok){if(!TG&&/^(auth_failed|session_|missing_session|bad_session|malformed_session)/.test(res.error||"")){HUB_KEYS.forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem("tt_session");location.replace("index.html")}const err={permission_denied:"គ្មានសិទ្ធិធ្វើសកម្មភាពនេះ",not_found:"រកមិនឃើញការងារ",title_required:"សូមបញ្ចូលចំណងជើង",bad_date:"កាលបរិច្ឆេទមិនត្រឹមត្រូវ",bad_status:"ស្ថានភាពមិនត្រឹមត្រូវ",unknown_action:"សូមដំឡើង tracker-api.gs និង Deploy version ថ្មី",plan2026_sheet_missing:"រកមិនឃើញ Sheet Plan 2026 ក្នុង Google Sheets",bad_kind:"ប្រភេទការងារមិនត្រឹមត្រូវ"};throw new Error(err[res.error]||(res.error||"API error"))}return res}
-const localISO=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
-const dateFmt=d=>d?`${d.slice(8,10)}/${d.slice(5,7)}/${d.slice(0,4)}`:"មិនកំណត់";
-const isLate=(i,today)=>i.s!=="done"&&i.d&&i.d<today;
-function LineChart({items}){const days=Array.from({length:7},(_,n)=>{const d=new Date();d.setDate(d.getDate()-(6-n));return localISO(d)});const vals=days.map(d=>items.filter(i=>i.d===d).length);const max=Math.max(4,...vals);const pts=vals.map((v,i)=>`${30+i*100},${178-v/max*145}`).join(" ");return <div className="chart-wrap"><svg viewBox="0 0 660 205" preserveAspectRatio="none"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#9476ed" stopOpacity=".30"/><stop offset="100%" stopColor="#9476ed" stopOpacity="0"/></linearGradient></defs>{[35,80,125,170].map(y=><line key={y} x1="25" x2="640" y1={y} y2={y} stroke="currentColor" opacity=".09" strokeDasharray="4 5"/>)}<polygon points={`30,178 ${pts} 630,178`} fill="url(#area)"/><polyline points={pts} fill="none" stroke="#8565e5" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>{vals.map((v,i)=><circle key={i} cx={30+i*100} cy={178-v/max*145} r="4" fill="#8565e5" stroke="var(--bg)" strokeWidth="2"/>)}</svg><div className="chart-labels">{days.map(d=><span key={d}>{new Date(d+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"})}</span>)}</div></div>}
-function Donut({items}){const counts=[items.filter(i=>i.s==="done").length,items.filter(i=>i.s==="doing").length,items.filter(i=>i.s==="todo").length];const total=items.length||1;const p=counts.map(n=>n/total*100);const a=p[0]*3.6,b=p[1]*3.6;const grad=`conic-gradient(#26b38a 0deg ${a}deg,#9476ed ${a}deg ${a+b}deg,#d9d3e9 ${a+b}deg 360deg)`;return <div className="donut-area"><div className="donut" style={{borderRadius:"50%",background:grad,display:"grid",placeItems:"center"}}><div style={{width:"66%",height:"66%",borderRadius:"50%",background:"var(--bg)",display:"grid",placeItems:"center",textAlign:"center"}}><div><b style={{fontSize:25}}>{items.length}</b><small style={{display:"block",fontSize:9,color:"var(--muted)"}}>TOTAL TASKS</small></div></div></div><div className="legend">{["រួចរាល់","កំពុងធ្វើ","មិនទាន់ធ្វើ"].map((x,i)=><div className="legend-row" key={x}><span className="legend-label"><i className="dot" style={{background:["#26b38a","#9476ed","#d9d3e9"][i]}}/>{x}</span><b>{counts[i]}</b></div>)}</div></div>}
-function Plan2026View({data,loading,error,onRetry}){
- const [query,setQuery]=useState(""),[area,setArea]=useState("all"),[section,setSection]=useState("all");
- const areas=useMemo(()=>[...new Set((data||[]).map(x=>x.area).filter(Boolean))],[data]);
- const sections=useMemo(()=>[...new Set((data||[]).filter(x=>area==="all"||x.area===area).map(x=>x.section).filter(Boolean))],[data,area]);
- const filtered=useMemo(()=> (data||[]).filter(x=>(area==="all"||x.area===area)&&(section==="all"||x.section===section)&&(!query||[x.no,x.title,x.preparer,x.signer,x.remarks,x.area,x.section].join(" ").toLowerCase().includes(query.toLowerCase()))),[data,area,section,query]);
- const grouped=useMemo(()=>{const out={};filtered.forEach(x=>{const a=x.area||"មិនបានកំណត់ក្រុម",s=x.section||"មិនបានកំណត់ផ្នែក";(out[a]??={})[s]??=[];out[a][s].push(x)});return out},[filtered]);
- const preparers=new Set((data||[]).map(x=>x.preparer).filter(Boolean)).size, signers=new Set((data||[]).map(x=>x.signer).filter(Boolean)).size;
- if(loading)return <div className="glass loading">កំពុងទាញយកទិន្នន័យ Plan 2026 ពី Google Sheets…</div>;
- if(error)return <div className="glass panel"><div className="empty">{error}<br/><button className="secondary" style={{marginTop:12}} onClick={onRetry}>ព្យាយាមម្ដងទៀត</button></div></div>;
- return <div className="plan26-wrap"><div className="plan26-summary">{[["ផែនការសរុប",(data||[]).length,"▦"],["ក្រុម/ទីតាំង",areas.length,"⌖"],["អ្នករៀបចំ",preparers,"♙"],["អ្នកចុះហត្ថលេខា",signers,"✍"]].map(([label,value,icon])=><div className="glass plan26-stat" key={label}><small>{icon} {label}</small><strong>{value}</strong></div>)}</div>
- <div className="glass panel"><div className="panel-head"><div><h3>បញ្ជីផែនការឆ្នាំ ២០២៦</h3><p>ទិន្នន័យយោងពី Sheet “Plan 2026” · មិនកែប្រែទិន្នន័យដើម</p></div><span className="badge">{filtered.length} / {(data||[]).length}</span></div>
- <div className="plan26-tools"><input className="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="⌕ ស្វែងរកបរិយាយ ឈ្មោះអ្នកទទួលខុសត្រូវ…"/><select value={area} onChange={e=>{setArea(e.target.value);setSection("all")}}><option value="all">គ្រប់រោងចក្រ/ក្រុម</option>{areas.map(x=><option key={x} value={x}>{x}</option>)}</select><select value={section} onChange={e=>setSection(e.target.value)}><option value="all">គ្រប់ប្រព័ន្ធ/ផ្នែក</option>{sections.map(x=><option key={x} value={x}>{x}</option>)}</select><button className="secondary" onClick={()=>{setQuery("");setArea("all");setSection("all")}}>សម្អាត Filter</button></div>
- {filtered.length?Object.entries(grouped).map(([a,ss])=><div className="glass plan26-area" key={a}><h3>▰ {a}</h3>{Object.entries(ss).map(([sec,items])=><div className="plan26-section" key={sec}><h4>{sec} <span style={{color:"var(--muted)",fontWeight:400}}>· {items.length} ការងារ</span></h4>{items.map(x=><div className="plan26-item" key={x.id}><p className="plan26-item-title">{x.no?`${x.no}. `:""}{x.title}</p><div className="plan26-meta"><span>♙ អ្នករៀបចំ៖ {x.preparer||"—"}</span><span>✍ អ្នកចុះហត្ថលេខា៖ {x.signer||"—"}</span><span>Row {x.row}</span></div>{x.remarks&&<div className="plan26-note">ផ្សេងៗ៖ {x.remarks}</div>}</div>)}</div>)}</div>):<div className="empty">មិនមានទិន្នន័យត្រូវនឹងការស្វែងរកទេ</div>}</div></div>
+<script>
+"use strict";
+const { useState, useEffect, useMemo, useRef } = React;
+const API_URL = "https://script.google.com/macros/s/AKfycbzU9Shv_f8c5pAAa6woqYOoBV6kLmb9H0Id6wOWlnlr6T9YUgoo0gn43YdYyypDtq6A/exec";
+const HUB_KEYS = ["psmd_digital_session_v1", "psmd_digital_checked_v1", "psmd_digital_me_v1"];
+const KIND = { dir: "ថ្នាក់ដឹកនាំ", day: "ប្រចាំថ្ងៃ", mon: "ប្រចាំខែ", plan: "ផែនការ ២០២៧" };
+const ST = { todo: "មិនទាន់ធ្វើ", doing: "កំពុងធ្វើ", done: "រួចរាល់" };
+const esc = s => String(s !== null && s !== void 0 ? s : "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const TG = (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData) ? Telegram.WebApp : null;
+if (TG) {
+    try {
+        TG.ready();
+        TG.expand();
+    }
+    catch (e) { }
 }
-function App(){const [data,setData]=useState({items:[],staff:[],me:{},canEdit:false,kinds:[],today:""});const [kind,setKind]=useState("dir"),[filter,setFilter]=useState("all"),[query,setQuery]=useState(""),[mine,setMine]=useState(false),[modal,setModal]=useState(null),[toast,setToast]=useState(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[dark,setDark]=useState(document.documentElement.dataset.theme==="dark"),[showPlan2026,setShowPlan2026]=useState(false),[plan2026,setPlan2026]=useState([]),[plan2026Loading,setPlan2026Loading]=useState(false),[plan2026Error,setPlan2026Error]=useState("");
-const notify=(msg,bad=false)=>{setToast({msg,bad});setTimeout(()=>setToast(null),3000)};
-const deepDone=useRef(false);
-function openFromLink(r){if(deepDone.current)return;let id="";try{id=new URLSearchParams(location.search).get("task")||""}catch(e){}if(!id)return;const it=(r.items||[]).find(x=>x.id===id);if(it){deepDone.current=true;setKind(it.k);setModal({type:"detail",item:it})}}
-async function load(){try{setLoading(true);const r=await api("ttInit");setData({...r,items:r.items||[],staff:r.staff||[],kinds:r.kinds||[]});setKind(k=>(r.kinds||[]).includes(k)?k:((r.kinds||[])[0]||"dir"));openFromLink(r)}catch(e){notify(e.message,true)}finally{setLoading(false)}}
-async function loadPlan2026(){try{setPlan2026Loading(true);setPlan2026Error("");const r=await api("ttPlan2026Init");setPlan2026(r.items||[])}catch(e){setPlan2026Error(e.message);notify(e.message,true)}finally{setPlan2026Loading(false)}}
-function openPlan2026(){setShowPlan2026(true);if(!plan2026.length&&!plan2026Loading)loadPlan2026()}
-function refreshCurrent(){if(showPlan2026)loadPlan2026();else load()}
-useEffect(()=>{if(!TG&&!SESSION){location.replace("index.html");return}load()},[]);
-const all=useMemo(()=>data.items.filter(i=>i.k===kind),[data.items,kind]);const stats={total:all.length,doing:all.filter(i=>i.s==="doing").length,late:all.filter(i=>isLate(i,data.today)).length,done:all.filter(i=>i.s==="done").length};
-const visible=useMemo(()=>all.filter(i=>(filter==="all"||(filter==="late"?isLate(i,data.today):i.s===filter))&&(!mine||i.mine)&&(!query||[i.t,i.w,...(i.asn||[]).map(a=>a.name)].join(" ").toLowerCase().includes(query.toLowerCase()))).sort((a,b)=>(a.s==="done")-(b.s==="done")||(a.d||"9999").localeCompare(b.d||"9999")),[all,filter,mine,query,data.today]);
-function upsert(it){setData(s=>({...s,items:s.items.some(x=>x.id===it.id)?s.items.map(x=>x.id===it.id?it:x):[it,...s.items]}))}
-async function saveTask(item){setBusy(true);try{const r=await api("ttSave",{item});upsert(r.item);setKind(r.item.k);setModal(null);notify("រក្សាទុកបានជោគជ័យ ✓"+(r.notified?` · Telegram ${r.notified} នាក់`:""))}catch(e){notify(e.message,true)}finally{setBusy(false)}}
-async function progress(p){setBusy(true);try{const r=await api("ttProgress",p);upsert(r.item);setModal(null);notify("បានធ្វើបច្ចុប្បន្នភាព ✓")}catch(e){notify(e.message,true)}finally{setBusy(false)}}
-async function del(id){if(!confirm("តើអ្នកពិតជាចង់លុបការងារនេះមែនទេ?"))return;setBusy(true);try{await api("ttDelete",{id});setData(s=>({...s,items:s.items.filter(i=>i.id!==id)}));setModal(null);notify("បានលុបការងារ")}catch(e){notify(e.message,true)}finally{setBusy(false)}}
-function theme(){const n=!dark;setDark(n);document.documentElement.dataset.theme=n?"dark":"light";try{localStorage.setItem("psmd_theme",n?"dark":"light")}catch(e){}}
-return <div className={`workspace ${sideOpen?"side-open":""}`}>
-<div className="side-overlay" onClick={()=>setSideOpen(false)}></div>
-<aside className="glass sidebar" aria-label="Main navigation">
-  <div className="side-brand"><div className="logo">✦</div><div><strong>PRD WORKSPACE</strong><small>Production System Management</small></div></div>
-  <div className="side-label">WORKSPACE</div>
-  <nav className="side-nav">
-    <button className={`side-link ${activeNav==="dashboard"?"active":""}`} onClick={()=>{setActiveNav("dashboard");setShowPlan2026(false);setFilter("all");setMine(false);setSideOpen(false);window.scrollTo({top:0,behavior:"smooth"})}}><span className="side-ico">▦</span>ផ្ទាំងគ្រប់គ្រង</button>
-    <button className={`side-link ${activeNav==="all"?"active":""}`} onClick={()=>{setActiveNav("all");setShowPlan2026(false);setFilter("all");setMine(false);setSideOpen(false);document.getElementById("task-workspace")?.scrollIntoView({behavior:"smooth"})}}><span className="side-ico">☷</span>ការងារទាំងអស់ <span className="side-count">{data.items.length}</span></button>
-    <button className={`side-link ${activeNav==="doing"?"active":""}`} onClick={()=>{setActiveNav("doing");setShowPlan2026(false);setFilter("doing");setSideOpen(false);document.getElementById("task-workspace")?.scrollIntoView({behavior:"smooth"})}}><span className="side-ico">◷</span>កំពុងអនុវត្ត <span className="side-count">{data.items.filter(i=>i.s==="doing").length}</span></button>
-    <button className={`side-link ${activeNav==="late"?"active":""}`} onClick={()=>{setActiveNav("late");setShowPlan2026(false);setFilter("late");setSideOpen(false);document.getElementById("task-workspace")?.scrollIntoView({behavior:"smooth"})}}><span className="side-ico">⚑</span>ការងារយឺត <span className="side-count">{data.items.filter(i=>isLate(i,data.today)).length}</span></button>
-    <button className={`side-link ${activeNav==="done"?"active":""}`} onClick={()=>{setActiveNav("done");setShowPlan2026(false);setFilter("done");setSideOpen(false);document.getElementById("task-workspace")?.scrollIntoView({behavior:"smooth"})}}><span className="side-ico">✓</span>ការងាររួចរាល់</button>
-  </nav>
-  <div className="side-label">TASK CATEGORIES</div>
-  <nav className="side-nav">{data.kinds.map(k=><button key={k} className={`side-link ${activeNav===k?"active":""}`} onClick={()=>{setActiveNav(k);setShowPlan2026(false);setKind(k);setFilter("all");setSideOpen(false);document.getElementById("task-workspace")?.scrollIntoView({behavior:"smooth"})}}><span className="side-ico">{k==="dir"?"♙":k==="day"?"☀":k==="mon"?"▦":"◫"}</span>{KIND[k]}<span className="side-count">{data.items.filter(i=>i.k===k).length}</span></button>)}
-    <button className={`side-link ${activeNav==="plan2026"?"active":""}`} onClick={()=>{setActiveNav("plan2026");openPlan2026();setSideOpen(false);document.getElementById("task-workspace")?.scrollIntoView({behavior:"smooth"})}}><span className="side-ico">📑</span>ផែនការ ២០២៦ <span className="side-count">{plan2026.length||"—"}</span></button>
-  </nav>
-  <div className="side-spacer"></div>
-  <div className="side-label">QUICK TOOLS</div>
-  <nav className="side-nav">
-    <button className="side-link" onClick={()=>{refreshCurrent();setSideOpen(false)}}><span className="side-ico">↻</span>ធ្វើបច្ចុប្បន្នភាព</button>
-    <button className="side-link" onClick={()=>{theme();setSideOpen(false)}}><span className="side-ico">{dark?"☀":"☾"}</span>{dark?"Light Mode":"Dark Mode"}</button>
-  </nav>
-  <div className="side-bottom"><div className="side-user"><div className="avatar">{(data.me.name||"U").slice(0,1)}</div><div><b>{data.me.name||"កំពុងផ្ទុក…"}</b><small>{data.canEdit?"Administrator":"Staff member"}</small></div></div></div>
-</aside>
-<div className="main-area"><div className="app-inner"><header className="topbar"><button className="mobile-side-toggle" aria-label="Open menu" onClick={()=>setSideOpen(true)}>☰</button><div className="brand"><div className="logo">✦</div><div><h1>PRD Task Tracker</h1><p>Production System Management · Workspace</p></div></div><div className="top-actions"><button className="icon-btn" title="Refresh" onClick={refreshCurrent}>↻</button><button className="icon-btn" title="Theme" onClick={theme}>{dark?"☀":"☾"}</button><div className="user-pill"><div className="avatar">{(data.me.name||"U").slice(0,1)}</div><div><b>{data.me.name||"កំពុងផ្ទុក…"}</b><small>{data.canEdit?"Administrator":"Staff member"}</small></div></div></div></header>
-<div className="welcome"><div><h2>សួស្តី, {data.me.name||"សូមស្វាគមន៍"} 👋</h2><p>សូមស្វាគមន៍មកកាន់ផ្ទាំងគ្រប់គ្រងការងាររបស់អ្នក</p></div>{data.canEdit&&<button className="primary" onClick={()=>setModal({type:"edit",item:null})}>＋ ការងារថ្មី</button>}</div>
-{!showPlan2026&&<><div className="stats">{[["ការងារសរុប",stats.total,"▦","All assigned tasks"],["កំពុងធ្វើ",stats.doing,"◷","In progress"],["ការងារយឺត",stats.late,"⚑","Past due date"],["រួចរាល់",stats.done,"✓","Completed tasks"]].map(([label,val,ico,sub],i)=><div className="glass stat" key={label}><div className="stat-top"><span>{label}</span><i className="stat-icon">{ico}</i></div><strong>{val}</strong><div className="stat-foot">{sub}</div></div>)}</div><div className="content-grid"><section className="glass panel"><div className="panel-head"><div><h3>Task Activity</h3><p>ការវិភាគថ្ងៃកំណត់ក្នុងរយៈពេល ៧ ថ្ងៃ</p></div><span className="badge">LAST 7 DAYS</span></div><LineChart items={all}/></section><section className="glass panel"><div className="panel-head"><div><h3>Task Overview</h3><p>ស្ថានភាពការងារសរុប</p></div><span className="badge">LIVE</span></div><Donut items={all}/></section></div></>}
-<section id="task-workspace" className="glass tasks-panel"><div className="panel-head"><div><h3>ការគ្រប់គ្រងការងារ</h3><p>មើល ស្វែងរក និងធ្វើបច្ចុប្បន្នភាពការងារ</p></div><span className="badge">{showPlan2026?plan2026.length:visible.length} {showPlan2026?"PLAN ITEMS":"TASKS"}</span></div><div className="tabs">{data.kinds.map(k=><button key={k} className={`tab ${!showPlan2026&&kind===k?"active":""}`} onClick={()=>{setShowPlan2026(false);setKind(k);setFilter("all")}}>{KIND[k]} <span style={{opacity:.75}}>({data.items.filter(i=>i.k===k).length})</span></button>)}<button className={`tab ${showPlan2026?"active":""}`} onClick={openPlan2026}>ផែនការ ២០២៦ <span style={{opacity:.75}}>({plan2026.length||"…"})</span></button></div>{showPlan2026?<Plan2026View data={plan2026} loading={plan2026Loading} error={plan2026Error} onRetry={loadPlan2026}/>:<><div className="toolbar"><input className="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="⌕  ស្វែងរកការងារ ឬឈ្មោះបុគ្គលិក..."/><div className="filters">{[["all","ទាំងអស់"],["todo","មិនទាន់ធ្វើ"],["doing","កំពុងធ្វើ"],["late","យឺត"],["done","រួចរាល់"]].map(([k,v])=><button key={k} className={`filter ${filter===k?"active":""}`} onClick={()=>setFilter(k)}>{v}</button>)}<button className={`filter ${mine?"active":""}`} onClick={()=>setMine(!mine)}>★ ការងារខ្ញុំ</button></div></div>{loading?<div className="loading">កំពុងទាញយកទិន្នន័យ…</div>:visible.length?<div className="task-list">{visible.map(i=><div key={i.id} className={`task ${i.s==="done"?"done":""}`} onClick={()=>setModal({type:"detail",item:i})}><div><p className="task-title">{i.t}</p><div className="task-meta"><span className={`badge ${i.s}`}>{ST[i.s]||i.s}</span>{isLate(i,data.today)&&<span className="badge late">យឺត</span>}<span className={`badge ${i.r}`}>⚑ {i.r}</span><span>▣ {dateFmt(i.d)}</span><span>♙ {(i.asn||[]).map(a=>a.name).join(", ")||i.w||"មិនទាន់កំណត់"}</span></div><div className="progress"><i style={{width:(i.p||0)+"%",background:i.s==="done"?"var(--green)":undefined}}/></div></div><div className="task-right"><b>{i.p||0}%</b><small>Progress</small><small style={{marginTop:7,color:"var(--purple)"}}>មើលលម្អិត →</small></div></div>)}</div>:<div className="empty">មិនមានការងារត្រូវបង្ហាញទេ</div>}</>}</section><div className="footer-note">PRD Task Tracker · Secure workspace · Data synchronized with Google Sheets</div>
-{modal&&<Modal modal={modal} data={data} today={data.today} busy={busy} onClose={()=>setModal(null)} onSave={saveTask} onProgress={progress} onDelete={del} onEdit={item=>setModal({type:"edit",item})}/>}{toast&&<div className={`toast ${toast.bad?"bad":""}`}>{toast.msg}</div>}</div></div></div>}
-function Modal({modal,data,today,busy,onClose,onSave,onProgress,onDelete,onEdit}){const i=modal.item||{};const initId=i.mine?data.me.id:(i.as?.[0]||data.me.id),ib=(i.as||[]).length?((i.by||{})[initId]||{}):null;const [status,setStatus]=useState(ib?(ib.s||"todo"):(i.s||"todo")),[pct,setPct]=useState(ib?(ib.p||0):(i.p||0)),[note,setNote]=useState(ib?(ib.n||""):""),[staffId,setStaffId]=useState(initId);const [form,setForm]=useState({k:i.k||data.kinds[0]||"dir",t:i.t||"",w:i.w||"",sr:i.sr||"",r:i.r||"Medium",st:i.st||"",d:i.d||"",n:i.n||""});const [selected,setSelected]=useState(new Set(i.as||[]));const [staffQuery,setStaffQuery]=useState("");const canUpdate=data.canEdit||i.mine;const canEdit=data.canEdit;const updateField=(k,v)=>setForm(s=>({...s,[k]:v}));
-if(modal.type==="edit")return <div className="modal-backdrop"><div className="modal"><h2>{i.id?"កែប្រែការងារ":"បង្កើតការងារថ្មី"}</h2><p className="modal-sub">បញ្ចូលព័ត៌មានការងារ និងចាត់តាំងអ្នកទទួលខុសត្រូវ</p><div className="field"><label>ប្រភេទការងារ</label><select value={form.k} onChange={e=>updateField("k",e.target.value)}>{data.kinds.map(k=><option value={k} key={k}>{KIND[k]}</option>)}</select></div><div className="field"><label>ចំណងជើងការងារ *</label><textarea value={form.t} onChange={e=>updateField("t",e.target.value)} maxLength="500" placeholder="បញ្ចូលចំណងជើងការងារ..."/></div><div className="two"><div className="field"><label>អាទិភាព</label><select value={form.r} onChange={e=>updateField("r",e.target.value)}>{["High","Medium","Low"].map(x=><option key={x}>{x}</option>)}</select></div><div className="field"><label>ប្រភព</label><input value={form.sr} onChange={e=>updateField("sr",e.target.value)} maxLength="120"/></div><div className="field"><label>ថ្ងៃចាប់ផ្តើម</label><input type="date" value={form.st} onChange={e=>updateField("st",e.target.value)}/></div><div className="field"><label>ថ្ងៃកំណត់</label><input type="date" value={form.d} onChange={e=>updateField("d",e.target.value)}/></div></div><div className="field"><label>អ្នកទទួលខុសត្រូវ (អត្ថបទ)</label><input value={form.w} onChange={e=>updateField("w",e.target.value)} maxLength="120"/></div><div className="field"><label>ចាត់តាំងបុគ្គលិក ({selected.size})</label><input style={{marginBottom:7}} placeholder="ស្វែងរកឈ្មោះ..." value={staffQuery} onChange={e=>setStaffQuery(e.target.value)}/><div className="staff-pick">{data.staff.filter(s=>selected.has(s.id)||(s.name+" "+s.role+" "+s.pos).toLowerCase().includes(staffQuery.toLowerCase())).map(s=><label key={s.id}><input type="checkbox" checked={selected.has(s.id)} onChange={e=>setSelected(old=>{const n=new Set(old);e.target.checked?n.add(s.id):n.delete(s.id);return n})}/><span>{s.name} <small style={{color:"var(--muted)"}}>· {s.role||s.pos}</small></span></label>)}</div></div><div className="field"><label>កំណត់ចំណាំ</label><textarea value={form.n} onChange={e=>updateField("n",e.target.value)} maxLength="1000"/></div><div className="modal-actions"><button className="secondary" onClick={onClose}>បោះបង់</button><button className="primary" disabled={busy||!form.t.trim()} onClick={()=>onSave({id:i.id,k:form.k,t:form.t,w:form.w,sr:form.sr,r:form.r,st:form.st,d:form.d,n:form.n,as:[...selected],s:i.s||"todo",p:i.p||0,mo:i.mo||((form.k==="mon"||form.k==="plan")&&form.d?form.d.slice(0,7):"")})}>{busy?"កំពុងរក្សាទុក…":"រក្សាទុក"}</button></div></div></div>;
-if(modal.type==="detail")return <div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}><div className="modal"><h2>{i.t}</h2><p className="modal-sub">ព័ត៌មានលម្អិតការងារ · {KIND[i.k]}</p><div className="detail-meta"><span className={`badge ${i.s}`}>{ST[i.s]}</span><span className={`badge ${i.r}`}>⚑ {i.r}</span><span className="badge">Due: {dateFmt(i.d)}</span><span className="badge">{i.p||0}%</span></div>{i.w&&<p>អ្នកទទួលខុសត្រូវ៖ {i.w}</p>}{i.n&&<p style={{color:"var(--muted)"}}>{i.n}</p>}{i.asn?.length>0&&<div className="field"><label>សមាជិក និងវឌ្ឍនភាព</label>{i.asn.map(a=>{const b=(i.by||{})[a.id]||{};return <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid var(--line)",fontSize:12}}><span>{a.name}</span><b>{ST[b.s||"todo"]} · {b.p||0}%</b></div>})}</div>}{canUpdate&&<><div className="field"><label>ធ្វើបច្ចុប្បន្នភាពសម្រាប់បុគ្គលិក</label>{canEdit&&i.as?.length>0?<select value={staffId} onChange={e=>{setStaffId(e.target.value);const b=(i.by||{})[e.target.value]||{};setStatus(b.s||"todo");setPct(b.p||0);setNote(b.n||"")}}>{i.asn.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select>:<div style={{color:"var(--muted)"}}>{data.me.name}</div>}</div><div className="field"><label>ស្ថានភាព</label><div className="segmented">{Object.entries(ST).map(([k,v])=><button key={k} className={status===k?"active":""} onClick={()=>{setStatus(k);if(k==="done")setPct(100);if(k==="todo")setPct(0)}}>{v}</button>)}</div></div><div className="field"><label>វឌ្ឍនភាព: <b>{pct}%</b></label><input className="progress-input" type="range" min="0" max="100" step="5" value={pct} onChange={e=>{setPct(+e.target.value);if(+e.target.value>0&&status==="todo")setStatus("doing")}}/></div><div className="field"><label>កំណត់ចំណាំ</label><textarea value={note} onChange={e=>setNote(e.target.value)} maxLength="300"/></div></>}
-<div className="modal-actions" style={{justifyContent:"space-between"}}>{canEdit?<button className="secondary danger" onClick={()=>onDelete(i.id)}>លុបការងារ</button>:<span/>}<div style={{display:"flex",gap:8}}><button className="secondary" onClick={()=>onClose()}>បិទ</button>{canEdit&&<button className="secondary" onClick={()=>onEdit(i)}>កែប្រែ</button>}{canUpdate&&<button className="primary" disabled={busy} onClick={()=>onProgress({id:i.id,s:status,p:pct,n:note,...(canEdit&&i.as?.length?{staffId}:{})})}>រក្សាទុកវឌ្ឍនភាព</button>}</div></div></div></div>;
-return null}
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+function readSession() { const m = /psmd_session=([^&]+)/.exec(location.hash); if (m) {
+    try {
+        sessionStorage.setItem("tt_session", decodeURIComponent(m[1]));
+    }
+    catch (e) { }
+    history.replaceState(null, "", location.pathname + location.search);
+} try {
+    return sessionStorage.getItem("tt_session") || localStorage.getItem("psmd_digital_session_v1") || "";
+}
+catch (e) {
+    return "";
+} }
+const SESSION = readSession();
+function jsonp(url, ms = 60000) { return new Promise((resolve, reject) => { const cb = "__tt" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), sc = document.createElement("script"); let ended = false; const finish = () => { ended = true; clearTimeout(timer); delete window[cb]; sc.remove(); }, timer = setTimeout(() => { if (!ended) {
+    finish();
+    reject(new Error("ចំណាយពេលយូរពេក សូមសាកម្តងទៀត"));
+} }, ms); window[cb] = d => { if (!ended) {
+    finish();
+    resolve(d);
+} }; sc.onerror = () => { if (!ended) {
+    finish();
+    reject(new Error("មិនអាចភ្ជាប់ទៅម៉ាស៊ីនបម្រើបានទេ"));
+} }; sc.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb; document.head.appendChild(sc); }); }
+async function api(action, payload = {}) { const body = JSON.stringify({ action, initData: TG ? TG.initData : "", browserSession: TG ? "" : SESSION, payload }); const url = API_URL + "?data=" + encodeURIComponent(body); let res; try {
+    if (url.length < 7000)
+        res = await jsonp(url);
+    else {
+        const r = await fetch(API_URL, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body });
+        res = await r.json();
+    }
+}
+catch (e) {
+    throw new Error(e.message || "Network error");
+} if (!res.ok) {
+    if (!TG && /^(auth_failed|session_|missing_session|bad_session|malformed_session)/.test(res.error || "")) {
+        HUB_KEYS.forEach(k => localStorage.removeItem(k));
+        sessionStorage.removeItem("tt_session");
+        location.replace("index.html");
+    }
+    const err = { permission_denied: "គ្មានសិទ្ធិធ្វើសកម្មភាពនេះ", not_found: "រកមិនឃើញការងារ", title_required: "សូមបញ្ចូលចំណងជើង", bad_date: "កាលបរិច្ឆេទមិនត្រឹមត្រូវ", bad_status: "ស្ថានភាពមិនត្រឹមត្រូវ", unknown_action: "សូមដំឡើង tracker-api.gs និង Deploy version ថ្មី", plan2026_sheet_missing: "រកមិនឃើញ Sheet Plan 2026 ក្នុង Google Sheets", bad_kind: "ប្រភេទការងារមិនត្រឹមត្រូវ" };
+    throw new Error(err[res.error] || (res.error || "API error"));
+} return res; }
+const localISO = d => { const z = new Date(d.getTime() - d.getTimezoneOffset() * 6e4); return z.toISOString().slice(0, 10); };
+const dateFmt = d => d ? `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}` : "មិនកំណត់";
+const isLate = (i, today) => i.s !== "done" && i.d && i.d < today;
+function LineChart({ items }) { const days = Array.from({ length: 7 }, (_, n) => { const d = new Date(); d.setDate(d.getDate() - (6 - n)); return localISO(d); }); const vals = days.map(d => items.filter(i => i.d === d).length); const max = Math.max(4, ...vals); const pts = vals.map((v, i) => `${30 + i * 100},${178 - v / max * 145}`).join(" "); return React.createElement("div", { className: "chart-wrap" },
+    React.createElement("svg", { viewBox: "0 0 660 205", preserveAspectRatio: "none" },
+        React.createElement("defs", null,
+            React.createElement("linearGradient", { id: "area", x1: "0", x2: "0", y1: "0", y2: "1" },
+                React.createElement("stop", { offset: "0%", stopColor: "#9476ed", stopOpacity: ".30" }),
+                React.createElement("stop", { offset: "100%", stopColor: "#9476ed", stopOpacity: "0" }))),
+        [35, 80, 125, 170].map(y => React.createElement("line", { key: y, x1: "25", x2: "640", y1: y, y2: y, stroke: "currentColor", opacity: ".09", strokeDasharray: "4 5" })),
+        React.createElement("polygon", { points: `30,178 ${pts} 630,178`, fill: "url(#area)" }),
+        React.createElement("polyline", { points: pts, fill: "none", stroke: "#8565e5", strokeWidth: "3.5", strokeLinecap: "round", strokeLinejoin: "round" }),
+        vals.map((v, i) => React.createElement("circle", { key: i, cx: 30 + i * 100, cy: 178 - v / max * 145, r: "4", fill: "#8565e5", stroke: "var(--bg)", strokeWidth: "2" }))),
+    React.createElement("div", { className: "chart-labels" }, days.map(d => React.createElement("span", { key: d }, new Date(d + "T00:00:00").toLocaleDateString("en-US", { weekday: "short" }))))); }
+function Donut({ items }) { const counts = [items.filter(i => i.s === "done").length, items.filter(i => i.s === "doing").length, items.filter(i => i.s === "todo").length]; const total = items.length || 1; const p = counts.map(n => n / total * 100); const a = p[0] * 3.6, b = p[1] * 3.6; const grad = `conic-gradient(#26b38a 0deg ${a}deg,#9476ed ${a}deg ${a + b}deg,#d9d3e9 ${a + b}deg 360deg)`; return React.createElement("div", { className: "donut-area" },
+    React.createElement("div", { className: "donut", style: { borderRadius: "50%", background: grad, display: "grid", placeItems: "center" } },
+        React.createElement("div", { style: { width: "66%", height: "66%", borderRadius: "50%", background: "var(--bg)", display: "grid", placeItems: "center", textAlign: "center" } },
+            React.createElement("div", null,
+                React.createElement("b", { style: { fontSize: 25 } }, items.length),
+                React.createElement("small", { style: { display: "block", fontSize: 9, color: "var(--muted)" } }, "TOTAL TASKS")))),
+    React.createElement("div", { className: "legend" }, ["រួចរាល់", "កំពុងធ្វើ", "មិនទាន់ធ្វើ"].map((x, i) => React.createElement("div", { className: "legend-row", key: x },
+        React.createElement("span", { className: "legend-label" },
+            React.createElement("i", { className: "dot", style: { background: ["#26b38a", "#9476ed", "#d9d3e9"][i] } }),
+            x),
+        React.createElement("b", null, counts[i]))))); }
+function Plan2026View({ data, loading, error, onRetry }) {
+    const [query, setQuery] = useState(""), [area, setArea] = useState("all"), [section, setSection] = useState("all");
+    const areas = useMemo(() => [...new Set((data || []).map(x => x.area).filter(Boolean))], [data]);
+    const sections = useMemo(() => [...new Set((data || []).filter(x => area === "all" || x.area === area).map(x => x.section).filter(Boolean))], [data, area]);
+    const filtered = useMemo(() => (data || []).filter(x => (area === "all" || x.area === area) && (section === "all" || x.section === section) && (!query || [x.no, x.title, x.preparer, x.signer, x.remarks, x.area, x.section].join(" ").toLowerCase().includes(query.toLowerCase()))), [data, area, section, query]);
+    const grouped = useMemo(() => { const out = {}; filtered.forEach(x => { var _a, _b; var _c; const a = x.area || "មិនបានកំណត់ក្រុម", s = x.section || "មិនបានកំណត់ផ្នែក"; (_b = (_c = ((_a = out[a]) !== null && _a !== void 0 ? _a : (out[a] = {})))[s]) !== null && _b !== void 0 ? _b : (_c[s] = []); out[a][s].push(x); }); return out; }, [filtered]);
+    const preparers = new Set((data || []).map(x => x.preparer).filter(Boolean)).size, signers = new Set((data || []).map(x => x.signer).filter(Boolean)).size;
+    if (loading)
+        return React.createElement("div", { className: "glass loading" }, "\u1780\u17C6\u1796\u17BB\u1784\u1791\u17B6\u1789\u1799\u1780\u1791\u17B7\u1793\u17D2\u1793\u1793\u17D0\u1799 Plan 2026 \u1796\u17B8 Google Sheets\u2026");
+    if (error)
+        return React.createElement("div", { className: "glass panel" },
+            React.createElement("div", { className: "empty" },
+                error,
+                React.createElement("br", null),
+                React.createElement("button", { className: "secondary", style: { marginTop: 12 }, onClick: onRetry }, "\u1796\u17D2\u1799\u17B6\u1799\u17B6\u1798\u1798\u17D2\u178A\u1784\u1791\u17C0\u178F")));
+    return React.createElement("div", { className: "plan26-wrap" },
+        React.createElement("div", { className: "plan26-summary" }, [["ផែនការសរុប", (data || []).length, "▦"], ["ក្រុម/ទីតាំង", areas.length, "⌖"], ["អ្នករៀបចំ", preparers, "♙"], ["អ្នកចុះហត្ថលេខា", signers, "✍"]].map(([label, value, icon]) => React.createElement("div", { className: "glass plan26-stat", key: label },
+            React.createElement("small", null,
+                icon,
+                " ",
+                label),
+            React.createElement("strong", null, value)))),
+        React.createElement("div", { className: "glass panel" },
+            React.createElement("div", { className: "panel-head" },
+                React.createElement("div", null,
+                    React.createElement("h3", null, "\u1794\u1789\u17D2\u1787\u17B8\u1795\u17C2\u1793\u1780\u17B6\u179A\u1786\u17D2\u1793\u17B6\u17C6 \u17E2\u17E0\u17E2\u17E6"),
+                    React.createElement("p", null, "\u1791\u17B7\u1793\u17D2\u1793\u1793\u17D0\u1799\u1799\u17C4\u1784\u1796\u17B8 Sheet \u201CPlan 2026\u201D \u00B7 \u1798\u17B7\u1793\u1780\u17C2\u1794\u17D2\u179A\u17C2\u1791\u17B7\u1793\u17D2\u1793\u1793\u17D0\u1799\u178A\u17BE\u1798")),
+                React.createElement("span", { className: "badge" },
+                    filtered.length,
+                    " / ",
+                    (data || []).length)),
+            React.createElement("div", { className: "plan26-tools" },
+                React.createElement("input", { className: "search", value: query, onChange: e => setQuery(e.target.value), placeholder: "\u2315 \u179F\u17D2\u179C\u17C2\u1784\u179A\u1780\u1794\u179A\u17B7\u1799\u17B6\u1799 \u1788\u17D2\u1798\u17C4\u17C7\u17A2\u17D2\u1793\u1780\u1791\u1791\u17BD\u179B\u1781\u17BB\u179F\u178F\u17D2\u179A\u17BC\u179C\u2026" }),
+                React.createElement("select", { value: area, onChange: e => { setArea(e.target.value); setSection("all"); } },
+                    React.createElement("option", { value: "all" }, "\u1782\u17D2\u179A\u1794\u17CB\u179A\u17C4\u1784\u1785\u1780\u17D2\u179A/\u1780\u17D2\u179A\u17BB\u1798"),
+                    areas.map(x => React.createElement("option", { key: x, value: x }, x))),
+                React.createElement("select", { value: section, onChange: e => setSection(e.target.value) },
+                    React.createElement("option", { value: "all" }, "\u1782\u17D2\u179A\u1794\u17CB\u1794\u17D2\u179A\u1796\u17D0\u1793\u17D2\u1792/\u1795\u17D2\u1793\u17C2\u1780"),
+                    sections.map(x => React.createElement("option", { key: x, value: x }, x))),
+                React.createElement("button", { className: "secondary", onClick: () => { setQuery(""); setArea("all"); setSection("all"); } }, "\u179F\u1798\u17D2\u17A2\u17B6\u178F Filter")),
+            filtered.length ? Object.entries(grouped).map(([a, ss]) => React.createElement("div", { className: "glass plan26-area", key: a },
+                React.createElement("h3", null,
+                    "\u25B0 ",
+                    a),
+                Object.entries(ss).map(([sec, items]) => React.createElement("div", { className: "plan26-section", key: sec },
+                    React.createElement("h4", null,
+                        sec,
+                        " ",
+                        React.createElement("span", { style: { color: "var(--muted)", fontWeight: 400 } },
+                            "\u00B7 ",
+                            items.length,
+                            " \u1780\u17B6\u179A\u1784\u17B6\u179A")),
+                    items.map(x => React.createElement("div", { className: "plan26-item", key: x.id },
+                        React.createElement("p", { className: "plan26-item-title" },
+                            x.no ? `${x.no}. ` : "",
+                            x.title),
+                        React.createElement("div", { className: "plan26-meta" },
+                            React.createElement("span", null,
+                                "\u2659 \u17A2\u17D2\u1793\u1780\u179A\u17C0\u1794\u1785\u17C6\u17D6 ",
+                                x.preparer || "—"),
+                            React.createElement("span", null,
+                                "\u270D \u17A2\u17D2\u1793\u1780\u1785\u17BB\u17C7\u17A0\u178F\u17D2\u1790\u179B\u17C1\u1781\u17B6\u17D6 ",
+                                x.signer || "—"),
+                            React.createElement("span", null,
+                                "Row ",
+                                x.row)),
+                        x.remarks && React.createElement("div", { className: "plan26-note" },
+                            "\u1795\u17D2\u179F\u17C1\u1784\u17D7\u17D6 ",
+                            x.remarks))))))) : React.createElement("div", { className: "empty" }, "\u1798\u17B7\u1793\u1798\u17B6\u1793\u1791\u17B7\u1793\u17D2\u1793\u1793\u17D0\u1799\u178F\u17D2\u179A\u17BC\u179C\u1793\u17B9\u1784\u1780\u17B6\u179A\u179F\u17D2\u179C\u17C2\u1784\u179A\u1780\u1791\u17C1")));
+}
+function App() {
+    const [data, setData] = useState({ items: [], staff: [], me: {}, canEdit: false, kinds: [], today: "" });
+    const [kind, setKind] = useState("dir"), [filter, setFilter] = useState("all"), [query, setQuery] = useState(""), [mine, setMine] = useState(false), [modal, setModal] = useState(null), [toast, setToast] = useState(null), [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [dark, setDark] = useState(document.documentElement.dataset.theme === "dark"), [showPlan2026, setShowPlan2026] = useState(false), [plan2026, setPlan2026] = useState([]), [plan2026Loading, setPlan2026Loading] = useState(false), [plan2026Error, setPlan2026Error] = useState("");
+    const notify = (msg, bad = false) => { setToast({ msg, bad }); setTimeout(() => setToast(null), 3000); };
+    const deepDone = useRef(false);
+    function openFromLink(r) { if (deepDone.current)
+        return; let id = ""; try {
+        id = new URLSearchParams(location.search).get("task") || "";
+    }
+    catch (e) { } if (!id)
+        return; const it = (r.items || []).find(x => x.id === id); if (it) {
+        deepDone.current = true;
+        setKind(it.k);
+        setModal({ type: "detail", item: it });
+    } }
+    async function load() { try {
+        setLoading(true);
+        const r = await api("ttInit");
+        setData({ ...r, items: r.items || [], staff: r.staff || [], kinds: r.kinds || [] });
+        setKind(k => (r.kinds || []).includes(k) ? k : ((r.kinds || [])[0] || "dir"));
+        openFromLink(r);
+    }
+    catch (e) {
+        notify(e.message, true);
+    }
+    finally {
+        setLoading(false);
+    } }
+    async function loadPlan2026() { try {
+        setPlan2026Loading(true);
+        setPlan2026Error("");
+        const r = await api("ttPlan2026Init");
+        setPlan2026(r.items || []);
+    }
+    catch (e) {
+        setPlan2026Error(e.message);
+        notify(e.message, true);
+    }
+    finally {
+        setPlan2026Loading(false);
+    } }
+    function openPlan2026() { setShowPlan2026(true); if (!plan2026.length && !plan2026Loading)
+        loadPlan2026(); }
+    function refreshCurrent() { if (showPlan2026)
+        loadPlan2026();
+    else
+        load(); }
+    useEffect(() => { if (!TG && !SESSION) {
+        location.replace("index.html");
+        return;
+    } load(); }, []);
+    const all = useMemo(() => data.items.filter(i => i.k === kind), [data.items, kind]);
+    const stats = { total: all.length, doing: all.filter(i => i.s === "doing").length, late: all.filter(i => isLate(i, data.today)).length, done: all.filter(i => i.s === "done").length };
+    const visible = useMemo(() => all.filter(i => (filter === "all" || (filter === "late" ? isLate(i, data.today) : i.s === filter)) && (!mine || i.mine) && (!query || [i.t, i.w, ...(i.asn || []).map(a => a.name)].join(" ").toLowerCase().includes(query.toLowerCase()))).sort((a, b) => (a.s === "done") - (b.s === "done") || (a.d || "9999").localeCompare(b.d || "9999")), [all, filter, mine, query, data.today]);
+    function upsert(it) { setData(s => ({ ...s, items: s.items.some(x => x.id === it.id) ? s.items.map(x => x.id === it.id ? it : x) : [it, ...s.items] })); }
+    async function saveTask(item) { setBusy(true); try {
+        const r = await api("ttSave", { item });
+        upsert(r.item);
+        setKind(r.item.k);
+        setModal(null);
+        notify("រក្សាទុកបានជោគជ័យ ✓" + (r.notified ? ` · Telegram ${r.notified} នាក់` : ""));
+    }
+    catch (e) {
+        notify(e.message, true);
+    }
+    finally {
+        setBusy(false);
+    } }
+    async function progress(p) { setBusy(true); try {
+        const r = await api("ttProgress", p);
+        upsert(r.item);
+        setModal(null);
+        notify("បានធ្វើបច្ចុប្បន្នភាព ✓");
+    }
+    catch (e) {
+        notify(e.message, true);
+    }
+    finally {
+        setBusy(false);
+    } }
+    async function del(id) { if (!confirm("តើអ្នកពិតជាចង់លុបការងារនេះមែនទេ?"))
+        return; setBusy(true); try {
+        await api("ttDelete", { id });
+        setData(s => ({ ...s, items: s.items.filter(i => i.id !== id) }));
+        setModal(null);
+        notify("បានលុបការងារ");
+    }
+    catch (e) {
+        notify(e.message, true);
+    }
+    finally {
+        setBusy(false);
+    } }
+    function theme() { const n = !dark; setDark(n); document.documentElement.dataset.theme = n ? "dark" : "light"; try {
+        localStorage.setItem("psmd_theme", n ? "dark" : "light");
+    }
+    catch (e) { } }
+    return React.createElement("div", { className: `workspace ${sideOpen ? "side-open" : ""}` },
+        React.createElement("div", { className: "side-overlay", onClick: () => setSideOpen(false) }),
+        React.createElement("aside", { className: "glass sidebar", "aria-label": "Main navigation" },
+            React.createElement("div", { className: "side-brand" },
+                React.createElement("div", { className: "logo" }, "\u2726"),
+                React.createElement("div", null,
+                    React.createElement("strong", null, "PRD WORKSPACE"),
+                    React.createElement("small", null, "Production System Management"))),
+            React.createElement("div", { className: "side-label" }, "WORKSPACE"),
+            React.createElement("nav", { className: "side-nav" },
+                React.createElement("button", { className: `side-link ${activeNav === "dashboard" ? "active" : ""}`, onClick: () => { setActiveNav("dashboard"); setShowPlan2026(false); setFilter("all"); setMine(false); setSideOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, "\u25A6"),
+                    "\u1795\u17D2\u1791\u17B6\u17C6\u1784\u1782\u17D2\u179A\u1794\u17CB\u1782\u17D2\u179A\u1784"),
+                React.createElement("button", { className: `side-link ${activeNav === "all" ? "active" : ""}`, onClick: () => { var _a; setActiveNav("all"); setShowPlan2026(false); setFilter("all"); setMine(false); setSideOpen(false); (_a = document.getElementById("task-workspace")) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, "\u2637"),
+                    "\u1780\u17B6\u179A\u1784\u17B6\u179A\u1791\u17B6\u17C6\u1784\u17A2\u179F\u17CB ",
+                    React.createElement("span", { className: "side-count" }, data.items.length)),
+                React.createElement("button", { className: `side-link ${activeNav === "doing" ? "active" : ""}`, onClick: () => { var _a; setActiveNav("doing"); setShowPlan2026(false); setFilter("doing"); setSideOpen(false); (_a = document.getElementById("task-workspace")) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, "\u25F7"),
+                    "\u1780\u17C6\u1796\u17BB\u1784\u17A2\u1793\u17BB\u179C\u178F\u17D2\u178F ",
+                    React.createElement("span", { className: "side-count" }, data.items.filter(i => i.s === "doing").length)),
+                React.createElement("button", { className: `side-link ${activeNav === "late" ? "active" : ""}`, onClick: () => { var _a; setActiveNav("late"); setShowPlan2026(false); setFilter("late"); setSideOpen(false); (_a = document.getElementById("task-workspace")) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, "\u2691"),
+                    "\u1780\u17B6\u179A\u1784\u17B6\u179A\u1799\u17BA\u178F ",
+                    React.createElement("span", { className: "side-count" }, data.items.filter(i => isLate(i, data.today)).length)),
+                React.createElement("button", { className: `side-link ${activeNav === "done" ? "active" : ""}`, onClick: () => { var _a; setActiveNav("done"); setShowPlan2026(false); setFilter("done"); setSideOpen(false); (_a = document.getElementById("task-workspace")) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, "\u2713"),
+                    "\u1780\u17B6\u179A\u1784\u17B6\u179A\u179A\u17BD\u1785\u179A\u17B6\u179B\u17CB")),
+            React.createElement("div", { className: "side-label" }, "TASK CATEGORIES"),
+            React.createElement("nav", { className: "side-nav" },
+                data.kinds.map(k => React.createElement("button", { key: k, className: `side-link ${activeNav === k ? "active" : ""}`, onClick: () => { var _a; setActiveNav(k); setShowPlan2026(false); setKind(k); setFilter("all"); setSideOpen(false); (_a = document.getElementById("task-workspace")) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, k === "dir" ? "♙" : k === "day" ? "☀" : k === "mon" ? "▦" : "◫"),
+                    KIND[k],
+                    React.createElement("span", { className: "side-count" }, data.items.filter(i => i.k === k).length))),
+                React.createElement("button", { className: `side-link ${activeNav === "plan2026" ? "active" : ""}`, onClick: () => { var _a; setActiveNav("plan2026"); openPlan2026(); setSideOpen(false); (_a = document.getElementById("task-workspace")) === null || _a === void 0 ? void 0 : _a.scrollIntoView({ behavior: "smooth" }); } },
+                    React.createElement("span", { className: "side-ico" }, "\uD83D\uDCD1"),
+                    "\u1795\u17C2\u1793\u1780\u17B6\u179A \u17E2\u17E0\u17E2\u17E6 ",
+                    React.createElement("span", { className: "side-count" }, plan2026.length || "—"))),
+            React.createElement("div", { className: "side-spacer" }),
+            React.createElement("div", { className: "side-label" }, "QUICK TOOLS"),
+            React.createElement("nav", { className: "side-nav" },
+                React.createElement("button", { className: "side-link", onClick: () => { refreshCurrent(); setSideOpen(false); } },
+                    React.createElement("span", { className: "side-ico" }, "\u21BB"),
+                    "\u1792\u17D2\u179C\u17BE\u1794\u1785\u17D2\u1785\u17BB\u1794\u17D2\u1794\u1793\u17D2\u1793\u1797\u17B6\u1796"),
+                React.createElement("button", { className: "side-link", onClick: () => { theme(); setSideOpen(false); } },
+                    React.createElement("span", { className: "side-ico" }, dark ? "☀" : "☾"),
+                    dark ? "Light Mode" : "Dark Mode")),
+            React.createElement("div", { className: "side-bottom" },
+                React.createElement("div", { className: "side-user" },
+                    React.createElement("div", { className: "avatar" }, (data.me.name || "U").slice(0, 1)),
+                    React.createElement("div", null,
+                        React.createElement("b", null, data.me.name || "កំពុងផ្ទុក…"),
+                        React.createElement("small", null, data.canEdit ? "Administrator" : "Staff member"))))),
+        React.createElement("div", { className: "main-area" },
+            React.createElement("div", { className: "app-inner" },
+                React.createElement("header", { className: "topbar" },
+                    React.createElement("button", { className: "mobile-side-toggle", "aria-label": "Open menu", onClick: () => setSideOpen(true) }, "\u2630"),
+                    React.createElement("div", { className: "brand" },
+                        React.createElement("div", { className: "logo" }, "\u2726"),
+                        React.createElement("div", null,
+                            React.createElement("h1", null, "PRD Task Tracker"),
+                            React.createElement("p", null, "Production System Management \u00B7 Workspace"))),
+                    React.createElement("div", { className: "top-actions" },
+                        React.createElement("button", { className: "icon-btn", title: "Refresh", onClick: refreshCurrent }, "\u21BB"),
+                        React.createElement("button", { className: "icon-btn", title: "Theme", onClick: theme }, dark ? "☀" : "☾"),
+                        React.createElement("div", { className: "user-pill" },
+                            React.createElement("div", { className: "avatar" }, (data.me.name || "U").slice(0, 1)),
+                            React.createElement("div", null,
+                                React.createElement("b", null, data.me.name || "កំពុងផ្ទុក…"),
+                                React.createElement("small", null, data.canEdit ? "Administrator" : "Staff member"))))),
+                React.createElement("div", { className: "welcome" },
+                    React.createElement("div", null,
+                        React.createElement("h2", null,
+                            "\u179F\u17BD\u179F\u17D2\u178F\u17B8, ",
+                            data.me.name || "សូមស្វាគមន៍",
+                            " \uD83D\uDC4B"),
+                        React.createElement("p", null, "\u179F\u17BC\u1798\u179F\u17D2\u179C\u17B6\u1782\u1798\u1793\u17CD\u1798\u1780\u1780\u17B6\u1793\u17CB\u1795\u17D2\u1791\u17B6\u17C6\u1784\u1782\u17D2\u179A\u1794\u17CB\u1782\u17D2\u179A\u1784\u1780\u17B6\u179A\u1784\u17B6\u179A\u179A\u1794\u179F\u17CB\u17A2\u17D2\u1793\u1780")),
+                    data.canEdit && React.createElement("button", { className: "primary", onClick: () => setModal({ type: "edit", item: null }) }, "\uFF0B \u1780\u17B6\u179A\u1784\u17B6\u179A\u1790\u17D2\u1798\u17B8")),
+                !showPlan2026 && React.createElement(React.Fragment, null,
+                    React.createElement("div", { className: "stats" }, [["ការងារសរុប", stats.total, "▦", "All assigned tasks"], ["កំពុងធ្វើ", stats.doing, "◷", "In progress"], ["ការងារយឺត", stats.late, "⚑", "Past due date"], ["រួចរាល់", stats.done, "✓", "Completed tasks"]].map(([label, val, ico, sub], i) => React.createElement("div", { className: "glass stat", key: label },
+                        React.createElement("div", { className: "stat-top" },
+                            React.createElement("span", null, label),
+                            React.createElement("i", { className: "stat-icon" }, ico)),
+                        React.createElement("strong", null, val),
+                        React.createElement("div", { className: "stat-foot" }, sub)))),
+                    React.createElement("div", { className: "content-grid" },
+                        React.createElement("section", { className: "glass panel" },
+                            React.createElement("div", { className: "panel-head" },
+                                React.createElement("div", null,
+                                    React.createElement("h3", null, "Task Activity"),
+                                    React.createElement("p", null, "\u1780\u17B6\u179A\u179C\u17B7\u1797\u17B6\u1782\u1790\u17D2\u1784\u17C3\u1780\u17C6\u178E\u178F\u17CB\u1780\u17D2\u1793\u17BB\u1784\u179A\u1799\u17C8\u1796\u17C1\u179B \u17E7 \u1790\u17D2\u1784\u17C3")),
+                                React.createElement("span", { className: "badge" }, "LAST 7 DAYS")),
+                            React.createElement(LineChart, { items: all })),
+                        React.createElement("section", { className: "glass panel" },
+                            React.createElement("div", { className: "panel-head" },
+                                React.createElement("div", null,
+                                    React.createElement("h3", null, "Task Overview"),
+                                    React.createElement("p", null, "\u179F\u17D2\u1790\u17B6\u1793\u1797\u17B6\u1796\u1780\u17B6\u179A\u1784\u17B6\u179A\u179F\u179A\u17BB\u1794")),
+                                React.createElement("span", { className: "badge" }, "LIVE")),
+                            React.createElement(Donut, { items: all })))),
+                React.createElement("section", { id: "task-workspace", className: "glass tasks-panel" },
+                    React.createElement("div", { className: "panel-head" },
+                        React.createElement("div", null,
+                            React.createElement("h3", null, "\u1780\u17B6\u179A\u1782\u17D2\u179A\u1794\u17CB\u1782\u17D2\u179A\u1784\u1780\u17B6\u179A\u1784\u17B6\u179A"),
+                            React.createElement("p", null, "\u1798\u17BE\u179B \u179F\u17D2\u179C\u17C2\u1784\u179A\u1780 \u1793\u17B7\u1784\u1792\u17D2\u179C\u17BE\u1794\u1785\u17D2\u1785\u17BB\u1794\u17D2\u1794\u1793\u17D2\u1793\u1797\u17B6\u1796\u1780\u17B6\u179A\u1784\u17B6\u179A")),
+                        React.createElement("span", { className: "badge" },
+                            showPlan2026 ? plan2026.length : visible.length,
+                            " ",
+                            showPlan2026 ? "PLAN ITEMS" : "TASKS")),
+                    React.createElement("div", { className: "tabs" },
+                        data.kinds.map(k => React.createElement("button", { key: k, className: `tab ${!showPlan2026 && kind === k ? "active" : ""}`, onClick: () => { setShowPlan2026(false); setKind(k); setFilter("all"); } },
+                            KIND[k],
+                            " ",
+                            React.createElement("span", { style: { opacity: .75 } },
+                                "(",
+                                data.items.filter(i => i.k === k).length,
+                                ")"))),
+                        React.createElement("button", { className: `tab ${showPlan2026 ? "active" : ""}`, onClick: openPlan2026 },
+                            "\u1795\u17C2\u1793\u1780\u17B6\u179A \u17E2\u17E0\u17E2\u17E6 ",
+                            React.createElement("span", { style: { opacity: .75 } },
+                                "(",
+                                plan2026.length || "…",
+                                ")"))),
+                    showPlan2026 ? React.createElement(Plan2026View, { data: plan2026, loading: plan2026Loading, error: plan2026Error, onRetry: loadPlan2026 }) : React.createElement(React.Fragment, null,
+                        React.createElement("div", { className: "toolbar" },
+                            React.createElement("input", { className: "search", value: query, onChange: e => setQuery(e.target.value), placeholder: "\u2315  \u179F\u17D2\u179C\u17C2\u1784\u179A\u1780\u1780\u17B6\u179A\u1784\u17B6\u179A \u17AC\u1788\u17D2\u1798\u17C4\u17C7\u1794\u17BB\u1782\u17D2\u1782\u179B\u17B7\u1780..." }),
+                            React.createElement("div", { className: "filters" },
+                                [["all", "ទាំងអស់"], ["todo", "មិនទាន់ធ្វើ"], ["doing", "កំពុងធ្វើ"], ["late", "យឺត"], ["done", "រួចរាល់"]].map(([k, v]) => React.createElement("button", { key: k, className: `filter ${filter === k ? "active" : ""}`, onClick: () => setFilter(k) }, v)),
+                                React.createElement("button", { className: `filter ${mine ? "active" : ""}`, onClick: () => setMine(!mine) }, "\u2605 \u1780\u17B6\u179A\u1784\u17B6\u179A\u1781\u17D2\u1789\u17BB\u17C6"))),
+                        loading ? React.createElement("div", { className: "loading" }, "\u1780\u17C6\u1796\u17BB\u1784\u1791\u17B6\u1789\u1799\u1780\u1791\u17B7\u1793\u17D2\u1793\u1793\u17D0\u1799\u2026") : visible.length ? React.createElement("div", { className: "task-list" }, visible.map(i => React.createElement("div", { key: i.id, className: `task ${i.s === "done" ? "done" : ""}`, onClick: () => setModal({ type: "detail", item: i }) },
+                            React.createElement("div", null,
+                                React.createElement("p", { className: "task-title" }, i.t),
+                                React.createElement("div", { className: "task-meta" },
+                                    React.createElement("span", { className: `badge ${i.s}` }, ST[i.s] || i.s),
+                                    isLate(i, data.today) && React.createElement("span", { className: "badge late" }, "\u1799\u17BA\u178F"),
+                                    React.createElement("span", { className: `badge ${i.r}` },
+                                        "\u2691 ",
+                                        i.r),
+                                    React.createElement("span", null,
+                                        "\u25A3 ",
+                                        dateFmt(i.d)),
+                                    React.createElement("span", null,
+                                        "\u2659 ",
+                                        (i.asn || []).map(a => a.name).join(", ") || i.w || "មិនទាន់កំណត់")),
+                                React.createElement("div", { className: "progress" },
+                                    React.createElement("i", { style: { width: (i.p || 0) + "%", background: i.s === "done" ? "var(--green)" : undefined } }))),
+                            React.createElement("div", { className: "task-right" },
+                                React.createElement("b", null,
+                                    i.p || 0,
+                                    "%"),
+                                React.createElement("small", null, "Progress"),
+                                React.createElement("small", { style: { marginTop: 7, color: "var(--purple)" } }, "\u1798\u17BE\u179B\u179B\u1798\u17D2\u17A2\u17B7\u178F \u2192"))))) : React.createElement("div", { className: "empty" }, "\u1798\u17B7\u1793\u1798\u17B6\u1793\u1780\u17B6\u179A\u1784\u17B6\u179A\u178F\u17D2\u179A\u17BC\u179C\u1794\u1784\u17D2\u17A0\u17B6\u1789\u1791\u17C1"))),
+                React.createElement("div", { className: "footer-note" }, "PRD Task Tracker \u00B7 Secure workspace \u00B7 Data synchronized with Google Sheets"),
+                modal && React.createElement(Modal, { modal: modal, data: data, today: data.today, busy: busy, onClose: () => setModal(null), onSave: saveTask, onProgress: progress, onDelete: del, onEdit: item => setModal({ type: "edit", item }) }),
+                toast && React.createElement("div", { className: `toast ${toast.bad ? "bad" : ""}` }, toast.msg))));
+}
+function Modal({ modal, data, today, busy, onClose, onSave, onProgress, onDelete, onEdit }) {
+    var _a, _b, _c;
+    const i = modal.item || {};
+    const initId = i.mine ? data.me.id : (((_a = i.as) === null || _a === void 0 ? void 0 : _a[0]) || data.me.id), ib = (i.as || []).length ? ((i.by || {})[initId] || {}) : null;
+    const [status, setStatus] = useState(ib ? (ib.s || "todo") : (i.s || "todo")), [pct, setPct] = useState(ib ? (ib.p || 0) : (i.p || 0)), [note, setNote] = useState(ib ? (ib.n || "") : ""), [staffId, setStaffId] = useState(initId);
+    const [form, setForm] = useState({ k: i.k || data.kinds[0] || "dir", t: i.t || "", w: i.w || "", sr: i.sr || "", r: i.r || "Medium", st: i.st || "", d: i.d || "", n: i.n || "" });
+    const [selected, setSelected] = useState(new Set(i.as || []));
+    const [staffQuery, setStaffQuery] = useState("");
+    const canUpdate = data.canEdit || i.mine;
+    const canEdit = data.canEdit;
+    const updateField = (k, v) => setForm(s => ({ ...s, [k]: v }));
+    if (modal.type === "edit")
+        return React.createElement("div", { className: "modal-backdrop" },
+            React.createElement("div", { className: "modal" },
+                React.createElement("h2", null, i.id ? "កែប្រែការងារ" : "បង្កើតការងារថ្មី"),
+                React.createElement("p", { className: "modal-sub" }, "\u1794\u1789\u17D2\u1785\u17BC\u179B\u1796\u17D0\u178F\u17CC\u1798\u17B6\u1793\u1780\u17B6\u179A\u1784\u17B6\u179A \u1793\u17B7\u1784\u1785\u17B6\u178F\u17CB\u178F\u17B6\u17C6\u1784\u17A2\u17D2\u1793\u1780\u1791\u1791\u17BD\u179B\u1781\u17BB\u179F\u178F\u17D2\u179A\u17BC\u179C"),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "\u1794\u17D2\u179A\u1797\u17C1\u1791\u1780\u17B6\u179A\u1784\u17B6\u179A"),
+                    React.createElement("select", { value: form.k, onChange: e => updateField("k", e.target.value) }, data.kinds.map(k => React.createElement("option", { value: k, key: k }, KIND[k])))),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "\u1785\u17C6\u178E\u1784\u1787\u17BE\u1784\u1780\u17B6\u179A\u1784\u17B6\u179A *"),
+                    React.createElement("textarea", { value: form.t, onChange: e => updateField("t", e.target.value), maxLength: "500", placeholder: "\u1794\u1789\u17D2\u1785\u17BC\u179B\u1785\u17C6\u178E\u1784\u1787\u17BE\u1784\u1780\u17B6\u179A\u1784\u17B6\u179A..." })),
+                React.createElement("div", { className: "two" },
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u17A2\u17B6\u1791\u17B7\u1797\u17B6\u1796"),
+                        React.createElement("select", { value: form.r, onChange: e => updateField("r", e.target.value) }, ["High", "Medium", "Low"].map(x => React.createElement("option", { key: x }, x)))),
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u1794\u17D2\u179A\u1797\u1796"),
+                        React.createElement("input", { value: form.sr, onChange: e => updateField("sr", e.target.value), maxLength: "120" })),
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u1790\u17D2\u1784\u17C3\u1785\u17B6\u1794\u17CB\u1795\u17D2\u178F\u17BE\u1798"),
+                        React.createElement("input", { type: "date", value: form.st, onChange: e => updateField("st", e.target.value) })),
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u1790\u17D2\u1784\u17C3\u1780\u17C6\u178E\u178F\u17CB"),
+                        React.createElement("input", { type: "date", value: form.d, onChange: e => updateField("d", e.target.value) }))),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "\u17A2\u17D2\u1793\u1780\u1791\u1791\u17BD\u179B\u1781\u17BB\u179F\u178F\u17D2\u179A\u17BC\u179C (\u17A2\u178F\u17D2\u1790\u1794\u1791)"),
+                    React.createElement("input", { value: form.w, onChange: e => updateField("w", e.target.value), maxLength: "120" })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null,
+                        "\u1785\u17B6\u178F\u17CB\u178F\u17B6\u17C6\u1784\u1794\u17BB\u1782\u17D2\u1782\u179B\u17B7\u1780 (",
+                        selected.size,
+                        ")"),
+                    React.createElement("input", { style: { marginBottom: 7 }, placeholder: "\u179F\u17D2\u179C\u17C2\u1784\u179A\u1780\u1788\u17D2\u1798\u17C4\u17C7...", value: staffQuery, onChange: e => setStaffQuery(e.target.value) }),
+                    React.createElement("div", { className: "staff-pick" }, data.staff.filter(s => selected.has(s.id) || (s.name + " " + s.role + " " + s.pos).toLowerCase().includes(staffQuery.toLowerCase())).map(s => React.createElement("label", { key: s.id },
+                        React.createElement("input", { type: "checkbox", checked: selected.has(s.id), onChange: e => setSelected(old => { const n = new Set(old); e.target.checked ? n.add(s.id) : n.delete(s.id); return n; }) }),
+                        React.createElement("span", null,
+                            s.name,
+                            " ",
+                            React.createElement("small", { style: { color: "var(--muted)" } },
+                                "\u00B7 ",
+                                s.role || s.pos)))))),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "\u1780\u17C6\u178E\u178F\u17CB\u1785\u17C6\u178E\u17B6\u17C6"),
+                    React.createElement("textarea", { value: form.n, onChange: e => updateField("n", e.target.value), maxLength: "1000" })),
+                React.createElement("div", { className: "modal-actions" },
+                    React.createElement("button", { className: "secondary", onClick: onClose }, "\u1794\u17C4\u17C7\u1794\u1784\u17CB"),
+                    React.createElement("button", { className: "primary", disabled: busy || !form.t.trim(), onClick: () => onSave({ id: i.id, k: form.k, t: form.t, w: form.w, sr: form.sr, r: form.r, st: form.st, d: form.d, n: form.n, as: [...selected], s: i.s || "todo", p: i.p || 0, mo: i.mo || ((form.k === "mon" || form.k === "plan") && form.d ? form.d.slice(0, 7) : "") }) }, busy ? "កំពុងរក្សាទុក…" : "រក្សាទុក"))));
+    if (modal.type === "detail")
+        return React.createElement("div", { className: "modal-backdrop", onMouseDown: e => e.target === e.currentTarget && onClose() },
+            React.createElement("div", { className: "modal" },
+                React.createElement("h2", null, i.t),
+                React.createElement("p", { className: "modal-sub" },
+                    "\u1796\u17D0\u178F\u17CC\u1798\u17B6\u1793\u179B\u1798\u17D2\u17A2\u17B7\u178F\u1780\u17B6\u179A\u1784\u17B6\u179A \u00B7 ",
+                    KIND[i.k]),
+                React.createElement("div", { className: "detail-meta" },
+                    React.createElement("span", { className: `badge ${i.s}` }, ST[i.s]),
+                    React.createElement("span", { className: `badge ${i.r}` },
+                        "\u2691 ",
+                        i.r),
+                    React.createElement("span", { className: "badge" },
+                        "Due: ",
+                        dateFmt(i.d)),
+                    React.createElement("span", { className: "badge" },
+                        i.p || 0,
+                        "%")),
+                i.w && React.createElement("p", null,
+                    "\u17A2\u17D2\u1793\u1780\u1791\u1791\u17BD\u179B\u1781\u17BB\u179F\u178F\u17D2\u179A\u17BC\u179C\u17D6 ",
+                    i.w),
+                i.n && React.createElement("p", { style: { color: "var(--muted)" } }, i.n),
+                ((_b = i.asn) === null || _b === void 0 ? void 0 : _b.length) > 0 && React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "\u179F\u1798\u17B6\u1787\u17B7\u1780 \u1793\u17B7\u1784\u179C\u178C\u17D2\u178D\u1793\u1797\u17B6\u1796"),
+                    i.asn.map(a => { const b = (i.by || {})[a.id] || {}; return React.createElement("div", { key: a.id, style: { display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--line)", fontSize: 12 } },
+                        React.createElement("span", null, a.name),
+                        React.createElement("b", null,
+                            ST[b.s || "todo"],
+                            " \u00B7 ",
+                            b.p || 0,
+                            "%")); })),
+                canUpdate && React.createElement(React.Fragment, null,
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u1792\u17D2\u179C\u17BE\u1794\u1785\u17D2\u1785\u17BB\u1794\u17D2\u1794\u1793\u17D2\u1793\u1797\u17B6\u1796\u179F\u1798\u17D2\u179A\u17B6\u1794\u17CB\u1794\u17BB\u1782\u17D2\u1782\u179B\u17B7\u1780"),
+                        canEdit && ((_c = i.as) === null || _c === void 0 ? void 0 : _c.length) > 0 ? React.createElement("select", { value: staffId, onChange: e => { setStaffId(e.target.value); const b = (i.by || {})[e.target.value] || {}; setStatus(b.s || "todo"); setPct(b.p || 0); setNote(b.n || ""); } }, i.asn.map(a => React.createElement("option", { key: a.id, value: a.id }, a.name))) : React.createElement("div", { style: { color: "var(--muted)" } }, data.me.name)),
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u179F\u17D2\u1790\u17B6\u1793\u1797\u17B6\u1796"),
+                        React.createElement("div", { className: "segmented" }, Object.entries(ST).map(([k, v]) => React.createElement("button", { key: k, className: status === k ? "active" : "", onClick: () => { setStatus(k); if (k === "done")
+                                setPct(100); if (k === "todo")
+                                setPct(0); } }, v)))),
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null,
+                            "\u179C\u178C\u17D2\u178D\u1793\u1797\u17B6\u1796: ",
+                            React.createElement("b", null,
+                                pct,
+                                "%")),
+                        React.createElement("input", { className: "progress-input", type: "range", min: "0", max: "100", step: "5", value: pct, onChange: e => { setPct(+e.target.value); if (+e.target.value > 0 && status === "todo")
+                                setStatus("doing"); } })),
+                    React.createElement("div", { className: "field" },
+                        React.createElement("label", null, "\u1780\u17C6\u178E\u178F\u17CB\u1785\u17C6\u178E\u17B6\u17C6"),
+                        React.createElement("textarea", { value: note, onChange: e => setNote(e.target.value), maxLength: "300" }))),
+                React.createElement("div", { className: "modal-actions", style: { justifyContent: "space-between" } },
+                    canEdit ? React.createElement("button", { className: "secondary danger", onClick: () => onDelete(i.id) }, "\u179B\u17BB\u1794\u1780\u17B6\u179A\u1784\u17B6\u179A") : React.createElement("span", null),
+                    React.createElement("div", { style: { display: "flex", gap: 8 } },
+                        React.createElement("button", { className: "secondary", onClick: () => onClose() }, "\u1794\u17B7\u1791"),
+                        canEdit && React.createElement("button", { className: "secondary", onClick: () => onEdit(i) }, "\u1780\u17C2\u1794\u17D2\u179A\u17C2"),
+                        canUpdate && React.createElement("button", { className: "primary", disabled: busy, onClick: () => { var _a; return onProgress({ id: i.id, s: status, p: pct, n: note, ...(canEdit && ((_a = i.as) === null || _a === void 0 ? void 0 : _a.length) ? { staffId } : {}) }); } }, "\u179A\u1780\u17D2\u179F\u17B6\u1791\u17BB\u1780\u179C\u178C\u17D2\u178D\u1793\u1797\u17B6\u1796")))));
+    return null;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
+
 </script></body></html>
